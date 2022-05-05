@@ -6,10 +6,8 @@ from .utils.field_forms import get_form_for_field
 
 
 class Schema(models.Model):
-   
-    
     name = models.CharField(max_length=255)
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='schemas')
     fields = models.JSONField()
 
     def __str__(self):
@@ -24,8 +22,7 @@ class Schema(models.Model):
     def get_field_forms(self):
         return [get_form_for_field(field) 
                 for field in self.gen_schema_instance.fields]
-        
-        
+              
         
 class GeneratedData(models.Model):
     schema = models.ForeignKey(Schema, on_delete=models.RESTRICT)
