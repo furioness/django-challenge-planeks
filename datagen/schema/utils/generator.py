@@ -12,6 +12,9 @@ class Field:
         self.f_params = f_params
         self.order = order
         
+    def __str__(self) -> str:
+        return f'Field(name={self.name}, f_type={self.f_type}, f_params={self.f_params}, order={self.order})'
+        
     def to_dict(self):
         return {
             'name': self.name,
@@ -26,9 +29,9 @@ class Field:
 
 
 class Schema:
-    def __init__(self, fields: List) -> None:
+    def __init__(self, fields: List[Field]) -> None:
         self._validate_fields(fields)
-        self.fields: List[Field] = sorted(fields, key=lambda x: x.order)
+        self.fields = sorted(fields, key=lambda x: x.order)
         self.header = [field.name for field in self.fields]
     
     @staticmethod
@@ -45,7 +48,7 @@ class Schema:
         (f'f_{idx}', Faker(field.f_type, **field.f_params)) 
                for idx, field in enumerate(self.fields)
         ]
-        return type('Schema', 
+        return type('_Factory', 
                     (ListFactory, ), 
                     OrderedDict(key_values)
                 )  # type: ignore
@@ -56,7 +59,7 @@ class Schema:
             yield generator()  # type: ignore
             
     def to_JSON(self) -> str:
-        return json.dumps(field.to_dict() for field in self.fields)
+        return json.dumps([field.to_dict() for field in self.fields])
     
     @staticmethod    
     def from_JSON(fields_json: str):
