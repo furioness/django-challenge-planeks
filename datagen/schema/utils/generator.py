@@ -25,7 +25,12 @@ class Field:
         
     @staticmethod
     def from_dict(field_dict: dict) -> 'Field':
-        return Field(**field_dict)        
+        args = {'name': field_dict.pop('name', ''),
+                'f_type': field_dict.pop('f_type', ''),
+                'order': field_dict.pop('order', 0),
+                'f_params': field_dict
+                }
+        return Field(**args)        
 
 
 class Schema:
@@ -65,3 +70,7 @@ class Schema:
     def from_JSON(fields_json: str):
         fields = json.loads(fields_json)
         return Schema([Field.from_dict(field) for field in fields])
+
+    @staticmethod
+    def from_dict_list(fields_dict: List[dict]) -> 'Schema':
+        return Schema([Field.from_dict(field) for field in fields_dict])

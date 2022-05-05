@@ -10,7 +10,7 @@ class Schema(models.Model):
     column_separator = models.CharField(max_length=1, default=',')
     quotechar = models.CharField(max_length=1, default='"')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='schemas')
-    fields = models.JSONField()
+    fields_json = models.JSONField()
 
     def __str__(self):
         return self.name
@@ -18,7 +18,7 @@ class Schema(models.Model):
     @property
     def gen_schema_instance(self) -> GenSchema:
         if not hasattr(self, '_gen_schema_instance'):
-            self._gen_schema_instance = GenSchema.from_JSON(self.fields)
+            self._gen_schema_instance = GenSchema.from_dict_list(self.fields_json)
         return self._gen_schema_instance
     
     def get_field_forms(self):

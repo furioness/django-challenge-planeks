@@ -9,12 +9,13 @@
         <div class="schema">
             <h2>{{ schema.name }}</h2>
             <p>
-                <a href="{% url 'schema:showdata' id=schema.id %}">Show</a>
-                <a href="{% url 'schema:edit' id=schema.id %}">Edit</a>
-                <a href="{% url 'schema:delete' id=schema.id %}">Delete</a>
+                <a href="{% url 'schema:showdata' schema.id %}">Show</a>
+                <a href="{% url 'schema:edit' schema.id %}">Edit</a>
+                <a href="{% url 'schema:delete' schema.id %}">Delete</a>
             </p>
         </div>
     {% endfor %}
     </div>
+    <a href="{% url 'schema:create' %}"><button class="addSchema">Add Schema</button></a>
 
 {% endblock %}

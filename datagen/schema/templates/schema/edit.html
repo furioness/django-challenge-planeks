@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="POST" id="schemaForm">
+    {{ schemaForm.as_p}}
+    {% csrf_token %}
+    <div id="schemaFields">
+        {% for fieldForm in fieldForms %} 
+            {{ fieldForm.as_p }}
+        {% endfor %}
+    </div>
+    <button type="submit" id="schemaSubmitBtn">Submit</button>
+</form>
+
+<form id="fieldSelectorForm"> 
+    {{ fieldSelectForm.as_p }}
+    <button id='addFieldBtn'>Add Field</button>
+</form>
+
+{% for fieldName, fieldForm in fieldFormsTemplates.items %}
+    <div id="{{ fieldName }}_fieldType" style="display: none;">
+        {{ fieldForm.as_p }}
+    </div>
+{% endfor %}
+
+
+<script>
+    'use strict';
+
+    let schemaFieldsDiv = document.getElementById('schemaFields')
+
+    document.getElementById('addFieldBtn').addEventListener('click', function(target) {
+        target.preventDefault()
+
+        // get new field config
+        let fieldSelectorData = new FormData(document.getElementById('fieldSelectorForm'))
+        let selectedType = fieldSelectorData.get('f_type');
+        let fieldName = fieldSelectorData.get('name');
+        let fieldOrder = fieldSelectorData.get('order');
+
+        // get new field form elements
+        let fieldForm = document.getElementById(selectedType + '_fieldType').cloneNode(true)
+        fieldForm.style.display = "";
+
+        // set the new field's name and order
+        fieldForm.querySelector('input[name="name"]').value = fieldName
+        fieldForm.querySelector('input[name="order"]').value = fieldOrder
+        console.log(fieldForm.querySelector('input[name="name"]'), fieldName)
+        
+        // add the new field to the form
+        //schemaFieldsDiv.insertAdjacentHTML('beforeend', fieldForm.innerHTML)
+        schemaFieldsDiv.appendChild(fieldForm)
+    })
+
+    let schemaForm = document.getElementById('schemaForm')
+    schemaForm.addEventListener('submit', function(target) {
+        // target.preventDefault()
+        let fieldsData = new Array()
+        for (let field of schemaFieldsDiv.children) {
+            let fieldData = Object.create(null)
+
+            let inputs = field.querySelectorAll('input')
+            for (let input of inputs) {
+                fieldData[input.name] =  input.value
+            }
+
+            let selects = field.querySelectorAll('select')
+            for (let select of selects) {
+                fieldData[select.name] =  select.value
+            }
+
+            fieldsData.push(fieldData)
+        }
+        console.log(fieldsData)
+        schemaForm.querySelector('#id_fields_json').value = JSON.stringify(fieldsData)
+    })
+</script>
+
+{% endblock %}
