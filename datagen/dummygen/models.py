@@ -1,10 +1,13 @@
-import imp
 from django.db import models
 from django.contrib.auth import get_user_model
-from utils.generator import Schema as GenSchema
+
+from .utils.generator import Schema as GenSchema
+from .utils.field_forms import get_form_for_field
 
 
 class Schema(models.Model):
+   
+    
     name = models.CharField(max_length=255)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     fields = models.JSONField()
@@ -19,7 +22,10 @@ class Schema(models.Model):
         return self._gen_schema_instance
     
     def get_field_forms(self):
-        self.gen_schema_instance.to_forms()
+        return [get_form_for_field(field) 
+                for field in self.gen_schema_instance.fields]
+        
+        
         
 class GeneratedData(models.Model):
     schema = models.ForeignKey(Schema, on_delete=models.RESTRICT)

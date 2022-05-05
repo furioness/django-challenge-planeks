@@ -1,10 +1,9 @@
-from abc import ABC
 from django import forms
 
 from .generator import Field
 
 
-class BaseFieldForm(ABC, forms.Form):
+class BaseFieldForm(forms.Form):
     name = forms.CharField(label='Column name', max_length=100)
     order = forms.IntegerField(label='Order', min_value=0)
     
@@ -47,4 +46,14 @@ class RandomIntegerFieldForm(BaseFieldForm):
                          }, 
                      order=self.cleaned_data['order'])
     
-    
+FIELD_FORMS = {
+        'name': NameFieldForm,
+        'random_integer': RandomIntegerFieldForm
+    }
+ 
+def get_form_for_field(field: Field):
+    return FIELD_FORMS[field.f_type](data={
+            'name': field.name, 
+            'order': field.order,
+            **field.f_params
+            })

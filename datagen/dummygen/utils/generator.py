@@ -1,34 +1,16 @@
-from os import stat
-from pkgutil import ImpImporter
 from typing import OrderedDict, List, Generator
-from dataclasses import dataclass
 import json
 
 from factory import Faker, ListFactory
 
-from .field_forms import NameFieldForm, RandomIntegerFieldForm
 
 
-
-
-class Field:
-    FIELD_FORMS = {
-        'name': NameFieldForm,
-        'random_integer': RandomIntegerFieldForm
-    }
-    
+class Field:   
     def __init__(self, name, f_type, f_params, order) -> None:
         self.name = name
         self.f_type = f_type
         self.f_params = f_params
         self.order = order
-        
-    def to_form(self):
-        return self.FIELD_FORMS[self.f_type]({
-            'name': self.name, 
-            'order': self.order,
-            **self.f_params
-            })
         
     def to_dict(self):
         return {
@@ -80,6 +62,3 @@ class Schema:
     def from_JSON(fields_json: str):
         fields = json.loads(fields_json)
         return Schema([Field.from_dict(field) for field in fields])
-
-    def to_forms(self):
-        return [field.to_form() for field in self.fields]
