@@ -1,0 +1,13 @@
+# Basics
+*.py[cod]
+__pycache__
+
+# User-uploaded media
+media/
+
+# Collected staticfiles
+*/staticfiles/
+
+# VS code
+.vscode
+.pythonconfig
