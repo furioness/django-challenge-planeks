@@ -80,3 +80,6 @@ class Schema:
     def from_JSON(fields_json: str):
         fields = json.loads(fields_json)
         return Schema([Field.from_dict(field) for field in fields])
+
+    def to_forms(self):
+        return [field.to_form() for field in self.fields]
