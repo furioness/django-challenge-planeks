@@ -20,3 +20,9 @@ class Schema(models.Model):
     
     def get_field_forms(self):
         self.gen_schema_instance.to_forms()
+        
+class GeneratedData(models.Model):
+    schema = models.ForeignKey(Schema, on_delete=models.RESTRICT)
+    num_records = models.IntegerField()
+    slug = models.URLField()
+    
