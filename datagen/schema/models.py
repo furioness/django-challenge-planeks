@@ -7,6 +7,8 @@ from .utils.field_forms import get_form_for_field
 
 class Schema(models.Model):
     name = models.CharField(max_length=255)
+    column_separator = models.CharField(max_length=1, default=',')
+    quotechar = models.CharField(max_length=1, default='"')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='schemas')
     fields = models.JSONField()
 
