@@ -1,3 +1,4 @@
+from abc import abstractmethod, abstractproperty
 from distutils.command.clean import clean
 from django import forms
 
@@ -5,34 +6,49 @@ from .generator import Field
 
 
 class BaseFieldForm(forms.Form):
+    type = ''
+    f_params = ()
+    
+    f_type = forms.CharField(initial='', disabled=False, widget=forms.HiddenInput())
     name = forms.CharField(label='Column name', max_length=100, required=True)
     order = forms.IntegerField(label='Order', min_value=0, required=True)
-    f_type = None
     
-    def to_schema_field(self):
-        raise NotImplementedError()
+    # def __new__(cls, *args, **kwargs):
+    #     res = object.__new__(cls)
+    #     if not res.f_type:
+    #         raise NotImplementedError('f_type is not set')
+    #     res.base_fields['type'].initial = cls.f_type
+    #     return res
     
-    
-class NameFieldForm(BaseFieldForm):
-    f_type = forms.ChoiceField(label='Type', 
-        choices=[
-            ('name', 'Name'), 
-            ('first_name', 'First name'),
-            ('last_name', 'Last name'),
-        ], 
-        initial='name',
-        required=True
-    )
+    def __init__(self, data=None, *args, **kwargs):
+        if not self.type:
+            raise NotImplementedError('type is not set')
+        self.base_fields['f_type'].initial = self.type
+        if data:
+            params = data.pop('f_params', {})
+            data.update(params)
+        super().__init__(data, *args, **kwargs)
+        
+        
     def to_schema_field(self):
         return Field(name=self.cleaned_data['name'], 
-                     f_type=self.cleaned_data['f_type'], 
-                     f_params={}, 
+                     f_type=self.type, 
+                     f_params=self.get_params(), 
                      order=self.cleaned_data['order'])
+        
+    def get_params(self) -> dict:
+        return {param: self.cleaned_data[param] for param in self.f_params}
     
-class RandomIntegerFieldForm(BaseFieldForm):
+class FullNameFieldForm(BaseFieldForm):
+    type = 'full_name'
+    
+class RandomIntFieldForm(BaseFieldForm):
+    type = 'random_int'
+    f_params = ('min', 'max')
+    
     min = forms.IntegerField(label='Min', min_value=-9999999, max_value=9999999, required=True)
     max = forms.IntegerField(label='Max', min_value=-9999999, max_value=9999999, required=True)
-    f_type = forms.CharField(initial='random_integer', widget=forms.HiddenInput(), required=True)
+    
     
     def clean(self):
         cleaned_data = super().clean()
@@ -42,19 +58,11 @@ class RandomIntegerFieldForm(BaseFieldForm):
             raise forms.ValidationError('Min must be less than max')
         
         return cleaned_data
-    
-    def to_schema_field(self):
-        return Field(name=self.cleaned_data['name'], 
-                     f_type='random_integer', 
-                     f_params={
-                         'min': self.cleaned_data['min'], 
-                         'max': self.cleaned_data['max']
-                         }, 
-                     order=self.cleaned_data['order'])
+
     
 FIELD_FORMS = {
-        'name': NameFieldForm,
-        'random_integer': RandomIntegerFieldForm
+        'full_name': FullNameFieldForm,
+        'random_int': RandomIntFieldForm
     }
  
 def get_form_for_field(field: Field):
@@ -62,4 +70,11 @@ def get_form_for_field(field: Field):
             'name': field.name, 
             'order': field.order,
             **field.f_params
+            })
+    
+def get_form_for_dict_field(field: dict):
+    return FIELD_FORMS[field['f_type']](data={
+            'name': field['name'], 
+            'order': field['order'],
+            **field['f_params']
             })

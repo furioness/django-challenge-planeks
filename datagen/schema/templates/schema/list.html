@@ -9,8 +9,8 @@
         <div class="schema">
             <h2>{{ schema.name }}</h2>
             <p>
-                <a href="{% url 'schema:showdata' schema.id %}">Show</a>
-                <a href="{% url 'schema:edit' schema.id %}">Edit</a>
+                {#<a href="{% url 'schema:showdata' schema.id %}">Show</a>#}
+                <a href="{% url 'schema:update' schema.id %}">Edit</a>
                 <a href="{% url 'schema:delete' schema.id %}">Delete</a>
             </p>
         </div>

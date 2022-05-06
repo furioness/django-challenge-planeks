@@ -2,11 +2,11 @@
 
 {% block content %}
 <form action="" method="POST" id="schemaForm">
-    {{ schemaForm.as_p}}
+    {{ form.as_p}}
     {% csrf_token %}
     <div id="schemaFields">
-        {% for fieldForm in fieldForms %} 
-            {{ fieldForm.as_p }}
+        {% for fieldForm in form.field_forms %}
+        <div>{{ fieldForm.as_p }}</div>
         {% endfor %}
     </div>
     <button type="submit" id="schemaSubmitBtn">Submit</button>
@@ -17,7 +17,7 @@
     <button id='addFieldBtn'>Add Field</button>
 </form>
 
-{% for fieldName, fieldForm in fieldFormsTemplates.items %}
+{% for fieldName, fieldForm in form.fieldFormsTemplates.items %}
     <div id="{{ fieldName }}_fieldType" style="display: none;">
         {{ fieldForm.as_p }}
     </div>
@@ -34,21 +34,20 @@
 
         // get new field config
         let fieldSelectorData = new FormData(document.getElementById('fieldSelectorForm'))
-        let selectedType = fieldSelectorData.get('f_type');
+        let selectedType = fieldSelectorData.get('type');
         let fieldName = fieldSelectorData.get('name');
         let fieldOrder = fieldSelectorData.get('order');
 
-        // get new field form elements
+        // get new field
         let fieldForm = document.getElementById(selectedType + '_fieldType').cloneNode(true)
-        fieldForm.style.display = "";
+        fieldForm.removeAttribute('id')
+        fieldForm.style.display = ""
 
-        // set the new field's name and order
+        // set field's name and order
         fieldForm.querySelector('input[name="name"]').value = fieldName
         fieldForm.querySelector('input[name="order"]').value = fieldOrder
-        console.log(fieldForm.querySelector('input[name="name"]'), fieldName)
         
-        // add the new field to the form
-        //schemaFieldsDiv.insertAdjacentHTML('beforeend', fieldForm.innerHTML)
+        // add field to the form
         schemaFieldsDiv.appendChild(fieldForm)
     })
 
@@ -72,7 +71,8 @@
             fieldsData.push(fieldData)
         }
         console.log(fieldsData)
-        schemaForm.querySelector('#id_fields_json').value = JSON.stringify(fieldsData)
+        schemaForm.querySelector('#id_fields').value = JSON.stringify(fieldsData)
+        schemaFieldsDiv.remove()
     })
 </script>
 
