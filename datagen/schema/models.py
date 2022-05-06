@@ -1,3 +1,4 @@
+from distutils.ccompiler import gen_lib_options
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -24,10 +25,15 @@ class Schema(models.Model):
     def get_field_forms(self):
         return [get_form_for_field(field) 
                 for field in self.gen_schema_instance.fields]
+        
+    def run_generate_task(self, num_rows: int):
+        from .tasks import generate_data
+        generate_data.delay(self, num_rows)
               
         
 class GeneratedData(models.Model):
-    schema = models.ForeignKey(Schema, on_delete=models.RESTRICT)
+    schema = models.ForeignKey(Schema, on_delete=models.RESTRICT, related_name='generated_data')
     num_records = models.IntegerField()
     slug = models.URLField()
+    generation_complete = models.BooleanField(default=False)
     

@@ -58,7 +58,7 @@ class Schema:
                     OrderedDict(key_values)
                 )  # type: ignore
 
-    def generate_data(self, num_records: int) -> Generator[List, None, None]:
+    def get_data_generator(self, num_records: int) -> Generator[List, None, None]:
         generator = self._get_generator()
         for _ in range(num_records):
             yield generator()  # type: ignore

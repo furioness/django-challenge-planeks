@@ -3,7 +3,7 @@ from django.http import HttpRequest
 
 from django.contrib.auth.decorators import login_required
 
-from .forms import SchemaForm, FieldSelectForm
+from .forms import GenerateForm, SchemaForm, FieldSelectForm
 from .utils.field_forms import FIELD_FORMS
 from .models import Schema
 
@@ -20,15 +20,9 @@ def create_schema(request: HttpRequest):
     field_forms = []
     if request.method == 'POST':
         schema_form = SchemaForm(request.POST)
-        is_schema_form_valid = schema_form.is_valid()
-
-        schema = Schema(**schema_form.cleaned_data, user=request.user)
-        field_forms = schema.get_field_forms()
-        are_fields_valid = all(form.is_valid() for form in field_forms)
-        if is_schema_form_valid and are_fields_valid:
+        if schema_form.is_valid():
             Schema.objects.create(**schema_form.cleaned_data, user=request.user)
             return redirect('schema:list')
-        schema = Schema(**schema_form.cleaned_data, user=request.user)
         
     return render(request, 'schema/edit.html', {
         'schemaForm': schema_form,
@@ -51,8 +45,22 @@ def edit_schema(request, schema_id):
         'fieldSelectForm': FieldSelectForm(),
         })
 
-def show_data(request, schema_id):
-    pass
+def list_data(request, schema_id):
+    schema = get_object_or_404(Schema, id=schema_id)
+    gen_form = GenerateForm()
+    return render(request, 'schema/list_generated.html',
+            {
+                'schema_name': schema.name,
+                'generated_data': schema.generated_data.all(),
+                'gen_form': gen_form
+            })
 
 def delete_schema(request, schema_id):
     pass
+
+
+def generate(request, schema_id):
+
+    schema = get_object_or_404(Schema, id=schema_id)
+    
+    schema.generate()
