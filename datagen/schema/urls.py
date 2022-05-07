@@ -11,4 +11,7 @@ urlpatterns = [
     path('edit/<int:pk>/', views.UpdateSchemaView.as_view(), name='update'),
     # path('<int:pk>/', views.show_data, name='showdata'),
     path('delete/<int:pk>/', views.DeleteSchemaView.as_view(), name='delete'),
+    path('data/<int:schema_id>/', views.list_data, name='list-data'),
+    path('data/<int:schema_id>/generate/', views.generate, name='generate'),
+    
 ]
