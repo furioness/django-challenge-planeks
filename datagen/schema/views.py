@@ -1,18 +1,24 @@
 from typing import Any, Dict
+
 from django.views.generic import (
     CreateView, UpdateView, DeleteView, ListView, FormView
 )
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404
+from django.http import FileResponse
+from django.conf import settings
 
 from .forms import GenerateForm, SchemaForm, FieldSelectForm
+from .models import GeneratedData
+
 
 
 
 class BaseSchemaView(LoginRequiredMixin):
     def get_queryset(self):
-        return self.request.user.schemas.all()
+        return self.request.user.schemas.all()  # type: ignore
     
     
 class CreateSchemaView(BaseSchemaView, CreateView):
@@ -62,3 +68,13 @@ class SchemaDataSetsView(BaseSchemaView, FormView):
     def get_success_url(self):
         return reverse('schema:datasets', args=(self.get_object().pk, ))  # type: ignore
         
+
+@login_required      
+def dataset_load_view(request, schema_pk, dataset_pk):
+    dataset = get_object_or_404(GeneratedData,
+                                pk=dataset_pk, 
+                                schema__pk=schema_pk,
+                                schema__user=request.user)
+    file_path = settings.MEDIA_ROOT / dataset.slug
+    response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+    return response

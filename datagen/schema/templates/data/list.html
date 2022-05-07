@@ -8,7 +8,7 @@
         <div>
             <p>Number records: {{ dataset.num_records }}</p>
             <p>Status: {{ dataset.generation_complete }} </p> 
-            <p><a href="{{ dataset.slug }}">Load file</a></p> 
+            <p><a href="{% url 'schema:dataset-load' schema.pk dataset.pk %}">Load file</a></p> 
         </div>
     {% endfor %}
 </div>
