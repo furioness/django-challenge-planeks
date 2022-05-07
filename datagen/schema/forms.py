@@ -51,4 +51,4 @@ class FieldSelectForm(forms.Form):
     order = forms.IntegerField(min_value=0)
     
 class GenerateForm(forms.Form):
-    num_rows = forms.IntegerField(min_value=1, initial=500)
+    num_rows = forms.IntegerField(label='Number of rows', min_value=1, initial=500000)

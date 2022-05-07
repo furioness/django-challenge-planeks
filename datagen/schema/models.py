@@ -31,7 +31,7 @@ class Schema(models.Model):
               
         
 class GeneratedData(models.Model):
-    schema = models.ForeignKey(Schema, on_delete=models.RESTRICT, related_name='generated_data')
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name='generated_data')
     num_records = models.IntegerField()
     slug = models.URLField()
     generation_complete = models.BooleanField(default=False)

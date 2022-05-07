@@ -1,10 +1,12 @@
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from typing import Any, Dict
+from django.views.generic import (
+    CreateView, UpdateView, DeleteView, ListView, FormView
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
 
 from .forms import GenerateForm, SchemaForm, FieldSelectForm
-from .models import Schema
 
 
 
@@ -39,21 +41,24 @@ class DeleteSchemaView(BaseSchemaView, DeleteView):
 class ListSchemasView(BaseSchemaView, ListView):
     template_name = 'schema/list.html'
     context_object_name = 'schemas'
-
-
-def list_data(request, schema_id):
-    schema = get_object_or_404(Schema, id=schema_id)
-    gen_form = GenerateForm()
-    return render(request, 'schema/list_generated.html',
-            {
-                'schema_name': schema.name,
-                'generated_data': schema.generated_data.all(),
-                'gen_form': gen_form
-            })
-
-
-def generate(request, schema_id):
-
-    schema = get_object_or_404(Schema, id=schema_id)
     
-    schema.generate()
+
+class SchemaDataSetsView(BaseSchemaView, FormView):
+    template_name = 'data/list.html'
+    form_class = GenerateForm
+    
+    def get_object(self):
+        return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['schema'] = self.get_object()
+        return context
+    
+    def form_valid(self, form):
+        self.get_object().run_generate_task(form.cleaned_data['num_rows'])  # type: ignore
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse('schema:datasets', args=(self.get_object().pk, ))  # type: ignore
+        

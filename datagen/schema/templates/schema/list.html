@@ -8,7 +8,7 @@
     {% for schema in schemas %}
         <div class="schema">
             <h2>
-                <a href="{% url 'schema:list-data' schema.id %}">{{ schema.name }}</a>
+                <a href="{% url 'schema:datasets' schema.id %}">{{ schema.name }}</a>
             </h2>
             <p>
                 {#<a href="{% url 'schema:showdata' schema.id %}">Show</a>#}

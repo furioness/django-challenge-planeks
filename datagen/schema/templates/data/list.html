@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Generate for {{ schema.name }}{% endblock %}
+
+{% block content %}
+<div class="list-generated">
+    {% for dataset in schema.generated_data.all %}
+        <div>
+            <p>Number records: {{ dataset.num_records }}</p>
+            <p>Status: {{ dataset.generation_complete }} </p> 
+            <p><a href="{{ dataset.slug }}">Load file</a></p> 
+        </div>
+    {% endfor %}
+</div>
+
+<div>
+    <form action="{% url 'schema:datasets' schema.pk %}" method="POST">
+        {{ form.as_p }}
+        {% csrf_token %}
+        <button type="submit" id="schemaSubmitBtn">Submit</button>
+    </form>
+    
+</div>   
+
+{% endblock %}
