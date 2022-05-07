@@ -1,0 +1,1 @@
+web: gunicorn --pythonpath datagen datagen.wsgi
