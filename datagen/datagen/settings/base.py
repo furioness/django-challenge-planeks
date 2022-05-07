@@ -127,5 +127,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # CELERY
+CELERY_BROKER = 'amqp://'
 CELERY_TASK_SERIALIZER = "pickle"
 CELERY_ACCEPT_CONTENT = ['pickle']
