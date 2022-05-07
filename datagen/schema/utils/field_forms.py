@@ -40,7 +40,7 @@ class BaseFieldForm(forms.Form):
         return {param: self.cleaned_data[param] for param in self.f_params}
     
 class FullNameFieldForm(BaseFieldForm):
-    type = 'full_name'
+    type = 'name'
     
 class RandomIntFieldForm(BaseFieldForm):
     type = 'random_int'
@@ -61,7 +61,7 @@ class RandomIntFieldForm(BaseFieldForm):
 
     
 FIELD_FORMS = {
-        'full_name': FullNameFieldForm,
+        'name': FullNameFieldForm,
         'random_int': RandomIntFieldForm
     }
  

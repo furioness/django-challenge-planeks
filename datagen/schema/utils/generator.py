@@ -4,7 +4,6 @@ import json
 from factory import Faker, ListFactory
 
 
-
 class Field:   
     def __init__(self, name, f_type, f_params, order) -> None:
         self.name = name
@@ -25,12 +24,7 @@ class Field:
         
     @staticmethod
     def from_dict(field_dict: dict) -> 'Field':
-        args = {'name': field_dict.pop('name', ''),
-                'f_type': field_dict.pop('f_type', ''),
-                'order': field_dict.pop('order', 0),
-                'f_params': field_dict
-                }
-        return Field(**args)        
+        return Field(**field_dict)        
 
 
 class Schema:
