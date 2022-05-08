@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "datagen"
-version = "0.1.0"
+version = "0.2.0"
 description = "An online service for generating CSV files with fake(dummy) data"
 authors = ["data"]
 
