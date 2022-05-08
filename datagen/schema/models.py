@@ -27,7 +27,7 @@ class Schema(models.Model):
         
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data
-        generate_data.delay(self, num_rows)
+        generate_data.delay(self.pk, num_rows)
               
         
 class GeneratedData(models.Model):

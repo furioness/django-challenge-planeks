@@ -3,12 +3,12 @@ from datetime import datetime
 from celery import shared_task
 from django.conf import settings
 
-from .utils.generator import Schema as GenSchema
 from .utils.data_saving import generate_to_csv
 from .models import Schema
 
 @shared_task
-def generate_data(schema: Schema, num_rows: int):
+def generate_data(schema_pk: int, num_rows: int):
+    schema = Schema.objects.get(pk=schema_pk)
     schema_gen = schema.gen_schema_instance
 
     filename = f'{schema.name}_{num_rows}_{datetime.isoformat(datetime.now())}.csv'
