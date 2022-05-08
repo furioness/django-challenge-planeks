@@ -7,8 +7,13 @@
     {% for dataset in schema.generated_data.all %}
         <div>
             <p>Number records: {{ dataset.num_records }}</p>
-            <p>Status: {{ dataset.generation_complete }} </p> 
-            <p><a href="{% url 'schema:dataset-load' schema.pk dataset.pk %}">Load file</a></p> 
+            {% if dataset.file %}
+            <p>Status: completed </p> 
+            <p><a href="{{ dataset.file.url }}">Load file</a></p>
+            {% else %}
+            <p>Status: not completed </p> 
+            {% endif %}
+             
         </div>
     {% endfor %}
 </div>

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from datagen.storage_backends import PrivateMediaStorage
+
 from .utils.generator import Schema as GenSchema
 from .utils.field_forms import get_form_for_field
 
@@ -33,6 +35,5 @@ class Schema(models.Model):
 class GeneratedData(models.Model):
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name='generated_data')
     num_records = models.IntegerField()
-    slug = models.URLField()
-    generation_complete = models.BooleanField(default=False)
+    file = models.FileField(storage=PrivateMediaStorage(), null=True)
     
