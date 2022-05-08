@@ -1,10 +1,9 @@
-from django.db import models
-from django.contrib.auth import get_user_model
-
 from datagen.storage_backends import PrivateMediaStorage
+from django.contrib.auth import get_user_model
+from django.db import models
 
-from .utils.generator import Schema as GenSchema
 from .utils.field_forms import get_form_for_field
+from .utils.generator import Schema as GenSchema
 
 
 class Schema(models.Model):
@@ -28,8 +27,9 @@ class Schema(models.Model):
                 for field in self.gen_schema_instance.fields]
         
     def run_generate_task(self, num_rows: int):
-        from .tasks import generate_data
-        generate_data.delay(self.pk, num_rows)
+        from .tasks import generate_data  # prevent circular import
+        dataset = self.generated_data.create(num_records=num_rows)
+        generate_data.delay(dataset.pk)
               
         
 class GeneratedData(models.Model):
