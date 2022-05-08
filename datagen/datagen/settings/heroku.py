@@ -25,9 +25,10 @@ AWS_DEFAULT_ACL = 'public-read'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 # s3 static settings
-AWS_LOCATION = 'static'
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STATIC_LOCATION = 'static'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
+STATICFILES_STORAGE = 'datagen.storage_backends.StaticStorage'
+# why MEDIA_URL works for custom storage?
 
 # https://www.cloudamqp.com/docs/celery.html
 CELERY_BROKER = environ['CLOUDAMQP_URL']
@@ -37,4 +38,4 @@ CELERY_BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux 
 CELERY_RESULT_BACKEND = None # AMQP is not recommended as result backend as it creates thousands of queues
 CELERY_EVENT_QUEUE_EXPIRES = 300 # Will delete all celeryev. queues without consumers after x seconds.
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1 # Disable prefetching, it's causes problems and doesn't help performance
-CELERY_WORKER_CONCURRENCY = 2 # If you tasks are CPU bound, then limit to the number of cores, otherwise increase substainally
+CELERY_WORKER_CONCURRENCY = 1 # If you tasks are CPU bound, then limit to the number of cores, otherwise increase substainally
