@@ -1,15 +1,14 @@
-from abc import abstractmethod, abstractproperty
-from distutils.command.clean import clean
 from django import forms
 
 from .generator import Field
 
 
 class BaseFieldForm(forms.Form):
+    label = ''
     type = ''
     f_params = ()
     
-    f_type = forms.CharField(initial='', disabled=False, widget=forms.HiddenInput())
+    f_type = forms.CharField(initial='',  widget=forms.HiddenInput())
     name = forms.CharField(label='Column name', max_length=100, required=True)
     order = forms.IntegerField(label='Order', min_value=0, required=True)
     
@@ -23,6 +22,9 @@ class BaseFieldForm(forms.Form):
     def __init__(self, data=None, *args, **kwargs):
         if not self.type:
             raise NotImplementedError('type is not set')
+        if not self.label:
+            raise NotImplementedError('label is not set')
+        
         self.base_fields['f_type'].initial = self.type
         if data:
             params = data.pop('f_params', {})
@@ -41,9 +43,11 @@ class BaseFieldForm(forms.Form):
     
 class FullNameFieldForm(BaseFieldForm):
     type = 'name'
+    label = 'Name'
     
 class RandomIntFieldForm(BaseFieldForm):
     type = 'random_int'
+    label = 'Random integer'
     f_params = ('min', 'max')
     
     min = forms.IntegerField(label='Min', min_value=-9999999, max_value=9999999, required=True)

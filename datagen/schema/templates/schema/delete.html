@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
+{% load django_bootstrap5 %}
+
 
 {% block title %}Delete "{{ object.name }}"?{% endblock title %}
 
 {% block content %}
-    <form method="post">{% csrf_token %}
+    <form method="post" class="container">{% csrf_token %}
         <p>Are you sure you want to delete "{{ object.name }}"?</p>
         {{ form }}
-        <input type="submit" value="Confirm">
+        {% bootstrap_button button_type="submit" content="Confirm" extra_classes="btn-danger"%}
     </form>
 {% endblock content %}

@@ -1,30 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Generate for {{ schema.name }}{% endblock %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block title %}Datasets for {{ schema.name }}{% endblock %}
 
 {% block content %}
-<div class="list-generated">
-    {% for dataset in schema.generated_data.all %}
-        <div>
-            <p>Number records: {{ dataset.num_records }}</p>
-            {% if dataset.file %}
-            <p>Status: completed </p> 
-            <p><a href="{{ dataset.file.url }}">Load file</a></p>
-            {% else %}
-            <p>Status: not completed </p> 
-            {% endif %}
-             
+<div class="container">
+    <h2 class="col">{{ schema.name }}</h2>
+
+    <form action="{% url 'schema:datasets' schema.pk %}" method="POST" class="row">
+        <div class="col">
+            {% bootstrap_form form %}
+            {% csrf_token %}
         </div>
+        
+        <div class="col">{% bootstrap_button  button_type="submit" content="Generate data" %}</div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Created</th>
+                <th>Number of records</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        {% for dataset in schema.generated_data.all %}
+            <tr>
+                <td>{{ forloop.counter }} </td> 
+                <td> {{ dataset.created }}</td>
+                <td>{{ dataset.num_records }}</td>
+                {% if dataset.file %}
+                    <td><span class="badge bg-success">Completed</span></td>
+                    <td><a href="{{ dataset.file.url }}">Load file</a></td>
+                {% else %}
+                    <td><span class="badge bg-secondary">Processing</span></td>
+                    <td></td>
+                {% endif %}
+                
+            </tr>
     {% endfor %}
+    </table>
 </div>
 
-<div>
-    <form action="{% url 'schema:datasets' schema.pk %}" method="POST">
-        {{ form.as_p }}
-        {% csrf_token %}
-        <button type="submit" id="schemaSubmitBtn">Submit</button>
-    </form>
-    
-</div>   
 
 {% endblock %}

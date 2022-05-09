@@ -1,19 +1,38 @@
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
 </head>
+
 <body>
-    <header><h1>FakeCSV</h1><div><a href="{% url 'users:logout' %}">Logout</a></div></header>
-    <content>
+    <header class="py-2 bg-light border-bottom row px-5">
+        <div class="col-9">
+            <h1 class="fs-1 d-inline-block">FakeCSV</h1>
+            <a href="{% url 'schema:list' %}" class="text-decoration-none  text-reset fs-3 ms-5">Schemas</a>
+        </div>
+        
+        <div class="col text-muted fs-4">
+            Hello, <span class="fw-bolder">{{request.user}}</span>
+            <a href="{% url 'users:logout' %}" class="ms-4 text-decoration-none text-muted">Logout</a>
+        </div>
+    </header>
+
+    <content class="pt-15 container">
         {% block content %}
         {% endblock %}
     </content>
-    
-    
+
+
 
 </body>
+
 </html>

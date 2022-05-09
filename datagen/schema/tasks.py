@@ -12,9 +12,9 @@ def generate_data(dataset_pk: int):
     schema = dataset.schema  # prefetch or already?
     schema_gen = schema.gen_schema_instance
 
-    file_slug = f'{schema.user.id}/{schema.name.replace(" ", "-")}_{schema.num_rows}_{datetime.isoformat(datetime.now())}.csv'
+    file_slug = f'{schema.user.id}/{schema.name.replace(" ", "-")}_{dataset.num_records}_{datetime.isoformat(dataset.created)}.csv'
     
-    generate_to_csv(schema_gen, dataset.num_rows, schema.column_separator, schema.quotechar, file_slug, dataset)
+    generate_to_csv(schema_gen, dataset.num_records, schema.column_separator, schema.quotechar, file_slug, dataset)
     
     dataset.generation_complete=True
     dataset.save()

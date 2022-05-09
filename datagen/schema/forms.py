@@ -2,8 +2,7 @@ from django import forms
 
 from .utils.field_forms import FIELD_FORMS
 from .models import Schema as SchemaModel
-
-
+    
 class SchemaForm(forms.ModelForm):
     class Meta:
         model = SchemaModel
@@ -50,4 +49,4 @@ class FieldSelectForm(forms.Form):
 
     
 class GenerateForm(forms.Form):
-    num_rows = forms.IntegerField(label='Number of rows', min_value=1, initial=500000)
+    num_rows = forms.IntegerField(label='Rows', min_value=1, initial=12345)

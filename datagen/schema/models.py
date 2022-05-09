@@ -28,7 +28,7 @@ class Schema(models.Model):
         
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
-        dataset = self.generated_data.create(num_records=num_rows)
+        dataset = self.generated_data.create(num_records=num_rows)  # type: ignore
         generate_data.delay(dataset.pk)
               
         
@@ -36,4 +36,5 @@ class GeneratedData(models.Model):
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name='generated_data')
     num_records = models.IntegerField()
     file = models.FileField(storage=PrivateMediaStorage(), null=True)
+    created = models.DateTimeField(auto_now_add=True)
     

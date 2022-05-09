@@ -1,25 +1,41 @@
 {% extends "base.html" %}
 
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
 {% block content %}
+<div class="container">
 <form action="" method="POST" id="schemaForm">
-    {{ form.as_p}}
+    <h2>New schema</h2>
+    {% bootstrap_button id="schemaSubmitBtn" button_type="submit" content="Submit" extra_classes="float-end" %}
+    {% bootstrap_form form %}
     {% csrf_token %}
     <div id="schemaFields">
+        <h2>Schema columns</h2> 
         {% for fieldForm in form.field_forms %}
-        <div>{{ fieldForm.as_p }}</div>
+            <div class="border rounded p-2 my-1">
+                <h5 class="d-inline-block">{{ fieldForm.label }} field</h3>
+                <a href="#" class="text-decoration-none text-reset fs-5 d-inline-block float-end" onClick="this.parentElement.remove();">Delete</a>
+                {% bootstrap_form fieldForm %}
+            </div>
         {% endfor %}
     </div>
-    <button type="submit" id="schemaSubmitBtn">Submit</button>
+    
 </form>
 
-<form id="fieldSelectorForm"> 
-    {{ fieldSelectForm.as_p }}
-    <button id='addFieldBtn'>Add Field</button>
+
+<form id="fieldSelectorForm" class="border rounded p-2"> 
+    {% bootstrap_form fieldSelectForm layout="horizontal" %}
+    {% bootstrap_button id='addFieldBtn' button_type="submit" content="Add Field" %}
 </form>
+</div>
 
 {% for fieldName, fieldForm in form.fieldFormsTemplates.items %}
-    <div id="{{ fieldName }}_fieldType" style="display: none;">
-        {{ fieldForm.as_p }}
+    <div class="border rounded p-2 my-1" id="{{ fieldName }}_fieldType" style="display: none;">
+        <h5 class="d-inline-block">{{ fieldForm.label }} field</h3>
+        <a href="#" class="text-decoration-none text-reset fs-5 d-inline-block float-end" onClick="this.parentElement.remove();">Delete</a>
+        {% bootstrap_form fieldForm %}
     </div>
 {% endfor %}
 
@@ -68,7 +84,9 @@
                 fieldData[select.name] =  select.value
             }
 
-            fieldsData.push(fieldData)
+            if (Object.keys(fieldData).length) {
+                fieldsData.push(fieldData)
+            }
         }
         console.log(fieldsData)
         schemaForm.querySelector('#id_fields').value = JSON.stringify(fieldsData)
