@@ -2,7 +2,7 @@
 name = "datagen"
 version = "0.3.0"
 description = "An online service for generating CSV files with fake(dummy) data"
-authors = ["data"]
+authors = ["Ivan Omelchenko"]
 
 [tool.poetry.dependencies]
 python = "3.10.4"
