@@ -9,11 +9,12 @@ def main():
     try:
         # take environment variables from .env.
         from dotenv import load_dotenv
+
         load_dotenv()
     except ModuleNotFoundError:
         pass
-    
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datagen.settings.base')
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datagen.settings.base")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -25,5 +26,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

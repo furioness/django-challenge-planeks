@@ -13,8 +13,15 @@ def generate_data(dataset_pk: int):
     schema_gen = schema.gen_schema_instance
 
     file_slug = f'{schema.user.id}/{schema.name.replace(" ", "-")}_{dataset.num_records}_{datetime.isoformat(dataset.created)}.csv'
-    
-    generate_to_csv(schema_gen, dataset.num_records, schema.column_separator, schema.quotechar, file_slug, dataset)
-    
-    dataset.generation_complete=True
+
+    generate_to_csv(
+        schema_gen,
+        dataset.num_records,
+        schema.column_separator,
+        schema.quotechar,
+        file_slug,
+        dataset,
+    )
+
+    dataset.generation_complete = True
     dataset.save()

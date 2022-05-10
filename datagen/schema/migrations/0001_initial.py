@@ -15,21 +15,49 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Schema',
+            name="Schema",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('fields', models.JSONField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='schemas', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("fields", models.JSONField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="schemas",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='GeneratedData',
+            name="GeneratedData",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('num_records', models.IntegerField()),
-                ('slug', models.URLField()),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("num_records", models.IntegerField()),
+                ("slug", models.URLField()),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="schema.schema"
+                    ),
+                ),
             ],
         ),
     ]

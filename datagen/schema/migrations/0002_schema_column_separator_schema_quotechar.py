@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schema', '0001_initial'),
+        ("schema", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='schema',
-            name='column_separator',
-            field=models.CharField(default=',', max_length=1),
+            model_name="schema",
+            name="column_separator",
+            field=models.CharField(default=",", max_length=1),
         ),
         migrations.AddField(
-            model_name='schema',
-            name='quotechar',
+            model_name="schema",
+            name="quotechar",
             field=models.CharField(default='"', max_length=1),
         ),
     ]
