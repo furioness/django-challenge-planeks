@@ -16,7 +16,8 @@ class BaseFieldForm(forms.Form):
         if not hasattr(cls, 'type'):
             raise NotImplementedError('type is not set')
         if not hasattr(cls, 'label'):
-            cls.label = cls.type.title()
+            label = cls.type.replace('_', ' ')
+            cls.label = label[0].title() + label[1:]
         if not hasattr(cls, 'f_params'):
             #  look for base fields as Field metaclass moves from class own
             cls.f_params = tuple(field for field in cls.base_fields 
@@ -60,9 +61,62 @@ class RandomIntFieldForm(BaseFieldForm):
         
         return cleaned_data
 
+class JobFieldForm(BaseFieldForm):
+    type = 'job'
+    
+    
+class EmailFieldForm(BaseFieldForm):
+    type = 'safe_email'
+    
+
+class PhoneNumberFieldForm(BaseFieldForm):
+    type = 'phone_number'
+    
+    
+class DomainFieldForm(BaseFieldForm):
+    type = 'safe_domain_name'
+    
+
+class CompanyFieldForm(BaseFieldForm):
+    type = 'company'    
+    
+    
+class AddressFieldForm(BaseFieldForm):
+    type = 'address'
+    
+    
+class DateFieldForm(BaseFieldForm):
+    type = 'date'
+    
+
+class SentencesFieldForm(BaseFieldForm):
+    type = 'sentences_variable_str'
+    label = 'Sentences'
+    
+    nb_min = forms.IntegerField(min_value=1, label='Min sentences')
+    nb_max = forms.IntegerField(min_value=1, label='Min sentences')
+    
+    # ext_word_list = forms.CharField(
+    #     label='Custom words (comma separated)',
+    #     required=False, 
+    #     validators=[lambda str: [word.strip() for word in str.split(',')]]
+    # )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        min_ = cleaned_data.get('nb_min')  # type: ignore
+        max_ = cleaned_data.get('nb_max')  # type: ignore
+        if min_ > max_:  # type: ignore
+            raise forms.ValidationError('Min must be less than max')
+        
+        return cleaned_data
     
 FIELD_FORMS = {field_form.type:field_form 
                for field_form in BaseFieldForm.__subclasses__()}
+
+# a temporal hack to init (call __new__) labels and stuff. Probably fixable by metaclasses.
+[form() for form in FIELD_FORMS.values()]  
+
  
 def get_form_for_field(field: Field):
     return FIELD_FORMS[field.f_type](data={

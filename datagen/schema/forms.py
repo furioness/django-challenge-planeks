@@ -45,7 +45,7 @@ class SchemaForm(forms.ModelForm):
     
 class FieldSelectForm(forms.Form):
     name = forms.CharField(max_length=255)
-    type = forms.ChoiceField(choices=((key, key.title()) for key in FIELD_FORMS.keys()), label='Type')
+    type = forms.ChoiceField(choices=((type, form.label) for type, form in FIELD_FORMS.items()), label='Type')
     order = forms.IntegerField(min_value=0)
 
     
