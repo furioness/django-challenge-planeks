@@ -34,7 +34,8 @@ class SchemaForm(forms.ModelForm):
         
         if not all(form.is_valid() for form in self.field_forms):
              self.add_error(None, 'Invalid fields')
-             
+             return 
+         
         return [form.to_schema_field().to_dict() for form in self.field_forms]
     
     def _init_field_forms(self, fields):
