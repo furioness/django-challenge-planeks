@@ -3,6 +3,7 @@ from os import environ
 import dj_database_url
 
 from .base import *
+from ..storage_backends import PrivateMediaStorage
 
 
 DEBUG = False
@@ -15,6 +16,7 @@ ALLOWED_HOSTS = ["datagen-challenge.herokuapp.com"]
 
 DATABASES["default"] = dj_database_url.config(default=environ["DATABASE_URL"])
 
+# https://testdriven.io/blog/storing-django-static-and-media-files-on-amazon-s3/
 INSTALLED_APPS += ["storages"]
 
 AWS_ACCESS_KEY_ID = environ["AWS_ACCESS_KEY_ID"]
@@ -29,6 +31,7 @@ AWS_STATIC_LOCATION = "static"
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/"
 STATICFILES_STORAGE = "datagen.storage_backends.StaticStorage"
 # why MEDIA_URL works for custom storage?
+PRIVATE_MEDIA_STORAGE = PrivateMediaStorage
 
 # https://www.cloudamqp.com/docs/celery.html
 CELERY_BROKER = environ["CLOUDAMQP_URL"]

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 
 from django.urls import reverse_lazy
+from django.core.files.storage import DefaultStorage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -127,6 +128,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles/"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media/"
 
+PRIVATE_MEDIA_STORAGE = DefaultStorage
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -142,3 +144,8 @@ CELERY_ACCEPT_CONTENT = ["json"]
 LOGIN_URL = reverse_lazy("users:login")
 LOGIN_REDIRECT_URL = reverse_lazy("schema:list")
 LOGOUT_REDIRECT_URL = LOGIN_URL
+
+
+del Path
+del reverse_lazy
+del DefaultStorage

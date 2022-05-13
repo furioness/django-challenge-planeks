@@ -6,15 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    try:
-        # take environment variables from .env.
-        from dotenv import load_dotenv
 
-        load_dotenv()
-    except ModuleNotFoundError:
-        pass
-
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datagen.settings.base")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datagen.settings.local_docker")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

@@ -1,37 +1,14 @@
 version: "3"
 services:
-#   postgres:
-#     image: "postgres"
-#     container_name: "postgres_ch10_educa"
-#     environment:
-#       - POSTGRES_USER=django
-#       - POSTGRES_PASSWORD=whoCouldGue33
-#       - POSTGRES_DB=educa
-#     ports:
-#       - 127.0.0.1:54321:5432
-#     volumes:
-#       - ./pg-data:/var/lib/postgresql/data
-# 
-#   redis:
-#     image: "redis"
-#     container_name: "redis_ch10_educa_chat"
-#     cap_add:
-#       - SYS_RESOURCE
-#     command:
-#       - "--appendonly yes"
-#     mem_limit: "500M"
-#     ports:
-#       - 127.0.0.1:6379:6379
-#     volumes:
-#       - ./redis-data:/data
-# 
-#   memcached:
-#     image: memcached:alpine
-#     container_name: memcached_ch10_educa
-#     command:
-#       - "-m 128"
-#     ports:
-#       - 127.0.0.1:11211:11211
+  postgres:
+    image: "postgres"
+    container_name: "postgres_datagen"
+    environment:
+      - POSTGRES_USER=datagen
+      - POSTGRES_PASSWORD=datagen
+      - POSTGRES_DB=datagen
+    ports:
+      - "127.0.0.1:54321:5432"
 
   rabbit:
     image: rabbitmq:management
