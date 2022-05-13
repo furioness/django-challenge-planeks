@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+
+# run these two commands to apply this hook:
+cp pre-commit ./.git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# https://semakin.dev/2020/05/pre-commit/
+
+
+# gather only changed python files
+# https://stackoverflow.com/a/3068990/10650942
+CHANGED_PYTHON_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep ".py\$")
+
+if [ -z "$CHANGED_PYTHON_FILES" ]
+then
+   echo "No Python files found. No reason to run checks."
+   exit 0
+fi
+
+# fail whole script on any error
+set -e
+
+# format with black
+poetry run black --check $CHANGED_PYTHON_FILES
+
+echo "All checks successfully passed."
