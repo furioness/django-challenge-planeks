@@ -29,7 +29,10 @@ class Schema(models.Model):
         from .tasks import generate_data  # prevent circular import
 
         dataset = self.generated_data.create(num_records=num_rows)  # type: ignore
-        generate_data.delay(dataset.pk)
+        if settings.INPROCESS_CELERY_WORKER:
+            generate_data.run(dataset.id)
+        else:
+            generate_data.delay(dataset.pk)
 
 
 class GeneratedData(models.Model):

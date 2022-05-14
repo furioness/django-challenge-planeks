@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from os import environ
 
 from django.urls import reverse_lazy
 from django.core.files.storage import DefaultStorage
@@ -27,6 +28,7 @@ SECRET_KEY = "django-insecure-*uai@*zrp=zf3=)1um#x)y*%gw_9pi(@z%@4*+!o)^j$x)gtu5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+INPROCESS_CELERY_WORKER = bool(environ.get("LOCAL_WORKER", False))
 
 ALLOWED_HOSTS = ["*"]
 
