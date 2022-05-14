@@ -14,9 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="generateddata",
             name="created",
-            field=models.DateTimeField(
-                auto_created=True, default=django.utils.timezone.now
-            ),
+            field=models.DateTimeField(auto_created=True, default=django.utils.timezone.now),
             preserve_default=False,
         ),
     ]

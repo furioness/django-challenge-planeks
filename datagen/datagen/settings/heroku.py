@@ -37,9 +37,7 @@ PRIVATE_MEDIA_STORAGE = PrivateMediaStorage
 CELERY_BROKER = environ["CLOUDAMQP_URL"]
 CELERY_BROKER_POOL_LIMIT = 1  # Will decrease connection usage
 CELERY_BROKER_HEARTBEAT = None  # We're using TCP keep-alive instead
-CELERY_BROKER_CONNECTION_TIMEOUT = (
-    30  # May require a long timeout due to Linux DNS timeouts etc
-)
+CELERY_BROKER_CONNECTION_TIMEOUT = 30  # May require a long timeout due to Linux DNS timeouts etc
 CELERY_RESULT_BACKEND = (
     None  # AMQP is not recommended as result backend as it creates thousands of queues
 )

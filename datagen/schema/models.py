@@ -10,9 +10,7 @@ class Schema(models.Model):
     name = models.CharField(max_length=255)
     column_separator = models.CharField(max_length=1, default=",")
     quotechar = models.CharField(max_length=1, default='"')
-    user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name="schemas"
-    )
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="schemas")
     fields = models.JSONField()
 
     def __str__(self):
@@ -35,9 +33,7 @@ class Schema(models.Model):
 
 
 class GeneratedData(models.Model):
-    schema = models.ForeignKey(
-        Schema, on_delete=models.CASCADE, related_name="generated_data"
-    )
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name="generated_data")
     num_records = models.IntegerField()
     file = models.FileField(storage=settings.PRIVATE_MEDIA_STORAGE(), null=True)
     created = models.DateTimeField(auto_now_add=True)
