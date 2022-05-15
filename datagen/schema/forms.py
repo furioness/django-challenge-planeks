@@ -1,7 +1,7 @@
 from django import forms
 
-from .utils.field_forms import FIELD_FORMS
 from .models import Schema as SchemaModel
+from .utils.field_forms import FIELD_FORMS
 
 
 class SchemaForm(forms.ModelForm):
@@ -40,8 +40,14 @@ class SchemaForm(forms.ModelForm):
         return [form.to_schema_field().to_dict() for form in self.field_forms]
 
     def _init_field_forms(self, fields):
-        if fields:
-            self.field_forms = [FIELD_FORMS[field["f_type"]](field) for field in fields]
+        self.field_forms = []
+
+        if not fields:
+            return
+
+        for field in fields:
+            form = FIELD_FORMS[field["f_type"]](field)
+            self.field_forms.append(form)
 
 
 class FieldSelectForm(forms.Form):

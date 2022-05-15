@@ -1,25 +1,13 @@
 import csv
-from pathlib import Path
-
-from .generator import Schema
-from ..models import GeneratedData
+import uuid
 
 
-def generate_to_csv(
-    schema: Schema,
-    num_rows: int,
-    delimiter,
-    quotechar,
-    file_slug,
-    dataset: GeneratedData,
-):
-    tmp_path = f"/tmp/{file_slug}"
-    Path(tmp_path).parent.mkdir(exist_ok=True)  # in case worker will get non-singlethreaded
+def generate_to_csv(generator, header: list[str], delimiter: str, quotechar: str):
+    tmp_path = f"/tmp/{uuid.uuid4()}"
 
     with open(tmp_path, "w") as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=delimiter, quotechar=quotechar)
-        csv_writer.writerow(schema.header)
-        csv_writer.writerows(schema.get_data_generator(num_rows))
+        csv_writer.writerow(header)
+        csv_writer.writerows(generator)
 
-    with open(tmp_path, "rb") as csv_file:
-        dataset.file.save(file_slug, csv_file, save=False)
+    return tmp_path
