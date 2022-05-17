@@ -21,7 +21,7 @@ class BaseFieldForm(forms.Form):
         if not hasattr(cls, "f_params"):
             #  look for base fields as Field metaclass moves from class own
             cls.f_params = tuple(
-                field for field in cls.base_fields if field not in ("f_type", "name", "order")
+                field for field in cls.base_fields if field not in BaseFieldForm.base_fields
             )
         cls.base_fields["f_type"].initial = cls.type
         return object.__new__(cls)
