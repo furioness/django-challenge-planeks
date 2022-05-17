@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0010_generateddata_created"),
-    ]
+    dependencies = [("schema", "0010_generateddata_created")]
 
     operations = [
         migrations.AlterField(
             model_name="generateddata",
             name="created",
             field=models.DateTimeField(auto_now_add=True),
-        ),
+        )
     ]

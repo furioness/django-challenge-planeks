@@ -6,9 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0004_rename_fields_json_schema_fields"),
-    ]
+    dependencies = [("schema", "0004_rename_fields_json_schema_fields")]
 
     operations = [
         migrations.AlterField(
@@ -19,5 +17,5 @@ class Migration(migrations.Migration):
                 related_name="generated_data",
                 to="schema.schema",
             ),
-        ),
+        )
     ]

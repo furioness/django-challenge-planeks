@@ -6,22 +6,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0007_alter_generateddata_schema"),
-    ]
+    dependencies = [("schema", "0007_alter_generateddata_schema")]
 
     operations = [
-        migrations.RemoveField(
-            model_name="generateddata",
-            name="slug",
-        ),
+        migrations.RemoveField(model_name="generateddata", name="slug"),
         migrations.AddField(
             model_name="generateddata",
             name="file",
             field=models.FileField(
-                null=True,
-                storage=datagen.storage_backends.PrivateMediaStorage(),
-                upload_to="",
+                null=True, storage=datagen.storage_backends.PrivateMediaStorage(), upload_to=""
             ),
         ),
     ]

@@ -6,9 +6,7 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0009_remove_generateddata_generation_complete"),
-    ]
+    dependencies = [("schema", "0009_remove_generateddata_generation_complete")]
 
     operations = [
         migrations.AddField(
@@ -16,5 +14,5 @@ class Migration(migrations.Migration):
             name="created",
             field=models.DateTimeField(auto_created=True, default=django.utils.timezone.now),
             preserve_default=False,
-        ),
+        )
     ]

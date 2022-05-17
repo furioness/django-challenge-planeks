@@ -5,13 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0008_remove_generateddata_slug_generateddata_file"),
-    ]
+    dependencies = [("schema", "0008_remove_generateddata_slug_generateddata_file")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name="generateddata",
-            name="generation_complete",
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="generateddata", name="generation_complete")]

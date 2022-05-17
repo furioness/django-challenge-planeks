@@ -5,14 +5,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0002_schema_column_separator_schema_quotechar"),
-    ]
+    dependencies = [("schema", "0002_schema_column_separator_schema_quotechar")]
 
     operations = [
-        migrations.RenameField(
-            model_name="schema",
-            old_name="fields",
-            new_name="fields_json",
-        ),
+        migrations.RenameField(model_name="schema", old_name="fields", new_name="fields_json")
     ]

@@ -6,9 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0006_generateddata_generation_complete"),
-    ]
+    dependencies = [("schema", "0006_generateddata_generation_complete")]
 
     operations = [
         migrations.AlterField(
@@ -19,5 +17,5 @@ class Migration(migrations.Migration):
                 related_name="generated_data",
                 to="schema.schema",
             ),
-        ),
+        )
     ]

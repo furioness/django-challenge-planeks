@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("schema", "0005_alter_generateddata_schema"),
-    ]
+    dependencies = [("schema", "0005_alter_generateddata_schema")]
 
     operations = [
         migrations.AddField(
             model_name="generateddata",
             name="generation_complete",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]
