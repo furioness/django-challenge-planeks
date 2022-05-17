@@ -22,25 +22,11 @@ class Field:
             "order": self.order,
         }
 
-    @staticmethod
-    def from_dict(field_dict: dict) -> "Field":
-        return Field(**field_dict)
-
 
 class Schema:
     def __init__(self, fields: List[Field]) -> None:
-        self._validate_fields(fields)
         self.fields = sorted(fields, key=lambda x: x.order)
-        self.header = [field.name for field in self.fields]
-
-    @staticmethod
-    def _validate_fields(fields: List) -> None:
-        unique_names = set()
-        for field in fields:
-            if field.name in unique_names:
-                raise ValueError(f"Duplicate field name: {field.name}")
-            unique_names.add(field.name)
-            #  validate allowed types and type-params
+        self.header: list[str] = [field.name for field in self.fields]
 
     def _get_generator(self) -> ListFactory:
         key_values = [
@@ -49,7 +35,7 @@ class Schema:
         ]
         return type("_Factory", (ListFactory,), OrderedDict(key_values))  # type: ignore
 
-    def get_data_generator(self, num_records: int) -> Generator[List, None, None]:
+    def data_generator(self, num_records: int) -> Generator[List, None, None]:
         generator = self._get_generator()
         for _ in range(num_records):
             yield generator()  # type: ignore
@@ -58,10 +44,5 @@ class Schema:
         return json.dumps([field.to_dict() for field in self.fields])
 
     @staticmethod
-    def from_JSON(fields_json: str):
-        fields = json.loads(fields_json)
-        return Schema([Field.from_dict(field) for field in fields])
-
-    @staticmethod
     def from_dict_list(fields_dict: List[dict]) -> "Schema":
-        return Schema([Field.from_dict(field) for field in fields_dict])
+        return Schema([Field(**field) for field in fields_dict])

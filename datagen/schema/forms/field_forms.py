@@ -1,6 +1,6 @@
 from django import forms
 
-from .generator import Field
+from ..utils.generator import Field
 
 
 class BaseFieldForm(forms.Form):
@@ -125,10 +125,4 @@ FIELD_FORMS = {field_form.type: field_form for field_form in BaseFieldForm.__sub
 def get_form_for_field(field: Field):
     return FIELD_FORMS[field.f_type](
         data={"name": field.name, "order": field.order, **field.f_params}
-    )
-
-
-def get_form_for_dict_field(field: dict):
-    return FIELD_FORMS[field["f_type"]](
-        data={"name": field["name"], "order": field["order"], **field["f_params"]}
     )

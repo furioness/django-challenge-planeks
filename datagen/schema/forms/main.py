@@ -1,7 +1,7 @@
 from django import forms
 
-from .models import Schema as SchemaModel
-from .utils.field_forms import FIELD_FORMS
+from ..models import Schema as SchemaModel
+from .field_forms import FIELD_FORMS
 
 
 class SchemaForm(forms.ModelForm):
@@ -37,7 +37,22 @@ class SchemaForm(forms.ModelForm):
             self.add_error(None, "Invalid fields")
             return
 
+        duplicates = self._get_duplicate_names()
+        if duplicates:
+            self.add_error(None, f"Duplicate field names: {', '.join(duplicates)}")
+            return
+
         return [form.to_schema_field().to_dict() for form in self.field_forms]
+
+    def _get_duplicate_names(self):
+        unique_names = set()
+        duplicates = []
+        for field_name in [field.cleaned_data["name"] for field in self.field_forms]:
+            if field_name in unique_names:
+                duplicates.append(field_name)
+                continue
+            unique_names.add(field_name)
+        return duplicates
 
     def _init_field_forms(self, fields):
         self.field_forms = []

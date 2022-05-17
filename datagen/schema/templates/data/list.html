@@ -33,7 +33,7 @@
             <tr>
                 <td>{{ forloop.counter }} </td> 
                 <td> {{ dataset.created }}</td>
-                <td>{{ dataset.num_records }}</td>
+                <td>{{ dataset.num_rows }}</td>
                 {% if dataset.file %}
                     <td><span class="badge bg-success">Completed</span></td>
                     <td><a href="{{ dataset.file.url }}">Load file</a></td>

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
 
-from .utils.field_forms import get_form_for_field
+from .forms.field_forms import get_form_for_field
 from .utils.generator import Schema as GenSchema
 
 
@@ -28,7 +28,7 @@ class Schema(models.Model):
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
 
-        dataset = self.generated_data.create(num_records=num_rows)  # type: ignore
+        dataset = self.generated_data.create(num_rows=num_rows)  # type: ignore
         if settings.INPROCESS_CELERY_WORKER:
             generate_data.run(dataset.id)
         else:
@@ -37,6 +37,6 @@ class Schema(models.Model):
 
 class GeneratedData(models.Model):
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name="generated_data")
-    num_records = models.IntegerField()
+    num_rows = models.IntegerField()
     file = models.FileField(storage=settings.PRIVATE_MEDIA_STORAGE(), null=True)
     created = models.DateTimeField(auto_now_add=True)

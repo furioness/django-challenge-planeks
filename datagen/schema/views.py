@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, FormView, ListView, UpdateView
 
-from .forms import FieldSelectForm, GenerateForm, SchemaForm
+from .forms.main import FieldSelectForm, GenerateForm, SchemaForm
 
 
 class BaseSchemaView(LoginRequiredMixin):
