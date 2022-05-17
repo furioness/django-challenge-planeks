@@ -39,7 +39,9 @@ class SchemaForm(forms.ModelForm):
 
         duplicates = self._get_duplicate_names()
         if duplicates:
-            self.add_error(None, f"Duplicate field names: {', '.join(duplicates)}")
+            self.add_error(
+                None, f"Duplicate field names: {', '.join(duplicates)}"
+            )
             return
 
         return [form.to_schema_field().to_dict() for form in self.field_forms]
@@ -47,7 +49,9 @@ class SchemaForm(forms.ModelForm):
     def _get_duplicate_names(self):
         unique_names = set()
         duplicates = []
-        for field_name in [field.cleaned_data["name"] for field in self.field_forms]:
+        for field_name in [
+            field.cleaned_data["name"] for field in self.field_forms
+        ]:
             if field_name in unique_names:
                 duplicates.append(field_name)
                 continue
@@ -68,7 +72,8 @@ class SchemaForm(forms.ModelForm):
 class FieldSelectForm(forms.Form):
     name = forms.CharField(max_length=255)
     type = forms.ChoiceField(
-        choices=((type, form.label) for type, form in FIELD_FORMS.items()), label="Type"
+        choices=((type, form.label) for type, form in FIELD_FORMS.items()),
+        label="Type",
     )
     order = forms.IntegerField(min_value=0)
 

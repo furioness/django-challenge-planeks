@@ -10,7 +10,9 @@ class Schema(models.Model):
     name = models.CharField(max_length=255)
     column_separator = models.CharField(max_length=1, default=",")
     quotechar = models.CharField(max_length=1, default='"')
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="schemas")
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name="schemas"
+    )
     fields = models.JSONField()
 
     def __str__(self):
@@ -23,7 +25,10 @@ class Schema(models.Model):
         return self._gen_schema_instance
 
     def get_field_forms(self):
-        return [get_form_for_field(field) for field in self.gen_schema_instance.fields]
+        return [
+            get_form_for_field(field)
+            for field in self.gen_schema_instance.fields
+        ]
 
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
@@ -36,7 +41,11 @@ class Schema(models.Model):
 
 
 class GeneratedData(models.Model):
-    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name="generated_data")
+    schema = models.ForeignKey(
+        Schema, on_delete=models.CASCADE, related_name="generated_data"
+    )
     num_rows = models.IntegerField()
-    file = models.FileField(storage=settings.PRIVATE_MEDIA_STORAGE(), null=True)
+    file = models.FileField(
+        storage=settings.PRIVATE_MEDIA_STORAGE(), null=True
+    )
     created = models.DateTimeField(auto_now_add=True)

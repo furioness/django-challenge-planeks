@@ -21,7 +21,9 @@ class BaseFieldForm(forms.Form):
         if not hasattr(cls, "f_params"):
             #  look for base fields as Field metaclass moves from class own
             cls.f_params = tuple(
-                field for field in cls.base_fields if field not in BaseFieldForm.base_fields
+                field
+                for field in cls.base_fields
+                if field not in BaseFieldForm.base_fields
             )
         cls.base_fields["f_type"].initial = cls.type
         return object.__new__(cls)
@@ -52,8 +54,12 @@ class RandomIntFieldForm(BaseFieldForm):
     type = "random_int"
     label = "Random integer"
 
-    min = forms.IntegerField(label="Min", min_value=-9999999, max_value=9999999, required=True)
-    max = forms.IntegerField(label="Max", min_value=-9999999, max_value=9999999, required=True)
+    min = forms.IntegerField(
+        label="Min", min_value=-9999999, max_value=9999999, required=True
+    )
+    max = forms.IntegerField(
+        label="Max", min_value=-9999999, max_value=9999999, required=True
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -116,7 +122,10 @@ class SentencesFieldForm(BaseFieldForm):
         return cleaned_data
 
 
-FIELD_FORMS = {field_form.type: field_form for field_form in BaseFieldForm.__subclasses__()}
+FIELD_FORMS = {
+    field_form.type: field_form
+    for field_form in BaseFieldForm.__subclasses__()
+}
 
 # a temporal hack to init (call __new__) labels and stuff. Probably fixable by metaclasses.
 [form() for form in FIELD_FORMS.values()]

@@ -34,7 +34,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("name", models.CharField(max_length=255)),
@@ -47,7 +50,10 @@ class Migration(migrations.Migration):
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
-                ("column_separator", models.CharField(default=",", max_length=1)),
+                (
+                    "column_separator",
+                    models.CharField(default=",", max_length=1),
+                ),
                 ("quotechar", models.CharField(default='"', max_length=1)),
             ],
         ),
@@ -57,7 +63,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("num_rows", models.IntegerField()),
