@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 from celery import shared_task
 from django.utils.text import slugify
@@ -27,3 +28,4 @@ def generate_data(dataset_pk: int):
         dataset.file.save(file_slug, csv_file)
 
     dataset.save()
+    os.remove(csv_file_path)
