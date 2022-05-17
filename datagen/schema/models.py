@@ -20,9 +20,7 @@ class Schema(models.Model):
 
     @property
     def gen_schema_instance(self) -> GenSchema:
-        if not hasattr(self, "_gen_schema_instance"):
-            self._gen_schema_instance = GenSchema.from_dict_list(self.fields)
-        return self._gen_schema_instance
+        return GenSchema.from_dict_list(self.fields)
 
     def get_field_forms(self):
         return [
