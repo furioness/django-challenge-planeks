@@ -1,0 +1,23 @@
+{% load django_bootstrap5 %}
+
+{% if fieldForm.errors %}
+    <div class="border rounded border-warning p-2 my-1" {{ wrapper_tags }}>
+{% else %}
+    <div class="border rounded  p-2 my-1" {{ wrapper_tags }}>
+{% endif %}
+    <h5 class="d-inline-block">{{ fieldForm.label }} field</h3>
+    <a href="#" class="text-decoration-none fs-5 d-inline-block float-end text-danger"
+            onClick="this.parentElement.remove()">Delete</a>
+    <div class="row">
+        {% bootstrap_form_errors fieldForm type="non_fields" %}
+        {% for field in fieldForm.visible_fields %}
+        <div class="mb-3 col">
+            {% bootstrap_label field.label label_for=field.auto_id %}
+            {% bootstrap_field field show_label="skip" %}
+        </div>
+        {% endfor %}
+    </div>
+    {% for hidden in fieldForm.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+</div>

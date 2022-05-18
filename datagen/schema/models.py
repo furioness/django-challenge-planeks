@@ -13,6 +13,7 @@ class Schema(models.Model):
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="schemas"
     )
+    modified = models.DateTimeField(auto_now=True)
     fields = models.JSONField()
 
     def __str__(self):

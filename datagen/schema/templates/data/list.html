@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 {% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 
 {% block title %}Datasets for {{ schema.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
+
     <h2 class="col">{{ schema.name }}</h2>
 
     <form action="{% url 'schema:datasets' schema.pk %}" method="POST" class="row">
@@ -45,7 +43,7 @@
             </tr>
     {% endfor %}
     </table>
-</div>
+
 
 
 {% endblock %}

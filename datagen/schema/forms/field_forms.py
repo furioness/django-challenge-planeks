@@ -26,6 +26,12 @@ class BaseFieldForm(forms.Form):
                 if field not in BaseFieldForm.base_fields
             )
         cls.base_fields["f_type"].initial = cls.type
+
+        # put the Order field at the end
+        fields = list(cls.base_fields.keys())
+        fields.remove("order")
+        cls.field_order = fields + ["order"]
+
         return object.__new__(cls)
 
     def __init__(self, data=None, *args, **kwargs):
@@ -46,11 +52,19 @@ class BaseFieldForm(forms.Form):
         return {param: self.cleaned_data[param] for param in self.f_params}
 
 
+class MinmaxValidationMixin:
+    def validate_minmax(self, min_, max_):
+        if min_ > max_:  # type: ignore
+            self.add_error("min", "Min value must be less than max value")  # type: ignore
+            self.add_error("max", "Max value must be greater than min value")  # type: ignore
+            raise forms.ValidationError("Min must be less than max")
+
+
 class FullNameFieldForm(BaseFieldForm):
     type = "name"
 
 
-class RandomIntFieldForm(BaseFieldForm):
+class RandomIntFieldForm(MinmaxValidationMixin, BaseFieldForm):
     type = "random_int"
     label = "Random integer"
 
@@ -63,10 +77,9 @@ class RandomIntFieldForm(BaseFieldForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        min_ = cleaned_data.get("min")  # type: ignore
-        max_ = cleaned_data.get("max")  # type: ignore
-        if min_ > max_:  # type: ignore
-            raise forms.ValidationError("Min must be less than max")
+        self.validate_minmax(
+            cleaned_data.get("min"), cleaned_data.get("max")  # type: ignore
+        )  # type: ignore
 
         return cleaned_data
 
@@ -99,7 +112,7 @@ class DateFieldForm(BaseFieldForm):
     type = "date"
 
 
-class SentencesFieldForm(BaseFieldForm):
+class SentencesFieldForm(MinmaxValidationMixin, BaseFieldForm):
     type = "sentences_variable_str"
     label = "Sentences"
 
@@ -114,10 +127,10 @@ class SentencesFieldForm(BaseFieldForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        min_ = cleaned_data.get("nb_min")  # type: ignore
-        max_ = cleaned_data.get("nb_max")  # type: ignore
-        if min_ > max_:  # type: ignore
-            raise forms.ValidationError("Min must be less than max")
+        self.validate_minmax(
+            cleaned_data.get("nb_min"),  # type: ignore
+            cleaned_data.get("nb_max"),  # type: ignore
+        )
 
         return cleaned_data
 

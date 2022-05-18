@@ -1,27 +1,42 @@
 {% extends "base.html" %}
 
-    
+
 {% block title %}Schema list{% endblock %}
 
 {% block content %}
-<div class="container">
-<div class="row pt-4">
+
+<div class="row">
     <h2 class="col">Data schemas</h2>
-    <span class="col"><a href="{% url 'schema:create' %}" class="float-end d-inline"><button class="col btn btn-primary bg-success">Add Schema</button></a></span>
+    <span class="col">
+        <a href="{% url 'schema:create' %}" class="float-end d-inline">
+            <button class="col btn btn-primary bg-success">New Schema</button>
+        </a>
+    </span>
 </div>
-    <div class="schema-list">
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Modified</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
     {% for schema in schemas %}
-        <div class="schema">
-            <h2>
-                <a href="{% url 'schema:datasets' schema.id %}">{{ schema.name }}</a>
-            </h2>
-            <p>
-                {#<a href="{% url 'schema:showdata' schema.id %}">Show</a>#}
-                <a href="{% url 'schema:update' schema.id %}">Edit</a>
-                <a href="{% url 'schema:delete' schema.id %}">Delete</a>
-            </p>
-        </div>
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>
+            <a href="{% url 'schema:datasets' schema.id %}" class="text-decoration-none">{{ schema.name }}</a>
+        </td>
+        <td>{{ schema.modified }}</td>
+        <td>
+            <a href="{% url 'schema:update' schema.id %}" class="text-decoration-none">Edit</a>
+            <a href="{% url 'schema:delete' schema.id %}" class="text-decoration-none">Delete</a>
+        </td>
+    </tr>
     {% endfor %}
-    </div>
-</div>
+</table>
+
+
 {% endblock %}
