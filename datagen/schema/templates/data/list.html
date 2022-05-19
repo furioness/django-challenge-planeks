@@ -6,16 +6,20 @@
 
 {% block content %}
 
-    <h2 class="col">{{ schema.name }}</h2>
+        <h2 class="float-start">{{ schema.name }}</h2>
 
-    <form action="{% url 'schema:datasets' schema.pk %}" method="POST" class="row">
-        <div class="col">
-            {% bootstrap_form form %}
-            {% csrf_token %}
-        </div>
-        
-        <div class="col">{% bootstrap_button  button_type="submit" content="Generate data" %}</div>
-    </form>
+        <form action="{% url 'schema:datasets' schema.pk %}" method="POST" 
+            class="float-end text-end align-middle">
+            <label for="{{ form.num_rows.id_for_label }}">Rows:</label>
+            <div class="d-inline-block w-25">
+                {% bootstrap_field form.num_rows show_label="skip" wrapper_class="ms-3 me-2" %}
+                {% csrf_token %}
+            </div>
+            <div class="d-inline-block">
+                {% bootstrap_button button_type="submit" content="Generate data" extra_classes="bg-success" %}
+            </div>
+            
+        </form>
 
     <table class="table table-bordered">
         <thead>
@@ -33,8 +37,8 @@
                 <td> {{ dataset.created }}</td>
                 <td>{{ dataset.num_rows }}</td>
                 {% if dataset.file %}
-                    <td><span class="badge bg-success">Completed</span></td>
-                    <td><a href="{{ dataset.file.url }}">Load file</a></td>
+                    <td><span class="badge bg-success">Ready</span></td>
+                    <td><a href="{{ dataset.file.url }}" class="text-decoration-none">Download</a></td>
                 {% else %}
                     <td><span class="badge bg-secondary">Processing</span></td>
                     <td></td>

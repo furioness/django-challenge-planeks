@@ -6,9 +6,9 @@
 {% block title %}Delete "{{ object.name }}"?{% endblock title %}
 
 {% block content %}
-    <form method="post">{% csrf_token %}
+    <form method="post">
         <p>Are you sure you want to delete "{{ object.name }}"?</p>
-        {{ form }}
+        {% csrf_token %}
         {% bootstrap_button button_type="submit" content="Confirm" extra_classes="btn-danger"%}
     </form>
 {% endblock content %}

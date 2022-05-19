@@ -1,10 +1,25 @@
 {% extends "base.html" %}
 
 {% load django_bootstrap5 %}
+{}
+
+{% block title %}
+    {% if form.initial %}
+        Edit {{ form.name.value }}
+    {% else %}
+        New schema
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <form action="" method="POST" id="schemaForm">
-    <h2 class="d-inline-block mb-3">New schema</h2>
+    <h2 class="d-inline-block">
+        {% if form.initial %}
+            Edit {{ form.name.value }}
+        {% else %}
+            New schema
+        {% endif %}
+    </h2>
     {% bootstrap_button id="schemaSubmitBtn" button_type="submit" content="Submit" extra_classes="float-end" %}
     {% bootstrap_form form wrapper_class="w-50" %}
     {% csrf_token %}
@@ -29,7 +44,7 @@
 
 
 <script>
-    'use strict';
+    'use strict'
 
     let schemaFieldsDiv = document.getElementById('schemaFields')
 
@@ -78,7 +93,8 @@
         }
         console.log(fieldsData)
         schemaForm.querySelector('#id_fields').value = JSON.stringify(fieldsData)
-        schemaFieldsDiv.remove()
+        schemaForm.insertAdjacentElement('afterend', schemaFieldsDiv)
+        // schemaFieldsDiv.remove()
     })
 </script>
 
