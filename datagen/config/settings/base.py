@@ -148,6 +148,9 @@ LOGIN_REDIRECT_URL = reverse_lazy("schema:list")
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 
+USER_GENERATION_ROW_LIMIT = 100000
+
+
 del Path
 del environ
 del reverse_lazy

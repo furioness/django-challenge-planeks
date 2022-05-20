@@ -59,6 +59,11 @@ class SchemaDataSetsView(BaseSchemaView, FormView):
         context["schema"] = self.get_object()
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
+
     def form_valid(self, form):
         self.get_object().run_generate_task(form.cleaned_data["num_rows"])  # type: ignore
         return super().form_valid(form)
