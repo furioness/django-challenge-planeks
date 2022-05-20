@@ -60,7 +60,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "datagen.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -78,7 +78,7 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "datagen.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
@@ -149,5 +149,6 @@ LOGOUT_REDIRECT_URL = LOGIN_URL
 
 
 del Path
+del environ
 del reverse_lazy
 del DefaultStorage

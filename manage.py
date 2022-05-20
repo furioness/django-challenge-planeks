@@ -6,10 +6,12 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "datagen"))
 
     os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE", "datagen.settings.local_docker"
+        "DJANGO_SETTINGS_MODULE", "config.settings.local_docker"
     )
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

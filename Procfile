@@ -1,2 +1,2 @@
-web: gunicorn --pythonpath datagen datagen.wsgi
-worker: celery --workdir datagen -A datagen worker -l INFO
+web: gunicorn --pythonpath datagen config.wsgi
+worker: celery --workdir datagen -A config worker -l INFO

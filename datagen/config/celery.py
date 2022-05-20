@@ -7,7 +7,7 @@ from celery import Celery
 
 from django.conf import settings
 
-app = Celery("datagen", broker=settings.CELERY_BROKER)
+app = Celery("config", broker=settings.CELERY_BROKER)
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

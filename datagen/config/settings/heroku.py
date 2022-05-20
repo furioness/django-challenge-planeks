@@ -29,7 +29,7 @@ AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
 # s3 static settings
 AWS_STATIC_LOCATION = "static"
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/"
-STATICFILES_STORAGE = "datagen.storage_backends.StaticStorage"
+STATICFILES_STORAGE = "config.storage_backends.StaticStorage"
 # why MEDIA_URL works for custom storage?
 PRIVATE_MEDIA_STORAGE = PrivateMediaStorage
 
