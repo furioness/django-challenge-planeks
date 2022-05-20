@@ -92,11 +92,9 @@ class GenerateForm(forms.Form):
         if not self.user.has_perm(
             "schema.generated_data_unlimited_generation"
         ):
-            rows_used = (
-                GeneratedDataModel.objects.filter(schema__user=self.user)
-                .aggregate(Sum("num_rows"))
-                .get("num_rows__sum")
-            )
+            rows_used = GeneratedDataModel.objects.filter(
+                schema__user=self.user
+            ).aggregate(Sum("num_rows"))["num_rows__sum"]
             rows_left = settings.USER_GENERATION_ROW_LIMIT - rows_used
 
             if num_rows > rows_left:
