@@ -1,7 +1,7 @@
 # Junior Django dev application challenge
 
 ## Requirements
- Check challenge requirements in *requirements* folder. Don't expect perfection (especially regarding the frontend side and git), just a sort of "shkill" demo.
+ Check challenge requirements in *requirements* folder. Don't expect perfection (especially regarding the frontend side and git) though.
 
 ## Try online
 Go to https://datagen-challenge.herokuapp.com/ (give a minute if stalled - Heroku bootup)
