@@ -31,3 +31,4 @@ Check pre-commit for a simple git hook file for ensuring formatting with Black
 - Add tests
 - Refactor schema creation/editing to use fields as Django models and modelForms instead of hacking with JSONField (might result in even more hacking...)
 - Add Django Admin model views and restricted test user
+- GitHub CI/CD?
