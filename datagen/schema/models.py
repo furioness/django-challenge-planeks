@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 
 from .forms.field_forms import get_form_for_field
-from .utils.generator import Schema as GenSchema
+from .services.generator import Schema as GenSchema
 
 
 class Schema(models.Model):

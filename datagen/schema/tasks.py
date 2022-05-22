@@ -5,8 +5,8 @@ from celery import shared_task
 from django.utils.text import slugify
 
 from .models import GeneratedData, Schema
-from .utils.data_saving import generate_to_csv
-from .utils.generator import Schema as GenSchema
+from .services.data_saving import generate_to_csv
+from .services.generator import Schema as GenSchema
 
 
 @shared_task

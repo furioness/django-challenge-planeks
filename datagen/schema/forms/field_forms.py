@@ -1,6 +1,6 @@
 from django import forms
 
-from ..utils.generator import Field
+from ..services.generator import Field
 
 
 class BaseFieldForm(forms.Form):
