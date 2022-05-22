@@ -17,3 +17,6 @@ media/
 # VS code
 .vscode
 .pythonconfig
+
+# coverage
+.coverage

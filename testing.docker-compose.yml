@@ -1,0 +1,20 @@
+version: "3"
+services:
+  postgres:
+    image: "postgres"
+    container_name: "datagen_testing__postgres"
+    environment:
+      - POSTGRES_USER=datagen_testing
+      - POSTGRES_PASSWORD=datagen_testing
+      - POSTGRES_DB=datagen_testing
+      - fsync=off
+      - shared_buffers=500MB
+    ports:
+      - "127.0.0.1:54322:5432"
+
+  rabbit:
+    image: rabbitmq
+    container_name: datagen_testing__rabbitmq
+    ports:
+      - "127.0.0.1:5673:5672"
+    mem_limit: "1000M"
