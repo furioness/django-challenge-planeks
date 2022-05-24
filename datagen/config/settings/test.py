@@ -1,11 +1,5 @@
-import dj_database_url
-
 from .local_docker import *
 
+# Using the same database  for tests as Django creates separate temporal testing database
 
-DATABASES["default"] = dj_database_url.config(
-    default="postgres://datagen_testing:datagen_testing@localhost:54322/datagen_testing"
-)
-
-
-CELERY_BROKER = "pyamqp://@localhost:5673//"
+CELERY_BROKER = "pyamqp://@localhost/testing/"

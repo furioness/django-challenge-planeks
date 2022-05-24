@@ -7,6 +7,7 @@ services:
       - POSTGRES_USER=datagen
       - POSTGRES_PASSWORD=datagen
       - POSTGRES_DB=datagen
+    command: -c shared_buffers=500MB -c fsync=off
     ports:
       - "127.0.0.1:54321:5432"
 
