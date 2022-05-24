@@ -28,7 +28,7 @@ class Schema:
         self.fields = sorted(fields, key=lambda x: x.order)
         self.header: list[str] = [field.name for field in self.fields]
 
-    def _get_generator(self) -> ListFactory:
+    def _get_Factory(self) -> ListFactory:
         key_values = [
             (f"f_{idx}", Faker(field.f_type, **field.f_params))
             for idx, field in enumerate(self.fields)
@@ -36,9 +36,9 @@ class Schema:
         return type("_Factory", (ListFactory,), OrderedDict(key_values))  # type: ignore
 
     def data_generator(self, num_records: int) -> Generator[List, None, None]:
-        generator = self._get_generator()
+        factory = self._get_Factory()
         for _ in range(num_records):
-            yield generator()  # type: ignore
+            yield factory()  # type: ignore
 
     def to_JSON(self) -> str:
         return json.dumps([field.to_dict() for field in self.fields])
