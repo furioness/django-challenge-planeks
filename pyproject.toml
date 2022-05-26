@@ -16,7 +16,7 @@ boto3 = "^1.22.9"
 django-storages = "^1.12.3"
 django-cleanup = "^6.0.0"
 django-bootstrap5 = "^21.3"
-coverage = "^6.3.3"
+coverage = {extras = ["toml"], version = "^6.4"}
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.3.0"
@@ -40,3 +40,28 @@ exclude = '''
   |Jenkinfile
 )/
 '''
+
+[tool.coverage.run]
+command_line = "manage.py test datagen --settings=config.settings.test --shuffle --parallel"
+branch = true
+concurrency = ["multiprocessing"]
+omit = [
+  "*/__init__.py",
+  "*/test*.py",
+  "*/migrations/*",
+  "*/urls.py",
+  "*/admin.py",
+  "*/apps.py",
+  "datagen/config/*",
+]
+source = ["datagen"]
+data_file = ".coverage/data/coverage"
+
+[tool.coverage.combine]
+append = true
+
+[tool.coverage.xml]
+output = ".coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = ".coverage/html"

@@ -1,11 +1,15 @@
+.PHONY: coverage
+
 docker:
 	docker compose up
 
 test_fast:
-	run manage.py test datagen --settings=config.settings.test --shuffle --failfast --parallel
+	./manage.py test datagen --settings=config.settings.test --shuffle --failfast --parallel
 
-test:
-	coverage run manage.py test datagen --settings=config.settings.test  --shuffle
+coverage:
+	coverage erase
+	coverage run
+	coverage combine
 	coverage xml
 	coverage html
 
