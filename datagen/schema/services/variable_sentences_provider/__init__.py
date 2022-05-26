@@ -1,12 +1,9 @@
 from random import randint
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 from faker.providers.lorem.en_US import Provider as LoremProvider_en_US
 
 
-# TODO: redo to standart Faker localized format
-
-
-class VariableSentencesLoremProvider_en_US(LoremProvider_en_US):
+class Provider(LoremProvider_en_US):
     def sentences_variable_str(
         self,
         nb_min: int = 3,

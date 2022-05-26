@@ -1,5 +1,5 @@
 from factory import Faker
 
-from .providers import VariableSentencesLoremProvider_en_US
+from .variable_sentences_provider import Provider as SentencesProvider
 
-Faker.add_provider(VariableSentencesLoremProvider_en_US)
+Faker.add_provider(SentencesProvider)
