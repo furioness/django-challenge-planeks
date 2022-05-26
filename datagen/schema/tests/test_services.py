@@ -1,12 +1,11 @@
 from statistics import mean
 import json
-from typing import Generator, List
+from typing import Generator
 from unittest import TestCase
 
 from factory import Faker, ListFactory
 
 from datagen.schema.services.generator import Schema, Field
-from datagen.schema.services.providers import LoremProvider_en_US
 from datagen.schema.tests import AssertBetweenMixin
 
 
@@ -122,3 +121,51 @@ class TestSchema(TestCase, AssertBetweenMixin):
         # and that they are not all the same
         # delta 20 is enough on 100 items here
         self.assertAlmostEqual(mean(ints), mean([int_min, int_max]), delta=20)
+
+
+class TestCustomSentencesProvider(TestCase, AssertBetweenMixin):
+    """Test LoremProvider_en_US with sentences_variable_str()
+    Check https://github.com/joke2k/faker/tree/master/tests for inspiration"""
+
+    def test_formatter_is_registered(self):
+        class TestFactory(ListFactory):
+            lorem = Faker("sentences_variable_str")
+
+        TestFactory()
+
+    def test_basic_string_generation(self):
+        class TestFactory(ListFactory):
+            lorem = Faker("sentences_variable_str")
+
+        row = TestFactory()
+        self.assertIsInstance(row, list)
+        self.assertTrue(len(row), 1)
+        self.assertIsInstance(row[0], str)
+        self.assertGreater(len(row[0]), 0)
+
+    def test_string_genration_parameterized(self):
+        # it's hard to distinguish between a sentence, so looking for statistical significance in string length
+        class SingleSentence(ListFactory):
+            lorem = Faker("sentences_variable_str", nb_min=1, nb_max=1)
+
+        class FourSentenced(ListFactory):
+            lorem = Faker("sentences_variable_str", nb_min=4, nb_max=4)
+
+        class OneToFourSentences(ListFactory):
+            lorem = Faker("sentences_variable_str", nb_min=1, nb_max=4)
+
+        singles = [SingleSentence()[0] for _ in range(50)]
+        mean_1 = mean(len(sentence) for sentence in singles)
+        total_1 = sum(len(sentence) for sentence in singles)
+
+        fourths = [FourSentenced()[0] for _ in range(50)]
+        mean_4 = mean(len(sentence) for sentence in fourths)
+        total_4 = sum(len(sentence) for sentence in fourths)
+
+        one_to_fourths = [OneToFourSentences()[0] for _ in range(50)]
+        mean_1_to_4 = mean(len(sentence) for sentence in one_to_fourths)
+        total_1_to_4 = sum(len(sentence) for sentence in one_to_fourths)
+
+        self.assertBetween(mean_1_to_4, mean_1, mean_4)
+        self.assertBetween(total_1_to_4, total_1, total_4)
+        # then maybe test some statistical stuff, but there isn't much to get broken, so enough just to test it manually once. So I did.
