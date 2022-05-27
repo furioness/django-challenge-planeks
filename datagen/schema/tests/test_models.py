@@ -1,12 +1,12 @@
 from datetime import timedelta
 from unittest import mock
 
-from django.utils import timezone
+from django.contrib.auth import get_user_model
 from django.forms import Form
 from django.test import TestCase
-from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-from ..models import Schema, GeneratedData
+from ..models import GeneratedData, Schema
 from ..services.generator import Schema as GenSchema
 
 

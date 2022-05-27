@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..tasks import generate_data
 from ..models import GeneratedData, Schema
+from ..tasks import generate_data
 
 
 class TestGenerateData(TestCase):

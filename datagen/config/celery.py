@@ -1,11 +1,7 @@
-import os
+from django.conf import settings
 
 from celery import Celery
 
-# Set the default Django settings module for the 'celery' program.
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datagen.settings.base")
-
-from django.conf import settings
 
 app = Celery("config", broker=settings.CELERY_BROKER)
 

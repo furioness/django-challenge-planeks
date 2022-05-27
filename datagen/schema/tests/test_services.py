@@ -1,14 +1,14 @@
+import csv
+import json
 import os
 from statistics import mean
-import json
-import csv
 from typing import Generator
 from unittest import TestCase
 
 from factory import Faker, ListFactory
 
-from ..services.generator import Schema, Field
 from ..services.data_saving import generate_to_csv
+from ..services.generator import Field, Schema
 from ..tests import AssertBetweenMixin
 
 

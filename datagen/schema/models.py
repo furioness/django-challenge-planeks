@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.conf import settings
 
 from .forms.field_forms import get_form_for_field
 from .services.generator import Schema as GenSchema

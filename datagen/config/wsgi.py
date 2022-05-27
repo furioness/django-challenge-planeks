@@ -9,7 +9,5 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/wsgi/
 
 from django.core.wsgi import get_wsgi_application
 
-# import os
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datagen.settings")
 
 application = get_wsgi_application()
