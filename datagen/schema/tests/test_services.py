@@ -1,11 +1,14 @@
+import os
 from statistics import mean
 import json
+import csv
 from typing import Generator
 from unittest import TestCase
 
 from factory import Faker, ListFactory
 
 from ..services.generator import Schema, Field
+from ..services.data_saving import generate_to_csv
 from ..tests import AssertBetweenMixin
 
 
@@ -169,3 +172,24 @@ class TestCustomSentencesProvider(TestCase, AssertBetweenMixin):
         self.assertBetween(mean_1_to_4, mean_1, mean_4)
         self.assertBetween(total_1_to_4, total_1, total_4)
         # then maybe test some statistical stuff, but there isn't much to get broken, so enough just to test it manually once. So I did.
+
+
+class TestCSVSaving(TestCase):
+    def test_data_saving(self):
+        header = ["name", "age"]
+        data = [["Vasya", "25"], ["Zucc", "38"]]
+        delimiter = "!"
+        quotechar = '~'
+
+        file = generate_to_csv(
+            generator=iter(data),
+            header=header,
+            delimiter=delimiter,
+            quotechar=quotechar,
+        )
+        with open(file, "r") as f:
+            csv_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
+            self.assertListEqual(next(csv_reader), header)
+            self.assertListEqual(list(csv_reader), data)
+
+        os.remove(file)
