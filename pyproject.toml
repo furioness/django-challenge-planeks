@@ -22,6 +22,8 @@ coverage = {extras = ["toml"], version = "^6.4"}
 ipython = "^8.3.0"
 python-dotenv = "^0.20.0"
 black = "^22.3.0"
+tblib = "^1.7.0"
+django-coverage-plugin = "^2.0.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -42,7 +44,7 @@ exclude = '''
 '''
 
 [tool.coverage.run]
-command_line = "manage.py test datagen --settings=config.settings.test --shuffle --parallel"
+command_line = "manage.py test datagen --settings=config.settings.test --shuffle"
 branch = true
 concurrency = ["multiprocessing"]
 omit = [
@@ -53,9 +55,12 @@ omit = [
   "*/admin.py",
   "*/apps.py",
   "datagen/config/*",
+  "datagen/staticfiles/*",
+  "datagen/media/*"
 ]
 source = ["datagen"]
 data_file = ".coverage/data/coverage"
+plugins = ["django_coverage_plugin"]
 
 [tool.coverage.combine]
 append = true
