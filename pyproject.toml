@@ -44,8 +44,9 @@ exclude = '''
 '''
 
 [tool.coverage.run]
-command_line = "manage.py test datagen --settings=config.settings.test --shuffle"
+command_line = "manage.py test datagen --settings=config.settings.test --shuffle --noinput --keepdb --parallel"
 branch = true
+parallel = true
 concurrency = ["multiprocessing"]
 omit = [
   "*/__init__.py",

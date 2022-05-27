@@ -4,7 +4,7 @@ docker:
 	docker compose up
 
 test_fast:
-	./manage.py test datagen --settings=config.settings.test --shuffle --failfast --parallel --noinput
+	./manage.py test datagen --settings=config.settings.test --shuffle --failfast --parallel --noinput --keepdb
 
 coverage:
 	coverage erase
