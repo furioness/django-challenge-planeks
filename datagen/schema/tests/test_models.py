@@ -90,12 +90,14 @@ class TestSchema(TestCase):
             self.schema: Schema = Schema.objects.create(
                 name="Test schema",
                 user=self.user,
-                fields={
-                    "name": "Full name",
-                    "order": 1,
-                    "f_type": "name",
-                    "f_params": {},
-                },
+                fields=[
+                    {
+                        "name": "Full name",
+                        "order": 1,
+                        "f_type": "name",
+                        "f_params": {},
+                    }
+                ],
             )
 
         def test_model_instantiation(self):
