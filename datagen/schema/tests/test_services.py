@@ -5,8 +5,8 @@ from unittest import TestCase
 
 from factory import Faker, ListFactory
 
-from datagen.schema.services.generator import Schema, Field
-from datagen.schema.tests import AssertBetweenMixin
+from ..services.generator import Schema, Field
+from ..tests import AssertBetweenMixin
 
 
 class TestSchemaField(TestCase):
@@ -40,7 +40,7 @@ class TestSchema(TestCase, AssertBetweenMixin):
         ]
         self.sorted_header = ["Full name", "Age", "Company"]
 
-    def assertFieldsEqual(self, schema_given, schema_expected):
+    def assertSchemaFieldsEqual(self, schema_given, schema_expected):
         fields_given = [field.to_dict() for field in schema_given.fields]
         fields_excepted = [field.to_dict() for field in schema_expected.fields]
         self.assertListEqual(fields_given, fields_excepted)
@@ -58,14 +58,14 @@ class TestSchema(TestCase, AssertBetweenMixin):
     def test_init_from_dict_list(self):
         list_of_field_dicts = [field.to_dict() for field in self.fields]
         # check equality by fields
-        self.assertFieldsEqual(
+        self.assertSchemaFieldsEqual(
             Schema.from_dict_list(list_of_field_dicts), Schema(self.fields)
         )
 
     def test_to_JSON(self):
         schema = Schema(self.fields)
         schema_json = schema.to_JSON()
-        self.assertFieldsEqual(
+        self.assertSchemaFieldsEqual(
             schema, Schema.from_dict_list(json.loads(schema_json))
         )
 
