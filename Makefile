@@ -19,3 +19,6 @@ run:
 add_git_hooks:
 	cp pre-commit ./.git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
+
+format:
+	black .
