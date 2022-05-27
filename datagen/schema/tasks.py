@@ -11,8 +11,10 @@ from .services.generator import Schema as GenSchema
 
 @shared_task
 def generate_data(dataset_pk: int):
-    dataset: GeneratedData = GeneratedData.objects.get(pk=dataset_pk)
-    schema: Schema = dataset.schema  # prefetch or already?
+    dataset: GeneratedData = GeneratedData.objects.select_related(
+        "schema"
+    ).get(pk=dataset_pk)
+    schema: Schema = dataset.schema
     gen_schema: GenSchema = schema.gen_schema_instance
 
     file_slug = f"{schema.user.id}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
