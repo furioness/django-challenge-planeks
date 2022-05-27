@@ -179,7 +179,7 @@ class TestCSVSaving(TestCase):
         header = ["name", "age"]
         data = [["Vasya", "25"], ["Zucc", "38"]]
         delimiter = "!"
-        quotechar = '~'
+        quotechar = "~"
 
         file = generate_to_csv(
             generator=iter(data),
@@ -188,7 +188,9 @@ class TestCSVSaving(TestCase):
             quotechar=quotechar,
         )
         with open(file, "r") as f:
-            csv_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
+            csv_reader = csv.reader(
+                f, delimiter=delimiter, quotechar=quotechar
+            )
             self.assertListEqual(next(csv_reader), header)
             self.assertListEqual(list(csv_reader), data)
 
