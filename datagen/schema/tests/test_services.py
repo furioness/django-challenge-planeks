@@ -3,8 +3,8 @@ import json
 import os
 from statistics import mean
 from typing import Generator
-from unittest import TestCase
 
+from django.test import SimpleTestCase
 from factory import Faker, ListFactory
 
 from ..services.data_saving import generate_to_csv
@@ -12,7 +12,7 @@ from ..services.generator import Field, Schema
 from ..tests import AssertBetweenMixin
 
 
-class TestSchemaField(TestCase):
+class TestSchemaField(SimpleTestCase):
     """Test Schema Field using unittest TestCase as transactions not required"""
 
     KWARGS = {
@@ -31,7 +31,7 @@ class TestSchemaField(TestCase):
         self.assertTrue(str(Field(**self.KWARGS)))
 
 
-class TestSchema(TestCase, AssertBetweenMixin):
+class TestSchema(SimpleTestCase, AssertBetweenMixin):
     """Test Schema using unittest TestCase as transactions not required"""
 
     def setUp(self) -> None:
@@ -126,7 +126,7 @@ class TestSchema(TestCase, AssertBetweenMixin):
         self.assertAlmostEqual(mean(ints), mean([int_min, int_max]), delta=20)
 
 
-class TestCustomSentencesProvider(TestCase, AssertBetweenMixin):
+class TestCustomSentencesProvider(SimpleTestCase, AssertBetweenMixin):
     """Test LoremProvider_en_US with sentences_variable_str()
     Check https://github.com/joke2k/faker/tree/master/tests for inspiration"""
 
@@ -174,7 +174,7 @@ class TestCustomSentencesProvider(TestCase, AssertBetweenMixin):
         # then maybe test some statistical stuff, but there isn't much to get broken, so enough just to test it manually once. So I did.
 
 
-class TestCSVSaving(TestCase):
+class TestCSVSaving(SimpleTestCase):
     def test_data_saving(self):
         header = ["name", "age"]
         data = [["Vasya", "25"], ["Zucc", "38"]]
