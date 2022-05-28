@@ -6,15 +6,16 @@ from ..tasks import generate_data
 
 
 class TestGenerateData(TestCase):
-    def setUp(self):
-        self.user = get_user_model().objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
             username="Vasya",
             email="vasya@invalid.doom",
             password="whocares",
         )
-        self.schema = Schema.objects.create(
+        cls.schema = Schema.objects.create(
             name="Test schema",
-            user=self.user,
+            user=cls.user,
             fields=[
                 {
                     "name": "Full name",
@@ -52,8 +53,10 @@ class TestGenerateData(TestCase):
 
         self.assertNotEqual(dataset_1.file.name, dataset_2.file.name)
 
-    # TODO: add integration tests
+
+    # @skipUnless(settings.TEST_INTEGRATION, "Integration tests are disabled")
     # def test_it_runs_as_a_worker(self):
     #     generate_data.delay(self.dataset.id)
+    #     sleep(5) # TODO: replace with some celery assertion
     #     self.dataset.refresh_from_db()
     #     self.assertTrue(self.dataset.file)

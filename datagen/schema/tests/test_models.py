@@ -15,8 +15,9 @@ class TestSchema(TestCase):
         {"name": "Full name", "order": 1, "f_type": "name", "f_params": {}},
     ]
 
-    def setUp(self):
-        self.user = get_user_model().objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
             username="Vasya", email="vasya@invalid.doom", password="whocares"
         )
 
@@ -81,15 +82,16 @@ class TestSchema(TestCase):
             Schema.objects.get(pk=schema_id)
 
     class TestGeneratedData(TestCase):
-        def setUp(self):
-            self.user = get_user_model().objects.create_user(
+        @classmethod
+        def setUpTestData(cls):
+            cls.user = get_user_model().objects.create_user(
                 username="Vasya",
                 email="vasya@invalid.doom",
                 password="whocares",
             )
-            self.schema: Schema = Schema.objects.create(
+            cls.schema: Schema = Schema.objects.create(
                 name="Test schema",
-                user=self.user,
+                user=cls.user,
                 fields=[
                     {
                         "name": "Full name",
