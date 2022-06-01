@@ -32,3 +32,6 @@ Check pre-commit for a simple git hook file for ensuring formatting with Black
 - Refactor schema creation/editing to use fields as Django models and modelForms instead of hacking with JSONField (might result in even more hacking...)
 - Add Django Admin model views and restricted test user
 - GitHub CI/CD?
+- Restrict user's row number by computational complexity that is calculated per each schema
+- REST API
+- User registration (forms and email related stuff)
