@@ -53,7 +53,6 @@ class TestGenerateData(TestCase):
 
         self.assertNotEqual(dataset_1.file.name, dataset_2.file.name)
 
-
     # @skipUnless(settings.TEST_INTEGRATION, "Integration tests are disabled")
     # def test_it_runs_as_a_worker(self):
     #     generate_data.delay(self.dataset.id)
