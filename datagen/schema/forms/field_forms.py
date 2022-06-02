@@ -14,7 +14,7 @@ class BaseFieldForm(forms.Form):
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, "type"):
-            raise NotImplementedError("type is not set")
+            raise ValueError("BaseFieldForm has no type specified.")
         if not hasattr(cls, "label"):
             label = cls.type.replace("_", " ")
             cls.label = label[0].title() + label[1:]
@@ -44,19 +44,21 @@ class BaseFieldForm(forms.Form):
         return Field(
             name=self.cleaned_data["name"],
             f_type=self.type,
-            f_params=self.get_params(),
+            f_params=self._get_params(),
             order=self.cleaned_data["order"],
         )
 
-    def get_params(self) -> dict:
+    def _get_params(self) -> dict:
         return {param: self.cleaned_data[param] for param in self.f_params}
 
 
 class MinmaxValidationMixin:
-    def validate_minmax(self, min_, max_):
+    def validate_minmax(self, min_field, max_field):
+        min_ = self.cleaned_data[min_field]
+        max_ = self.cleaned_data[max_field]
         if min_ > max_:  # type: ignore
-            self.add_error("min", "Min value must be less than max value")  # type: ignore
-            self.add_error("max", "Max value must be greater than min value")  # type: ignore
+            self.add_error(min_field, "Min value must be less than max value")  # type: ignore
+            self.add_error(max_field, "Max value must be greater than min value")  # type: ignore
             raise forms.ValidationError("Min must be less than max")
 
 
@@ -69,17 +71,15 @@ class RandomIntFieldForm(MinmaxValidationMixin, BaseFieldForm):
     label = "Random integer"
 
     min = forms.IntegerField(
-        label="Min", min_value=-9999999, max_value=9999999, required=True
+        label="Min", min_value=-9999999, initial=1, max_value=9999999
     )
     max = forms.IntegerField(
-        label="Max", min_value=-9999999, max_value=9999999, required=True
+        label="Max", min_value=-9999999, initial=100, max_value=9999999
     )
 
     def clean(self):
         cleaned_data = super().clean()
-        self.validate_minmax(
-            cleaned_data.get("min"), cleaned_data.get("max")  # type: ignore
-        )  # type: ignore
+        self.validate_minmax("min", "max")
 
         return cleaned_data
 
@@ -116,8 +116,12 @@ class SentencesFieldForm(MinmaxValidationMixin, BaseFieldForm):
     type = "sentences_variable_str"
     label = "Sentences"
 
-    nb_min = forms.IntegerField(min_value=1, label="Min sentences")
-    nb_max = forms.IntegerField(min_value=1, label="Min sentences")
+    nb_min = forms.IntegerField(
+        min_value=1, initial=1, max_value=100000, label="Min sentences"
+    )
+    nb_max = forms.IntegerField(
+        min_value=1, initial=5, max_value=100000, label="Min sentences"
+    )
 
     # ext_word_list = forms.CharField(
     #     label='Custom words (comma separated)',
@@ -127,10 +131,7 @@ class SentencesFieldForm(MinmaxValidationMixin, BaseFieldForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        self.validate_minmax(
-            cleaned_data.get("nb_min"),  # type: ignore
-            cleaned_data.get("nb_max"),  # type: ignore
-        )
+        self.validate_minmax("nb_min", "nb_max")
 
         return cleaned_data
 
