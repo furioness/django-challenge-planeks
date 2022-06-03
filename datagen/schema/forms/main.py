@@ -57,7 +57,9 @@ class SchemaForm(forms.ModelForm):
         self.field_forms = []
 
         if not fields:
-            return
+            raise ValueError(
+                "Trying to initialize field forms with empty fields."
+            )
 
         for field in fields:
             form = FIELD_FORMS[field["f_type"]](field)
