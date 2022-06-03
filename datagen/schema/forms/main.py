@@ -24,12 +24,8 @@ class SchemaForm(forms.ModelForm):
         try:
             self._init_field_forms(self.cleaned_data["fields"])
         except Exception as e:
-            print(e)
-            self.add_error("fields", "Error parsing fields")
-            return
-
-        if not len(self.field_forms):
-            self.add_error("fields", "No fields found")
+            # TODO: add logging for suspicious erroneous input
+            self.add_error("fields", "Error parsing fields.")
             return
 
         if not all(form.is_valid() for form in self.field_forms):
