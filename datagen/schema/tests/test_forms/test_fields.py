@@ -1,7 +1,7 @@
-from unittest import TestCase
 from datetime import datetime
 
 from django import forms
+from django.test import SimpleTestCase
 from factory import Faker, ListFactory
 
 from ...tests import AssertBetweenMixin
@@ -16,7 +16,7 @@ from ...forms import field_forms
 from ...services.generator import Field
 
 
-class TestFieldFormsBase(TestCase):
+class TestFieldFormsBase(SimpleTestCase):
     def test_children_get_correct_label_and_f_type(self):
         class LabeledFieldForm(BaseFieldForm):
             type = "random_int"
@@ -93,7 +93,7 @@ class TestFieldFormsBase(TestCase):
         self.assertTupleEqual(("min", "max"), RandomIntFieldForm.f_params)
 
 
-class TestFieldFormsTraits(AssertBetweenMixin, TestCase):
+class TestFieldFormsTraits(AssertBetweenMixin, SimpleTestCase):
     def get_Factory(self, f_type, f_params) -> ListFactory:
         return type("_Factory", (ListFactory,), {"field": Faker(f_type, **f_params)})  # type: ignore
 
