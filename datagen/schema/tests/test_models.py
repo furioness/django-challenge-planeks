@@ -18,7 +18,7 @@ class TestSchema(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(
-            username="Vasya", email="vasya@invalid.doom", password="whocares"
+            username="testuser", password="12345"
         )
 
     def test_model_instantiation(self):
