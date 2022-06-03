@@ -194,7 +194,7 @@ class TestFieldFormsTraits(AssertBetweenMixin, SimpleTestCase):
             field_forms.SentencesFieldForm, {"nb_min": 1, "nb_max": 2}
         )
         self.assertIsInstance(data, str)
-        self.assertBetween(len(data), 5, 100)
+        self.assertBetween(len(data), 5, 150)
 
         self.assertSetEqual(
             self.tested_classes,
