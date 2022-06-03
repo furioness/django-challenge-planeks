@@ -1,3 +1,4 @@
+from copy import copy
 from django import forms
 
 from ..services.generator import Field
@@ -36,6 +37,7 @@ class BaseFieldForm(forms.Form):
 
     def __init__(self, data=None, *args, **kwargs):
         if data:
+            data = copy(data)
             params = data.pop("f_params", {})
             data.update(params)
         super().__init__(data, *args, **kwargs)
