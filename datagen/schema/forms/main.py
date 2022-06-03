@@ -84,9 +84,7 @@ class GenerateForm(forms.Form):
 
     def clean_num_rows(self):
         num_rows = self.cleaned_data["num_rows"]
-        if not self.user.has_perm(
-            "schema.generated_data_unlimited_generation"
-        ):
+        if not self.user.has_perm("schema.unlimited_generation"):
             rows_used = (
                 GeneratedDataModel.objects.filter(
                     schema__user=self.user
