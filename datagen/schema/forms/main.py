@@ -11,9 +11,6 @@ class SchemaForm(forms.ModelForm):
         model = SchemaModel
         fields = ("name", "column_separator", "quotechar", "fields")
 
-    name = forms.CharField(max_length=255)
-    column_separator = forms.CharField(max_length=1, initial=",")
-    quotechar = forms.CharField(max_length=1, initial='"')
     fields = forms.JSONField(widget=forms.HiddenInput())  # type: ignore
     fieldFormsTemplates = FIELD_FORMS
 
@@ -36,7 +33,7 @@ class SchemaForm(forms.ModelForm):
             return
 
         if not all(form.is_valid() for form in self.field_forms):
-            self.add_error(None, "Invalid fields")
+            self.add_error(None, "Invalid fields.")
             return
 
         duplicates = self._get_duplicate_names()
