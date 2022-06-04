@@ -11,16 +11,18 @@ class SchemaForm(forms.ModelForm):
         model = SchemaModel
         fields = ("name", "column_separator", "quotechar", "fields")
 
-    fields = forms.JSONField(widget=forms.HiddenInput())  # type: ignore
+    fields = forms.JSONField(widget=forms.HiddenInput(), error_messages={"required": "Please add some fields."})  # type: ignore
     fieldFormsTemplates = FIELD_FORMS
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.field_forms = []
         if "instance" in kwargs:
             self._init_field_forms(self.instance.fields)
 
     def clean_fields(self):
+        is_valid = (
+            True  # to allow check for multiple errors before early return
+        )
         try:
             self._init_field_forms(self.cleaned_data["fields"])
         except Exception as e:
@@ -29,37 +31,44 @@ class SchemaForm(forms.ModelForm):
             return
 
         if not all(form.is_valid() for form in self.field_forms):
-            self.add_error(None, "Invalid fields.")
-            return
+            self.add_error("fields", "Invalid fields.")
+            is_valid = False
 
-        duplicates = self._get_duplicate_names()
-        if duplicates:
+        duplicate_names, duplicate_forms = self._get_duplicate_fields()
+        if duplicate_names:
             self.add_error(
-                None, f"Duplicate field names: {', '.join(duplicates)}"
+                "fields",
+                f"Duplicate field names: {', '.join(duplicate_names)}",
             )
+            for field in duplicate_forms:
+                field.add_error("name", "Duplicate field name.")
             return
 
-        return [form.to_schema_field().to_dict() for form in self.field_forms]
+        if is_valid:
+            return [
+                form.to_schema_field().to_dict() for form in self.field_forms
+            ]
 
-    def _get_duplicate_names(self):
-        unique_names = set()
-        duplicates = []
-        for field_name in [
-            field.cleaned_data["name"] for field in self.field_forms
-        ]:
-            if field_name in unique_names:
-                duplicates.append(field_name)
-                continue
-            unique_names.add(field_name)
-        return duplicates
+    def _get_duplicate_fields(self):
+        names = {}
+        for field in self.field_forms:
+            names.setdefault(field.cleaned_data["name"], []).append(field)
+        duplicate_forms = []
+        duplicate_names = []
+        for name, forms in names.items():
+            if len(forms) > 1:
+                duplicate_forms += forms
+                duplicate_names.append(name)
+
+        return duplicate_names, duplicate_forms
 
     def _init_field_forms(self, fields):
-        self.field_forms = []
+        self.field_forms = (
+            []
+        )  # make sure to not get duplicates as this function can be called twice - in case of POSTing from Update view
 
         if not fields:
-            raise ValueError(
-                "Trying to initialize field forms with empty fields."
-            )
+            return
 
         for field in fields:
             form = FIELD_FORMS[field["f_type"]](field)

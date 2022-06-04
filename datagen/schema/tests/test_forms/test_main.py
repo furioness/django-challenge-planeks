@@ -32,7 +32,7 @@ class TestSchemaFormCase(TestCase):
         form = SchemaForm(self.input_data)
         form.instance.user = self.user
 
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors.as_data)
         self.assertEqual(len(form.field_forms), 2)
 
         form.instance.save()
@@ -62,7 +62,7 @@ class TestSchemaFormCase(TestCase):
         input_data = self.input_data | {"fields": "[]"}
         form = SchemaForm(input_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {"fields": ["This field is required."]})
+        self.assertEqual(form.errors, {"fields": ["Please add some fields."]})
 
         input_data = self.input_data | {"fields": '["garbage in the list"]'}
         form = SchemaForm(input_data)
@@ -72,7 +72,7 @@ class TestSchemaFormCase(TestCase):
         input_data = self.input_data | {"fields": "{}"}
         form = SchemaForm(input_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {"fields": ["This field is required."]})
+        self.assertEqual(form.errors, {"fields": ["Please add some fields."]})
 
         input_data = self.input_data | {"fields": "[{}]"}
         form = SchemaForm(input_data)
@@ -109,12 +109,9 @@ class TestSchemaFormCase(TestCase):
         self.assertEqual(
             form.errors,
             {
-                "__all__": ["Invalid fields."],
-                "fields": ["This field cannot be null."],
+                "fields": ["Invalid fields."],
             },
         )
-        # slightly weird error but it can't be made via normal form submission anyway
-        # no need to check for further field fields error combinations as it's a job of field_forms
 
     def test_validate_duplicate_field_names(self):
         input_data = self.input_data.copy()
@@ -123,7 +120,7 @@ class TestSchemaFormCase(TestCase):
         )
         form = SchemaForm(self.input_data)
         self.assertFalse(form.is_valid())
-        self.assertIn("Duplicate field names: Name", form.errors["__all__"])
+        self.assertIn("Duplicate field names: Name", form.errors["forms"])
 
 
 class TestGenerateForm(TestCase):
