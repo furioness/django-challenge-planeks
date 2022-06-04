@@ -120,7 +120,9 @@ class TestSchemaFormCase(TestCase):
         )
         form = SchemaForm(self.input_data)
         self.assertFalse(form.is_valid())
-        self.assertIn("Duplicate field names: Name", form.errors["forms"])
+        self.assertListEqual(
+            ["Duplicate field names: Name"], form.errors["fields"]
+        )
 
 
 class TestGenerateForm(TestCase):
