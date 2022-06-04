@@ -13,8 +13,11 @@ coverage:
 	coverage xml
 	coverage html
 
-run:
+run: 
 	./manage.py runserver
+	
+celery:
+	celery --workdir datagen -A config worker -l INFO
 
 add_git_hooks:
 	cp pre-commit ./.git/hooks/pre-commit
