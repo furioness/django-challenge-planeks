@@ -28,7 +28,7 @@ jobs:
         run: poetry install
 
       - name: Get into virtual environment (Poetry)
-        run: poetry shell
+        run: source "$(poetry env info -p)/bin/activate"
 
       - name: Run formatter
         run: make format
