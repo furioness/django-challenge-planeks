@@ -1,9 +1,11 @@
 name: CI
 on: 
+  workflow_dispatch:
   push:
       branches: [$default-branch]
   pull_request:
       branches: [$default-branch]
+
 jobs:
   Run-tests-and-gather-coverage:
     runs-on: ubuntu-latest
