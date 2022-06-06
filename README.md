@@ -1,3 +1,5 @@
+[![CI](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml/badge.svg)](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml)
+
 # Junior Django dev application challenge
 
 ## Requirements
