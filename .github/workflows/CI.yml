@@ -33,7 +33,7 @@ jobs:
           make format
 
       - name: Start PostgreSQL and RabbitMQ (docker compose)
-        run: make docker
+        run: docker compose up -d
 
       - name: Run the tests with coverage
         run: |
