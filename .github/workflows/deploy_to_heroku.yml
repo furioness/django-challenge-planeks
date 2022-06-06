@@ -1,14 +1,16 @@
 name: Heroku Deploy
 
 on:
+  workflow_dispatch:
   workflow_run:
-    workflows: ["CI"]
+    workflows: [CI]
     branches: [$default-branch]
     types: 
       - completed
 
 jobs:
-  build:
+  deploy_to_heroku:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
