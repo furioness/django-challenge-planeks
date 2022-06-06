@@ -20,3 +20,4 @@ jobs:
           heroku_app_name: datagen-challenge 
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           dontautocreate: true
+          branch: master
