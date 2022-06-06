@@ -1,4 +1,5 @@
 [![CI](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml/badge.svg)](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml)
+[![Heroku Deploy](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml/badge.svg)](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml)
 
 # Junior Django dev application challenge
 
