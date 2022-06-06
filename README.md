@@ -8,9 +8,9 @@
 
 ## Try online
 Go to https://datagen-challenge.herokuapp.com/ (give a minute if stalled - Heroku bootup)
-and use the next credentials:  
-username: *preview*  
-login: *githubtest*
+and use the next **credentials**:  
+**username**: *preview*  
+**login**: *githubtest*
 
 ## Local setup:
 1. Run `docker compose up`
