@@ -27,18 +27,21 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Get into virtual environment (Poetry)
-        run: source "$(poetry env info -p)/bin/activate"
-
       - name: Run formatter
-        run: make format
+        run: |
+          source "$(poetry env info -p)/bin/activate"
+          make format
 
       - name: Start PostgreSQL and RabbitMQ (docker compose)
         run: make docker
 
       - name: Run the tests with coverage
-        run: make coverage
+        run: |
+          source "$(poetry env info -p)/bin/activate"
+          make coverage
 
       # TODO: add coverage label
       - name: Print out coverage report
-        run: coverage report
+        run: |
+          source "$(poetry env info -p)/bin/activate"
+          coverage report
