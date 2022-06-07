@@ -1,8 +1,7 @@
 name: CI
+
 on: 
   workflow_dispatch:
-  push:
-      branches: [master]
   pull_request:
       branches: [master]
 
@@ -45,3 +44,33 @@ jobs:
         run: |
           source "$(poetry env info -p)/bin/activate"
           coverage report
+
+  Security-check-CodeQl:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Set up python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+      
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: python
+        setup-python-dependencies: true
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
