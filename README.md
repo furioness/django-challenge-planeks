@@ -1,6 +1,7 @@
 [![CI](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml)
+[![CodeQL](https://github.com/furioness/django-challenge-planeks/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/codeql.yml)
 [![Heroku Deployment](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml)
-![wakatime](https://wakatime.com/badge/user/43ad3009-1842-4a4f-a7fa-e8332aeecd33/project/8209bb54-1f75-4b08-8ea1-eeaa06678f8f.svg "Time in editor. Multiply by ~1.5 for the real time.")
+![wakatime](https://wakatime.com/badge/user/43ad3009-1842-4a4f-a7fa-e8332aeecd33/project/8209bb54-1f75-4b08-8ea1-eeaa06678f8f.svg "Time in editor. Multiply by ~1.5-2.5 for the real time.")
 
 # Junior Django dev application challenge]
 
