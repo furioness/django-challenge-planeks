@@ -35,6 +35,11 @@ jobs:
       fail-fast: false
 
     steps:
+    - name: Set up python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+      
     - name: Checkout repository
       uses: actions/checkout@v3
 
@@ -42,7 +47,8 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        python-version: '3.10'
+        languages: python
+        setup-python-dependencies: true
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
