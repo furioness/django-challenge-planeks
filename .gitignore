@@ -13,6 +13,7 @@ media/
 
 #local settings
 */.env
+.env
 
 # VS code
 .vscode
@@ -22,3 +23,6 @@ media/
 .coverage
 coverage.xml
 htmlcov/
+
+# gitguard cache
+.cache_ggshield

@@ -24,4 +24,7 @@ set -e
 # format with black
 poetry run black --check $CHANGED_PYTHON_FILES
 
+# run ggshield sequrity scan
+poetry run bash -c "python -c 'from dotenv import load_dotenv;load_dotenv()'; ggshield secret scan pre-commit"
+
 echo "All checks successfully passed."
