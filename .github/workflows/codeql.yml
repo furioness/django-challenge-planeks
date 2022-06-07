@@ -42,7 +42,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: python
+        python-version: '3.10'
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
