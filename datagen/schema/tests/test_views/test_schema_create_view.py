@@ -5,11 +5,13 @@ from django.urls import resolve, reverse
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
 
-from ..views import CreateSchemaView
-from ..models import Schema
+from ... import views
+from ...models import Schema
 
 
-class GenericCBVTestsMixin:
+class TestCreateSchemaView(TestCase):
+    VIEW_URL = reverse("schema:create")
+
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(  # type: ignore
@@ -17,7 +19,9 @@ class GenericCBVTestsMixin:
         )
 
     def test_url_resolves_to_view(self):
-        self.assertIs(resolve(self.VIEW_URL).func.view_class, self.VIEW_CLASS)
+        self.assertIs(
+            resolve(self.VIEW_URL).func.view_class, views.CreateSchemaView
+        )
 
     def test_call_view_deny_anonymous(self):
         response = self.client.get(self.VIEW_URL, follow=True)
@@ -34,13 +38,7 @@ class GenericCBVTestsMixin:
     def test_view_uses_correct_template(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertTemplateUsed(response, self.VIEW_TEMPLATE)  # type: ignore
-
-
-class TestCreateSchemaView(GenericCBVTestsMixin, TestCase):
-    VIEW_URL = reverse("schema:create")
-    VIEW_CLASS = CreateSchemaView
-    VIEW_TEMPLATE = "schema/edit.html"
+        self.assertTemplateUsed(response, "schema/edit.html")  # type: ignore
 
     def test_successfully_creates_a_schema(self):
         self.client.force_login(self.user)
