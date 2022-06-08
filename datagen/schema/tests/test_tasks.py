@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import GeneratedData, Schema
+from ..models import Dataset, Schema
 from ..tasks import generate_data
 
 
@@ -33,7 +33,7 @@ class TestGenerateData(TestCase):
         )
 
     def create_dataset(self):
-        return GeneratedData.objects.create(num_rows=10, schema=self.schema)
+        return Dataset.objects.create(num_rows=10, schema=self.schema)
 
     def test_it_runs_locally_and_updates_file_field(self):
         dataset = self.create_dataset()

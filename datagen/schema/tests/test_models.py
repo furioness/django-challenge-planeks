@@ -6,7 +6,7 @@ from django.forms import Form
 from django.test import TestCase
 from django.utils import timezone
 
-from ..models import GeneratedData, Schema
+from ..models import Dataset, Schema
 from ..services.generator import Schema as GenSchema
 
 
@@ -66,10 +66,10 @@ class TestSchema(TestCase):
         schema: Schema = Schema.objects.create(
             name="Test schema", user=self.user, fields=self.FIELDS
         )
-        self.assertEqual(schema.generated_data.count(), 0)
+        self.assertEqual(schema.datasets.count(), 0)
         with mock.patch.object(tasks, "generate_data", mock.Mock()) as task:
             schema.run_generate_task(num_rows=10)
-            gen_data = schema.generated_data.first()
+            gen_data = schema.datasets.first()
             task.delay.assert_called_once_with(gen_data.id)
             self.assertEqual(gen_data.num_rows, 10)
 
@@ -103,7 +103,7 @@ class TestSchema(TestCase):
             )
 
         def test_model_instantiation(self):
-            gen_data: GeneratedData = GeneratedData.objects.create(
+            gen_data: Dataset = Dataset.objects.create(
                 schema=self.schema, num_rows=10
             )
             self.assertEqual(gen_data.schema, self.schema)
@@ -114,11 +114,11 @@ class TestSchema(TestCase):
             )
 
         def test_cascade_deletion(self):
-            self.assertEqual(0, self.schema.generated_data.count())
-            gen_data_id = GeneratedData.objects.create(
+            self.assertEqual(0, self.schema.datasets.count())
+            gen_data_id = Dataset.objects.create(
                 schema=self.schema, num_rows=10
             ).id
-            self.assertEqual(1, self.schema.generated_data.count())
+            self.assertEqual(1, self.schema.datasets.count())
             self.schema.delete()
             with self.assertRaises(Schema.DoesNotExist):
-                GeneratedData.objects.get(pk=gen_data_id)
+                Dataset.objects.get(pk=gen_data_id)
