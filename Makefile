@@ -1,22 +1,22 @@
 .PHONY: coverage
 
 docker:
-	docker compose up
+	docker compose up -d
 
-test_fast:
+test_fast: docker
 	python -Wa manage.py test datagen --settings=config.settings.test --shuffle --failfast --parallel --noinput --keepdb --verbosity=0
 
-coverage:
+coverage: docker
 	coverage erase
 	coverage run
 	coverage combine
 	coverage xml
 	coverage html
 
-run: 
+run: docker
 	./manage.py runserver
 	
-celery:
+celery: docker
 	celery --workdir datagen -A config worker -l INFO
 
 add_git_hooks:
