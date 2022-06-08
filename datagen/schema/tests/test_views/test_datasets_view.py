@@ -31,7 +31,7 @@ class TestSchemaDataSetsView(TestCase):
                 ],
             },
         )
-        
+
         cls.schema_2 = Schema.objects.create(
             user=cls.user,
             **{
@@ -48,7 +48,7 @@ class TestSchemaDataSetsView(TestCase):
                 ],
             },
         )
-    
+
     @property
     def VIEW_URL(self):
         return reverse("schema:datasets", kwargs={"pk": self.schema.pk})
@@ -77,35 +77,37 @@ class TestSchemaDataSetsView(TestCase):
 
     def test_render_datasets_list(self):
         self.client.force_login(self.user)
-        
-        self.schema.generated_data.create(num_rows=10)
-        self.schema.generated_data.create(num_rows=15)
-        generated = self.schema.generated_data.create(num_rows=20)
+
+        self.schema.datasets.create(num_rows=10)
+        self.schema.datasets.create(num_rows=15)
+        generated = self.schema.datasets.create(num_rows=20)
         generated.file.save("test.csv", StringIO("dummy data"))
-        
+
         # add generated data to see if it listed on a wrong page
-        self.schema_2.generated_data.create(num_rows=1337)
-        
+        self.schema_2.datasets.create(num_rows=1337)
+
         response = self.client.get(self.VIEW_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["schema"].generated_data.count(), 3)
+        self.assertEqual(response.context["schema"].datasets.count(), 3)
         self.assertContains(response, "Processing", count=2)
         self.assertContains(response, "Ready", count=1)
         self.assertContains(response, generated.file.url)
-        
+
     def test_lists_only_own_datasets(self):
-        self.schema.generated_data.create(num_rows=10)      
-        
+        self.schema.datasets.create(num_rows=10)
+
         user_2 = get_user_model().objects.create_user(  # type: ignore
             username="testuser_2", password="12345"
         )
         self.client.force_login(user_2)
-        
-        response = self.client.get(reverse("schema:datasets", kwargs={"pk": self.schema.pk}))
+
+        response = self.client.get(
+            reverse("schema:datasets", kwargs={"pk": self.schema.pk})
+        )
         self.assertEqual(response.status_code, 404)
-        
+
     def test_request_generation(self):
         self.client.force_login(self.user)
-        with mock.patch.object(Schema, 'run_generate_task') as mock_generate:
+        with mock.patch.object(Schema, "run_generate_task") as mock_generate:
             response = self.client.post(self.VIEW_URL, {"num_rows": 10})
             mock_generate.assert_called_once_with(10)

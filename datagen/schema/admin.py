@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import GeneratedData, Schema
+from .models import Dataset, Schema
 
 
-admin.site.register(GeneratedData)
+admin.site.register(Dataset)
 admin.site.register(Schema)

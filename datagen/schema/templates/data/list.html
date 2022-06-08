@@ -31,7 +31,7 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        {% for dataset in schema.generated_data.all %}
+        {% for dataset in schema.datasets.all %}
             <tr>
                 <td>{{ forloop.counter }} </td> 
                 <td> {{ dataset.created }}</td>

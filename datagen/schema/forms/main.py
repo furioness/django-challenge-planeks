@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Sum
 
-from ..models import Schema as SchemaModel, GeneratedData as GeneratedDataModel
+from ..models import Schema as SchemaModel, Dataset as GeneratedDataModel
 from .field_forms import FIELD_FORMS
 
 

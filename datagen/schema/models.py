@@ -32,16 +32,16 @@ class Schema(models.Model):
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
 
-        dataset = self.generated_data.create(num_rows=num_rows)  # type: ignore
+        dataset = self.datasets.create(num_rows=num_rows)  # type: ignore
         if settings.INPROCESS_CELERY_WORKER:
             generate_data.run(dataset.id)
         else:
             generate_data.delay(dataset.pk)
 
 
-class GeneratedData(models.Model):
+class Dataset(models.Model):
     schema = models.ForeignKey(
-        Schema, on_delete=models.CASCADE, related_name="generated_data"
+        Schema, on_delete=models.CASCADE, related_name="datasets"
     )
     num_rows = models.IntegerField()
     file = models.FileField(
