@@ -5,3 +5,5 @@ from .local_docker import *
 CELERY_BROKER = "pyamqp://@localhost/testing"
 
 TEMPLATES[0]["OPTIONS"]["debug"] = True  # For templates coverage plugin
+
+MEDIA_ROOT = "/tmp/testmedia/"
