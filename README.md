@@ -15,7 +15,7 @@ Also, check [Tasks](https://github.com/furioness/django-challenge-planeks/projec
 Go to https://datagen-challenge.herokuapp.com/ (give a minute if stalled - Heroku bootup)
 and use the next **credentials**:  
 **username**: *preview*  
-**login**: *githubtest*
+**password**: *githubtest*
 
 ## Local run setup
 1. Run `docker compose up`
