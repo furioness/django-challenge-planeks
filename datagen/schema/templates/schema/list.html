@@ -31,7 +31,7 @@
         </td>
         <td>{{ schema.modified }}</td>
         <td>
-            <a href="{% url 'schema:update' schema.id %}" class="text-decoration-none">Edit</a>
+            <a href="{% url 'schema:edit' schema.id %}" class="text-decoration-none">Edit</a>
             <a href="{% url 'schema:delete' schema.id %}" class="text-decoration-none">Delete</a>
         </td>
     </tr>

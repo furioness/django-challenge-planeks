@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .forms.field_forms import get_form_for_field
 from .services.generator import Schema as GenSchema
 
 
@@ -14,14 +14,28 @@ class Schema(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name="schemas"
     )
     modified = models.DateTimeField(auto_now=True)
-    fields = models.JSONField()
 
     def __str__(self):
         return self.name
 
     @property
+    def columns(self):
+        columns = []
+        for column_model in BaseColumn.__subclasses__():
+            columns.extend(column_model.objects.filter(schema=self))
+        return columns
+
+    @property
+    def columns_grouped_by_type(self):
+        return [
+            (column_model, column_model.objects.filter(schema=self))
+            for column_model in BaseColumn.__subclasses__()
+        ]
+
+    @property
     def gen_schema_instance(self) -> GenSchema:
-        return GenSchema.from_dict_list(self.fields)
+
+        return GenSchema.from_dict_list(self.columns)
 
     def get_field_forms(self):
         return [
@@ -48,3 +62,31 @@ class Dataset(models.Model):
         storage=settings.PRIVATE_MEDIA_STORAGE(), null=True
     )
     created = models.DateTimeField(auto_now_add=True)
+
+
+class BaseColumn(models.Model):
+    type = None
+    label = None
+    order = models.IntegerField(default=1)
+    name = models.CharField(max_length=255)
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class NameColumn(BaseColumn):
+    type = "name"
+    label = "Name"
+
+
+class RandomIntColumn(BaseColumn):
+    type = "random_int"
+    label = "Random integer"
+
+    min = models.IntegerField(
+        help_text='Min', default=1, validators=[MinValueValidator(-9999999)]
+    )
+    max = models.IntegerField(
+        help_text="Max", default=100, validators=[MaxValueValidator(9999999)]
+    )

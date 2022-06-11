@@ -9,9 +9,9 @@ from .field_forms import FIELD_FORMS
 class SchemaForm(forms.ModelForm):
     class Meta:
         model = SchemaModel
-        fields = ("name", "column_separator", "quotechar", "fields")
+        fields = ("name", "column_separator", "quotechar")
 
-    fields = forms.JSONField(widget=forms.HiddenInput(), error_messages={"required": "Please add some fields."})  # type: ignore
+    # fields = forms.JSONField(widget=forms.HiddenInput(), error_messages={"required": "Please add some fields."})  # type: ignore
     fieldFormsTemplates = FIELD_FORMS
 
     def __init__(self, *args, **kwargs):
