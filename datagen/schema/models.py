@@ -1,4 +1,5 @@
 from itertools import chain
+from re import U
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -63,13 +64,13 @@ class Dataset(models.Model):
 class BaseColumn(models.Model):
     type = None
     label = None
-    name = models.CharField(max_length=255, blank=False)
+    name = models.CharField(max_length=255)
     order = models.IntegerField(default=1)
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
-        unique_together = [("id", "name")]
+        unique_together = [("schema_id", "name")]
 
 
 class NameColumn(BaseColumn):
