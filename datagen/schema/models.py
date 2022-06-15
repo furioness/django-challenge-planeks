@@ -70,7 +70,6 @@ class BaseColumn(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = [("schema_id", "name")]
 
 
 class NameColumn(BaseColumn):
