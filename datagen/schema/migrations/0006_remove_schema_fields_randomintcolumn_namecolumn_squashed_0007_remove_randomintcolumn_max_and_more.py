@@ -7,41 +7,90 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    replaces = [('schema', '0006_remove_schema_fields_randomintcolumn_namecolumn'), ('schema', '0007_remove_randomintcolumn_max_and_more')]
+    replaces = [
+        ("schema", "0006_remove_schema_fields_randomintcolumn_namecolumn"),
+        ("schema", "0007_remove_randomintcolumn_max_and_more"),
+    ]
 
     dependencies = [
-        ('schema', '0005_alter_dataset_schema'),
+        ("schema", "0005_alter_dataset_schema"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='schema',
-            name='fields',
+            model_name="schema",
+            name="fields",
         ),
         migrations.CreateModel(
-            name='NameColumn',
+            name="NameColumn",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.IntegerField(default=1)),
-                ('name', models.CharField(max_length=255)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.IntegerField(default=1)),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='RandomIntColumn',
+            name="RandomIntColumn",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.IntegerField(default=1)),
-                ('name', models.CharField(max_length=255)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
-                ('max', models.IntegerField(default=100, help_text='Max', validators=[django.core.validators.MaxValueValidator(9999999)])),
-                ('min', models.IntegerField(default=1, help_text='Min', validators=[django.core.validators.MinValueValidator(-9999999)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.IntegerField(default=1)),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
+                (
+                    "max",
+                    models.IntegerField(
+                        default=100,
+                        help_text="Max",
+                        validators=[
+                            django.core.validators.MaxValueValidator(9999999)
+                        ],
+                    ),
+                ),
+                (
+                    "min",
+                    models.IntegerField(
+                        default=1,
+                        help_text="Min",
+                        validators=[
+                            django.core.validators.MinValueValidator(-9999999)
+                        ],
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

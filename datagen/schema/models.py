@@ -1,5 +1,8 @@
+from itertools import chain
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -20,28 +23,21 @@ class Schema(models.Model):
 
     @property
     def columns(self):
-        columns = []
-        for column_model in BaseColumn.__subclasses__():
-            columns.extend(column_model.objects.filter(schema=self))
-        return columns
+        return chain.from_iterable(
+            column_model.objects.filter(schema=self)
+            for column_model in BaseColumn.__subclasses__()
+        )
 
     @property
-    def columns_grouped_by_type(self):
-        return [
-            (column_model, column_model.objects.filter(schema=self))
+    def columns_grouped_by_type(self) -> dict:
+        return {
+            column_model: column_model.objects.filter(schema=self)
             for column_model in BaseColumn.__subclasses__()
-        ]
+        }
 
     @property
     def gen_schema_instance(self) -> GenSchema:
-
         return GenSchema.from_dict_list(self.columns)
-
-    def get_field_forms(self):
-        return [
-            get_form_for_field(field)
-            for field in self.gen_schema_instance.fields
-        ]
 
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
@@ -67,12 +63,13 @@ class Dataset(models.Model):
 class BaseColumn(models.Model):
     type = None
     label = None
+    name = models.CharField(max_length=255, blank=False)
     order = models.IntegerField(default=1)
-    name = models.CharField(max_length=255)
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
+        unique_together = [("id", "name")]
 
 
 class NameColumn(BaseColumn):
@@ -84,9 +81,16 @@ class RandomIntColumn(BaseColumn):
     type = "random_int"
     label = "Random integer"
 
-    min = models.IntegerField(
-        help_text='Min', default=1, validators=[MinValueValidator(-9999999)]
-    )
-    max = models.IntegerField(
-        help_text="Max", default=100, validators=[MaxValueValidator(9999999)]
-    )
+    min = models.IntegerField(default=1, validators=[])
+    max = models.IntegerField(default=100, validators=[])
+
+    def clean(self):
+        super().clean()
+        if self.min > self.max:
+            raise ValidationError(
+                {
+                    "__all__": "Min must be less than max.",
+                    "min": "Min must be less than max.",
+                    "max": "Max must be greater than min.",
+                }
+            )

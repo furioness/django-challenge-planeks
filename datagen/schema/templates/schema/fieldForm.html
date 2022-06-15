@@ -7,7 +7,7 @@
 {% endif %}
     <h5 class="d-inline-block">{{ fieldForm.instance.label }} field</h5>
     <a href="#" class="text-decoration-none fs-5 d-inline-block float-end text-danger"
-            onClick="this.parentElement.remove()">Delete</a>
+            onClick="deleteField(event)">Delete</a>
     <div class="row">
         {% bootstrap_form_errors fieldForm type="non_fields" %}
         {% for field in fieldForm.visible_fields %}
@@ -16,8 +16,8 @@
             {% bootstrap_field field show_label="skip" %}
         </div>
         {% endfor %}
+        {% for hidden in fieldForm.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
     </div>
-    {% for hidden in fieldForm.hidden_fields %}
-    {{ hidden }}
-    {% endfor %}
 </div>

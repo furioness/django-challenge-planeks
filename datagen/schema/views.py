@@ -13,8 +13,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import GenerateForm, FieldSelectForm
-from .models import Schema, BaseColumn
+from .forms import GenerateForm, FieldSelectForm, SchemaForm
 
 
 class BaseSchemaView(LoginRequiredMixin):
@@ -22,143 +21,30 @@ class BaseSchemaView(LoginRequiredMixin):
         return self.request.user.schemas.all()  # type: ignore
 
 
-# class CreateSchemaView(BaseSchemaView, CreateView):
-#     template_name = "schema/edit.html"
-#     form_class = SchemaForm
-#     extra_context = {"fieldSelectForm": FieldSelectForm()}
-#     success_url = reverse_lazy("schema:list")
-#
-#     def form_valid(self, form):
-#         form.instance.user = self.request.user
-#         return super().form_valid(form)
+class CreateSchemaView(BaseSchemaView, CreateView):
+    template_name = "schema/edit.html"
+    form_class = SchemaForm
+    prefix = "Schema"
+    extra_context = {"field_select_form": FieldSelectForm()}
+    success_url = reverse_lazy("schema:list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
 
-def create_schema_view(request):
-    if request.method == "POST":
-        schema_form = forms.modelform_factory(
-            Schema, fields=("name", "column_separator", "quotechar")
-        )(request.POST, prefix=Schema.__name__)
-        column_formsets = [
-            forms.modelformset_factory(
-                Column,
-                exclude=(
-                    "id",
-                    "schema",
-                ),
-            )(request.POST, prefix=Column.__name__)
-            for Column in BaseColumn.__subclasses__()
-        ]
-        schema_valid = schema_form.is_valid()
-        formsets_validity = [formset.is_valid() for formset in column_formsets]
-        if schema_valid and all(formsets_validity):
-            schema_form.instance.user = request.user
-            schema_form.save()
-            for column_formset in column_formsets:
-                for column_form in column_formset:
-                    column_form.instance.schema = schema_form.instance
-                column_formset.save()
-            return redirect(reverse("schema:list"))
-    else:
-        schema_form = forms.modelform_factory(
-            Schema, fields=("name", "column_separator", "quotechar")
-        )(prefix=Schema.__name__)
-        column_formsets = [
-            forms.modelformset_factory(
-                Column,
-                exclude=(
-                    "id",
-                    "schema",
-                ),
-            )(prefix=Column.__name__, queryset=Column.objects.none())
-            for Column in BaseColumn.__subclasses__()
-        ]
-    return render(
-        request,
-        "schema/edit.html",
-        {
-            "schema_form": schema_form,
-            "column_formsets": column_formsets,
-            "field_select_form": FieldSelectForm(),
-            "column_form_templates": [
-                (
-                    Column.__name__,
-                    forms.modelform_factory(Column, exclude=("id", "schema"))(
-                        prefix=Column.__name__ + "-!"
-                    ),
-                )
-                for Column in BaseColumn.__subclasses__()
-            ],
-        },
-    )
+class EditSchemaView(BaseSchemaView, UpdateView):
+    template_name = "schema/edit.html"
+    form_class = SchemaForm
+    prefix = "Schema"
+    extra_context = {"field_select_form": FieldSelectForm()}
+    success_url = reverse_lazy("schema:list")
 
-
-def edit_schema_view(request, pk):
-    schema = get_object_or_404(Schema, pk=pk, user=request.user)
-    if request.method == "POST":
-        schema_form = forms.modelform_factory(
-            Schema, fields=("name", "column_separator", "quotechar")
-        )(request.POST, instance=schema, prefix=Schema.__name__)
-        column_formsets = [
-            forms.modelformset_factory(
-                col_model,
-                exclude=(
-                    "id",
-                    "schema",
-                ),
-                extra=0
-            )(request.POST, queryset=columns, prefix=col_model.__name__)
-            for col_model, columns in schema.columns_grouped_by_type
-        ]
-        schema_valid = schema_form.is_valid()
-        formsets_validity = [formset.is_valid() for formset in column_formsets]
-        if schema_valid and all(formsets_validity):
-            schema_form.instance.user = request.user
-            schema_form.save()
-            for column_formset in column_formsets:
-                for column_form in column_formset:
-                    column_form.instance.schema = schema_form.instance
-                column_formset.save()
-            return redirect(reverse("schema:list"))
-    else:
-        schema_form = forms.modelform_factory(
-            Schema, fields=("name", "column_separator", "quotechar")
-        )(instance=schema, prefix=Schema.__name__)
-        column_formsets = [
-            forms.modelformset_factory(
-                col_model,
-                exclude=(
-                    "id",
-                    "schema",
-                ),
-                extra=0
-            )(queryset=columns, prefix=col_model.__name__)
-            for col_model, columns in schema.columns_grouped_by_type
-        ]
-    return render(
-        request,
-        "schema/edit.html",
-        {
-            "schema_form": schema_form,
-            "column_formsets": column_formsets,
-            "field_select_form": FieldSelectForm(),
-            "column_form_templates": [
-                (
-                    Column.__name__,
-                    forms.modelform_factory(Column, exclude=("id", "schema"))(
-                        prefix=Column.__name__ + "-!"
-                    ),
-                )
-                for Column in BaseColumn.__subclasses__()
-            ],
-        },
-    )
-
-
-# class UpdateSchemaView(BaseSchemaView, UpdateView):
-#     template_name = "schema/edit.html"
-#     form_class = SchemaForm
-#     extra_context = {"fieldSelectForm": FieldSelectForm()}
-#     success_url = reverse_lazy("schema:list")
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
 
 class DeleteSchemaView(BaseSchemaView, DeleteView):
