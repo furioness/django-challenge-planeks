@@ -66,6 +66,15 @@ class BaseColumnFormSet(forms.BaseModelFormSet):
         return forms.HiddenInput(attrs={"class": "deletion"})
 
 
+class ColumnWithOrderFieldLast(forms.ModelForm):
+    def __new__(cls, *args, **kwargs):
+        cls = super().__new__(cls)
+        fields = list(cls.base_fields.keys())
+        fields.remove("order")
+        cls.field_order = fields + ["order"]
+        return cls
+
+
 class SchemaForm(forms.ModelForm):
     class Meta:
         model = Schema
@@ -77,10 +86,8 @@ class SchemaForm(forms.ModelForm):
         self.column_formsets = [
             forms.modelformset_factory(
                 col_model,
-                exclude=(
-                    "id",
-                    "schema",
-                ),
+                form=ColumnWithOrderFieldLast,
+                exclude=("id", "schema"),
                 extra=0,
                 can_delete=True,
                 formset=BaseColumnFormSet,
