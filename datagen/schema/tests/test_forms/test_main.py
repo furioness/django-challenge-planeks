@@ -391,24 +391,32 @@ class TestSchemaFormCase(TestCase):
 
         form_data = {
             **self.copy_form_prepared(schema_data, "Schema", idx=None),
-            **self.copy_form_prepared(model_to_dict(name_col_1) | {"name": "Col 1 changed"}, "NameColumn"),
             **self.copy_form_prepared(
-                {"id": name_col_2.id,
-                 "name": "Col 2 changed name",
-                 "order": 1337},
+                model_to_dict(name_col_1) | {"name": "Col 1 changed"},
+                "NameColumn",
+            ),
+            **self.copy_form_prepared(
+                {
+                    "id": name_col_2.id,
+                    "name": "Col 2 changed name",
+                    "order": 1337,
+                },
                 "NameColumn",
                 idx=1,
             ),
             **self.copy_form_prepared(
-                {"name": "Col 3 changed name",
-                 "order": 1339},
+                {"name": "Col 3 changed name", "order": 1339},
                 "NameColumn",
                 idx=2,
             ),
-            **self.get_management_form({"NameColumn": {"total": 3, "initial": 2}}),
+            **self.get_management_form(
+                {"NameColumn": {"total": 3, "initial": 2}}
+            ),
         }
 
-        form = SchemaForm(form_data, instance=schema_1, user=self.user, prefix="Schema")
+        form = SchemaForm(
+            form_data, instance=schema_1, user=self.user, prefix="Schema"
+        )
         self.assertTrue(form.is_valid())
         form.save()
         name_col_2_initial = model_to_dict(name_col_2)

@@ -1,36 +1,27 @@
 from typing import OrderedDict, List, Generator
-import json
 
 from factory import Faker, ListFactory
 
 
 class Field:
-    def __init__(self, name, f_type, f_params, order) -> None:
+    def __init__(self, name: str, type: str, order: int, params: dict):
         self.name = name
-        self.f_type = f_type
-        self.f_params = f_params
+        self.type = type
         self.order = order
+        self.params = params
 
-    def __str__(self) -> str:
-        return f"Field(name={self.name}, f_type={self.f_type}, f_params={self.f_params}, order={self.order})"
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "f_type": self.f_type,
-            "f_params": self.f_params,
-            "order": self.order,
-        }
+    def __str__(self):
+        return f"Field(name={self.name}, f_type={self.type}, f_params={self.params}, order={self.order})"
 
 
 class Schema:
-    def __init__(self, fields: List[Field]) -> None:
+    def __init__(self, fields: List[Field]):
         self.fields = sorted(fields, key=lambda x: x.order)
         self.header: list[str] = [field.name for field in self.fields]
 
-    def _get_Factory(self) -> ListFactory:
+    def _get_Factory(self) -> ListFactory:  # NOSONAR
         key_values = [
-            (f"f_{idx}", Faker(field.f_type, **field.f_params))
+            (f"f_{idx}", Faker(field.type, **field.params))
             for idx, field in enumerate(self.fields)
         ]
         return type("_Factory", (ListFactory,), OrderedDict(key_values))  # type: ignore
@@ -40,9 +31,11 @@ class Schema:
         for _ in range(num_records):
             yield factory()  # type: ignore
 
-    def to_JSON(self) -> str:
-        return json.dumps([field.to_dict() for field in self.fields])
-
     @staticmethod
-    def from_dict_list(fields_dict: List[dict]) -> "Schema":
-        return Schema([Field(**field) for field in fields_dict])
+    def from_dict_list(fields: list[tuple[str, str, int, dict]]) -> "Schema":
+        return Schema(
+            [
+                Field(name, type, order, params)
+                for name, type, order, params in fields
+            ]
+        )

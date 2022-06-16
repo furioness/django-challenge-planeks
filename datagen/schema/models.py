@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.forms.models import model_to_dict
 
 from .services.generator import Schema as GenSchema
 
@@ -37,7 +38,19 @@ class Schema(models.Model):
 
     @property
     def gen_schema_instance(self) -> GenSchema:
-        return GenSchema.from_dict_list(self.columns)
+        return GenSchema.from_dict_list(
+            [  # TODO: this exclusion is kind a hack, something better?
+                (
+                    column.name,
+                    column.type,
+                    column.order,
+                    model_to_dict(
+                        column, exclude=("id", "name", "order", "schema")
+                    ),
+                )
+                for column in self.columns
+            ]
+        )
 
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
@@ -59,21 +72,24 @@ class Dataset(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
+
 class CheckAttrsMeta(type(models.Model)):
     """Ensure that non-abstract children models
     have `label` and `type` attributes set.
     """
-    def __new__(metacls, name, bases, namespace, **kwargs):
-        if getattr(namespace.get('Meta', {}), 'abstract', False):
+
+    def __new__(metacls, name, bases, namespace, **kwargs):  # type: ignore
+        if getattr(namespace.get("Meta", {}), "abstract", False):
             return super().__new__(metacls, name, bases, namespace, **kwargs)
-        
-        if not namespace.get('type', None):
-            raise ValueError(f"{name} has no type specified.")
-        if not namespace.get('label', None):  # construct label from type
-            namespace['label'] = namespace['type'].title().replace("_", " ")
+
+        if not namespace.get("type", None):
+            raise AttributeError(f"{name} has no type specified.")
+        if not namespace.get("label", None):  # construct label from type
+            namespace["label"] = namespace["type"].title().replace("_", " ")
 
         return super().__new__(metacls, name, bases, namespace, **kwargs)
-    
+
+
 class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
     label: str
     type: str
@@ -134,7 +150,8 @@ class AddressFieldForm(BaseColumn):
 
 class DateFieldForm(BaseColumn):
     type = "date"
-    
+
+
 class SentencesFieldForm(BaseColumn):
     type = "sentences_variable_str"
     label = "Sentences"
@@ -145,7 +162,7 @@ class SentencesFieldForm(BaseColumn):
     nb_max = models.IntegerField(
         default=1, validators=[MinValueValidator(1), MaxValueValidator(100000)]
     )
-    
+
     def clean(self):
         super().clean()
         if self.nb_min > self.nb_max:

@@ -8,114 +8,244 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schema', '0008_alter_randomintcolumn_max_alter_randomintcolumn_min'),
+        ("schema", "0008_alter_randomintcolumn_max_alter_randomintcolumn_min"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='namecolumn',
+            name="namecolumn",
             unique_together=set(),
         ),
         migrations.AlterUniqueTogether(
-            name='randomintcolumn',
+            name="randomintcolumn",
             unique_together=set(),
         ),
         migrations.CreateModel(
-            name='SentencesFieldForm',
+            name="SentencesFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('nb_min', models.IntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100000)])),
-                ('nb_max', models.IntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100000)])),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "nb_min",
+                    models.IntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(100000),
+                        ],
+                    ),
+                ),
+                (
+                    "nb_max",
+                    models.IntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(100000),
+                        ],
+                    ),
+                ),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PhoneNumberFieldForm',
+            name="PhoneNumberFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='JobFieldForm',
+            name="JobFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='EmailFieldForm',
+            name="EmailFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='DomainFieldForm',
+            name="DomainFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='DateFieldForm',
+            name="DateFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CompanyFieldForm',
+            name="CompanyFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='AddressFieldForm',
+            name="AddressFieldForm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('order', models.IntegerField(default=1)),
-                ('schema', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schema.schema')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("order", models.IntegerField(default=1)),
+                (
+                    "schema",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="schema.schema",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]
