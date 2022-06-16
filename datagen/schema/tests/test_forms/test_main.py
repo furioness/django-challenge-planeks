@@ -1,10 +1,11 @@
+from typing import List
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.forms.models import model_to_dict
 from django.test import TestCase
 
-from ..forms import GenerateForm, SchemaForm
-from ..models import Schema, NameColumn, RandomIntColumn
+from ...forms import GenerateForm, SchemaForm
+from ...models import BaseColumn, Schema, NameColumn, RandomIntColumn
 
 
 class TestSchemaFormCase(TestCase):
@@ -28,11 +29,18 @@ class TestSchemaFormCase(TestCase):
         return copy
 
     @staticmethod
-    def get_management_form(prefix, total=1, initial=0) -> dict:
-        return {
-            f"{prefix}-TOTAL_FORMS": total,
-            f"{prefix}-INITIAL_FORMS": initial,
-        }
+    def get_management_form(custom_columns: dict) -> dict:
+        """Input data in format of `{prefix: {total: 1, initial: 0}}` or
+        {prefix: {}} for a prefix with `total` of `1` and `initial` - `0`"""
+        management_data = {}
+        for prefix in BaseColumn.__subclasses__():
+            management_data[f"{prefix.__name__}-TOTAL_FORMS"] = 0
+            management_data[f"{prefix.__name__}-INITIAL_FORMS"] = 0
+        for prefix, conf in custom_columns.items():
+            management_data[f"{prefix}-TOTAL_FORMS"] = conf.get("total", 1)
+            management_data[f"{prefix}-INITIAL_FORMS"] = conf.get("initial", 0)
+
+        return management_data
 
     def test_simple_data_instantiation_from_instance(self):
         schema = Schema.objects.create(
@@ -88,9 +96,10 @@ class TestSchemaFormCase(TestCase):
         form_data = {
             **schema_data,
             **self.copy_form_prepared(name_col_data, "NameColumn"),
-            **self.get_management_form("NameColumn"),
             **self.copy_form_prepared(random_int_data, "RandomIntColumn"),
-            **self.get_management_form("RandomIntColumn"),
+            **self.get_management_form(
+                {"NameColumn": {}, "RandomIntColumn": {}}
+            ),
         }
         form = SchemaForm(form_data, user=self.user)
         self.assertTrue(form.is_valid())
@@ -138,8 +147,12 @@ class TestSchemaFormCase(TestCase):
                 model_to_dict(rand_int), "RandomIntColumn"
             ),
             **self.copy_form_prepared({"DELETE": True}, "RandomIntColumn"),
-            **self.get_management_form("NameColumn", initial=1),
-            **self.get_management_form("RandomIntColumn", initial=1),
+            **self.get_management_form(
+                {
+                    "NameColumn": {"initial": 1},
+                    "RandomIntColumn": {"initial": 1},
+                }
+            ),
         }
 
         form = SchemaForm(form_data, instance=schema, user=self.user)
@@ -149,7 +162,7 @@ class TestSchemaFormCase(TestCase):
         with self.assertRaises(rand_int.DoesNotExist):
             rand_int.refresh_from_db()
 
-    def test_delete_all_columns_is_disallowed(self):
+    def test_deleting_all_columns_is_disallowed(self):
         schema = Schema.objects.create(
             name="Test schema",
             column_separator=",",
@@ -169,8 +182,12 @@ class TestSchemaFormCase(TestCase):
                 model_to_dict(rand_int), "RandomIntColumn"
             ),
             **self.copy_form_prepared({"DELETE": True}, "RandomIntColumn"),
-            **self.get_management_form("NameColumn", initial=1),
-            **self.get_management_form("RandomIntColumn", initial=1),
+            **self.get_management_form(
+                {
+                    "NameColumn": {"initial": 1},
+                    "RandomIntColumn": {"initial": 1},
+                }
+            ),
         }
 
         form = SchemaForm(form_data, instance=schema, user=self.user)
@@ -192,11 +209,11 @@ class TestSchemaFormCase(TestCase):
         form_data = {
             **schema_data,
             **self.copy_form_prepared(name_col_data, "NameColumn"),
-            **self.get_management_form("NameColumn"),
+            **self.get_management_form({"NameColumn": {}}),
         }
         form = SchemaForm(form_data, user=self.user)
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 4)
+        self.assertEqual(len(form.errors), 3)
         self.assertListEqual(form.errors["name"], ["This field is required."])
         self.assertListEqual(
             form.errors["quotechar"],
@@ -238,8 +255,12 @@ class TestSchemaFormCase(TestCase):
             **schema_data,
             **self.copy_form_prepared(name_col_data, "NameColumn"),
             **self.copy_form_prepared(random_int_data, "RandomIntColumn"),
-            **self.get_management_form("NameColumn", 1),
-            **self.get_management_form("RandomIntColumn", 1),
+            **self.get_management_form(
+                {
+                    "NameColumn": {"initial": 1},
+                    "RandomIntColumn": {"initial": 1},
+                }
+            ),
         }
 
         form = SchemaForm(form_data, user=self.user, prefix="Schema")
@@ -284,8 +305,9 @@ class TestSchemaFormCase(TestCase):
             **self.copy_form_prepared(name_col_data, "NameColumn"),
             **self.copy_form_prepared(name_col_data_2, "NameColumn", 1),
             **self.copy_form_prepared(random_int_data, "RandomIntColumn"),
-            **self.get_management_form("NameColumn", 1),
-            **self.get_management_form("RandomIntColumn", 1),
+            **self.get_management_form(
+                {"NameColumn": {"total": 1}, "RandomIntColumn": {"total": 1}}
+            ),
         }
 
         form = SchemaForm(form_data, user=self.user, prefix="Schema")
@@ -324,8 +346,9 @@ class TestSchemaFormCase(TestCase):
             **self.copy_form_prepared(schema_data, "Schema", idx=None),
             **self.copy_form_prepared(name_col_data, "NameColumn"),
             **self.copy_form_prepared(random_int_data, "RandomIntColumn"),
-            **self.get_management_form("NameColumn", 1),
-            **self.get_management_form("RandomIntColumn", 1),
+            **self.get_management_form(
+                {"NameColumn": {"total": 1}, "RandomIntColumn": {"total": 1}}
+            ),
         }
 
         form = SchemaForm(form_data, user=self.user, prefix="Schema")
@@ -343,6 +366,57 @@ class TestSchemaFormCase(TestCase):
             form.column_formsets[0][0].errors["name"],
             form.column_formsets[1][0].errors["name"],
         )
+
+    def test_invalidate_forged_column_ids(self):
+        """Test ids from another schemas or just nonexistent.
+        Seems like normally it will just drop any object with id being not listed in initial data. There is also save_new and save_existing additional methods."""
+        schema_data = {
+            "name": "Test schema",
+            "column_separator": ",",
+            "quotechar": '"',
+        }
+        schema_1 = Schema.objects.create(**schema_data, user=self.user)
+
+        name_col_data = {"name": "Name 1", "order": 1}
+        name_col_1 = NameColumn.objects.create(
+            **name_col_data, schema=schema_1
+        )
+
+        schema_2 = Schema.objects.create(
+            **(schema_data | {"name": "Test schema 2"}), user=self.user
+        )
+        name_col_2 = NameColumn.objects.create(
+            **(name_col_data | {"name": "Name 2"}), schema=schema_2
+        )
+
+        form_data = {
+            **self.copy_form_prepared(schema_data, "Schema", idx=None),
+            **self.copy_form_prepared(model_to_dict(name_col_1) | {"name": "Col 1 changed"}, "NameColumn"),
+            **self.copy_form_prepared(
+                {"id": name_col_2.id,
+                 "name": "Col 2 changed name",
+                 "order": 1337},
+                "NameColumn",
+                idx=1,
+            ),
+            **self.copy_form_prepared(
+                {"name": "Col 3 changed name",
+                 "order": 1339},
+                "NameColumn",
+                idx=2,
+            ),
+            **self.get_management_form({"NameColumn": {"total": 3, "initial": 2}}),
+        }
+
+        form = SchemaForm(form_data, instance=schema_1, user=self.user, prefix="Schema")
+        self.assertTrue(form.is_valid())
+        form.save()
+        name_col_2_initial = model_to_dict(name_col_2)
+        name_col_2.refresh_from_db()
+        self.assertDictEqual(name_col_2_initial, model_to_dict(name_col_2))
+        name_col_1.refresh_from_db()
+        self.assertEqual(name_col_1.name, "Col 1 changed")
+        self.assertEqual(NameColumn.objects.count(), 3)
 
 
 class TestGenerateForm(TestCase):

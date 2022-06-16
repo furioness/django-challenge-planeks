@@ -40,7 +40,7 @@ class FieldSelectForm(forms.Form):
         ),
         label="Type",
     )
-    order = forms.IntegerField()
+    order = forms.IntegerField(initial=1)
     column_form_templates = [
         (
             Column.__name__,
