@@ -107,7 +107,7 @@ class TestCustomSentencesProvider(SimpleTestCase, AssertBetweenMixin):
         class TestFactory(ListFactory):
             lorem = Faker("sentences_variable_str")
 
-        row = TestFactory()
+        row: list = TestFactory() # type: ignore
         self.assertIsInstance(row, list)
         self.assertTrue(len(row), 1)
         self.assertIsInstance(row[0], str)
@@ -124,15 +124,15 @@ class TestCustomSentencesProvider(SimpleTestCase, AssertBetweenMixin):
         class OneToFourSentences(ListFactory):
             lorem = Faker("sentences_variable_str", nb_min=1, nb_max=4)
 
-        singles = [SingleSentence()[0] for _ in range(50)]
+        singles = [SingleSentence()[0] for _ in range(50)]  # type: ignore
         mean_1 = mean(len(sentence) for sentence in singles)
         total_1 = sum(len(sentence) for sentence in singles)
 
-        fourths = [FourSentenced()[0] for _ in range(50)]
+        fourths = [FourSentenced()[0] for _ in range(50)]  # type: ignore
         mean_4 = mean(len(sentence) for sentence in fourths)
         total_4 = sum(len(sentence) for sentence in fourths)
 
-        one_to_fourths = [OneToFourSentences()[0] for _ in range(50)]
+        one_to_fourths = [OneToFourSentences()[0] for _ in range(50)]  # type: ignore
         mean_1_to_4 = mean(len(sentence) for sentence in one_to_fourths)
         total_1_to_4 = sum(len(sentence) for sentence in one_to_fourths)
 

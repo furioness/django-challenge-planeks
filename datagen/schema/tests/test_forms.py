@@ -429,7 +429,7 @@ class TestSchemaFormCase(TestCase):
 class TestGenerateForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(
+        cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
         # TODO: solve the mystery: if creating cls.request here (and not overwrite in setUp), user.has_perm will fail.
