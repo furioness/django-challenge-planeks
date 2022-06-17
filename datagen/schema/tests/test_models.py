@@ -24,6 +24,7 @@ from ..models import (
     SentencesColumn,
 )
 from ..services.generator import Generator
+from . import AssertBetweenMixin
 
 
 class TestSchema(TestCase):
@@ -140,7 +141,7 @@ class TestAttrsMetaClass(TestCase):
         self.assertEqual(meta.label, "Test Type")
 
 
-class TestColumnsBasic(TestCase):
+class TestColumnsBasic(AssertBetweenMixin, TestCase):
     COLUMNS = BaseColumn.__subclasses__()
     tested_classes = set()
 
@@ -159,11 +160,6 @@ class TestColumnsBasic(TestCase):
     def get_sample_gen_data(cls, column_instance: BaseColumn):
         cls.tested_classes.add(type(column_instance))
         return cls.get_Factory(column_instance.type, column_instance.params)()[0]  # type: ignore
-
-    @staticmethod
-    def assertBetween(value, low, high):
-        if not (low <= value <= high):
-            raise AssertionError(f"{value} is not between {low} and {high}")
 
     def test_simple_columns_instantiation(self):
         for column in self.COLUMNS:
