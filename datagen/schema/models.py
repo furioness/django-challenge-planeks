@@ -44,9 +44,7 @@ class Schema(models.Model):
                 column.name,
                 column.type,
                 column.order,
-                model_to_dict(
-                    column, exclude=("id", "name", "order", "schema")
-                ),
+                column.params,
             )
             for column in self.columns
         )
@@ -98,6 +96,10 @@ class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
 
     class Meta:
         abstract = True
+
+    @property
+    def params(self):
+        return model_to_dict(self, exclude=("id", "name", "order", "schema"))
 
 
 class NameColumn(BaseColumn):
