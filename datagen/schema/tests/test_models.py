@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -7,8 +7,22 @@ from django.test import TestCase
 from django.utils import timezone
 from factory import Faker, ListFactory
 
-from ..models import (BaseColumn, CheckAttrsMeta, Dataset, NameColumn,
-                      RandomIntColumn, Schema, SentencesColumn)
+from ..models import (
+    AddressColumn,
+    BaseColumn,
+    CheckAttrsMeta,
+    CompanyColumn,
+    Dataset,
+    DateColumn,
+    DomainColumn,
+    EmailColumn,
+    JobColumn,
+    NameColumn,
+    PhoneNumberColumn,
+    RandomIntColumn,
+    Schema,
+    SentencesColumn,
+)
 from ..services.generator import Generator
 
 
@@ -126,7 +140,10 @@ class TestAttrsMetaClass(TestCase):
         self.assertEqual(meta.label, "Test Type")
 
 
-class TestSimpleColumns(TestCase):
+class TestColumnsBasic(TestCase):
+    COLUMNS = BaseColumn.__subclasses__()
+    tested_classes = set()
+
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(  # type: ignore
@@ -135,103 +152,130 @@ class TestSimpleColumns(TestCase):
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
 
     @staticmethod
-    def simple_models():
-        base_field_names = ["id"] + [
-            field.name for field in BaseColumn._meta.fields
-        ]
-        return [
-            model
-            for model in BaseColumn.__subclasses__()
-            if all(field.name in base_field_names for field in model._meta.fields)
-        ]
-
-    @staticmethod
     def get_Factory(type_, params) -> ListFactory:
         return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
-    
+
+    @classmethod
+    def get_sample_gen_data(cls, column_instance: BaseColumn):
+        cls.tested_classes.add(type(column_instance))
+        return cls.get_Factory(column_instance.type, column_instance.params)()[0]  # type: ignore
+
+    @staticmethod
+    def assertBetween(value, low, high):
+        if not (low <= value <= high):
+            raise AssertionError(f"{value} is not between {low} and {high}")
+
     def test_simple_columns_instantiation(self):
-        for column in self.simple_models():
-            col = column.objects.create(schema=self.schema, name='Test col')
-            self.assertEqual(col, column.objects.get(pk=col.id, name='Test col'))
+        for column in self.COLUMNS:
+            col = column.objects.create(schema=self.schema, name="Test col")
+            self.assertEqual(
+                col, column.objects.get(pk=col.id, name="Test col")
+            )
 
     def test_simple_columns_have_existend_faker_type(self):
-        for column in self.simple_models():
-            self.assertIsNotNone(self.get_Factory(column.type, {})()[0])
-            
-    
-class TestRandomIntColumn(TestCase):
+        for model in self.COLUMNS:
+            column = model(schema=self.schema, name="Test col")
+            self.assertIsNotNone(
+                self.get_Factory(column.type, column.params)()[0]  # type: ignore
+            )
+
+    def test_simple_columns_faker_type_is_heuristically_correct(self):
+        """Test that instantiating throws no errors and returns something sane. Also check that all the classes has been tested."""
+        data = self.get_sample_gen_data(
+            NameColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 5)
+
+        data = self.get_sample_gen_data(
+            RandomIntColumn(name="Col", schema=self.schema, min=18, max=65),
+        )
+        self.assertIsInstance(data, int)
+
+        data = self.get_sample_gen_data(
+            JobColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 3)
+
+        data = self.get_sample_gen_data(
+            EmailColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 5)
+        self.assertIn("@", data)
+
+        data = self.get_sample_gen_data(
+            PhoneNumberColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 1)
+        self.assertTrue(any(data.isdigit() for data in data))
+
+        data = self.get_sample_gen_data(
+            DomainColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 1)
+        second, top = data.split(".")
+        self.assertBetween(len(top), 2, 7)
+
+        data = self.get_sample_gen_data(
+            CompanyColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 1)
+
+        data = self.get_sample_gen_data(
+            AddressColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        self.assertGreater(len(data), 1)
+
+        data = self.get_sample_gen_data(
+            DateColumn(name="Col", schema=self.schema)
+        )
+        self.assertIsInstance(data, str)
+        datetime.fromisoformat(data)
+
+        data = self.get_sample_gen_data(
+            SentencesColumn(name="Col", schema=self.schema, nb_min=1, nb_max=2)
+        )
+        self.assertIsInstance(data, str)
+        self.assertBetween(len(data), 5, 150)
+
+        self.assertSetEqual(
+            self.tested_classes,
+            set(self.COLUMNS),
+            msg=f"{self.tested_classes  - set(self.COLUMNS)} were tested.",
+        )
+
+
+class TestRandomIntColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
-        
-    @staticmethod
-    def get_Factory(type_, params) -> ListFactory:
-        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
-    
-    def test_column_instantiation(self):
-        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col')
-        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col'))
-        
-        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col 2', min=123, max=567)
-        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col 2', min=123, max=567))
-        
+
     def test_invalidates_incorrect_min_max(self):
-        col = RandomIntColumn(schema=self.schema, name='Test col 2', min=765, max=432)
+        col = RandomIntColumn(
+            schema=self.schema, name="Test col 2", min=765, max=432
+        )
         self.assertRaises(ValidationError, col.full_clean)
-        
-        
-class TestRandomIntColumn(TestCase):
+
+
+class TestSentencesColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
-        
-    @staticmethod
-    def get_Factory(type_, params) -> ListFactory:
-        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
-    
-    def test_column_instantiation(self):
-        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col')
-        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col'))
-        
-        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col 2', min=123, max=567)
-        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col 2', min=123, max=567))
-        
-    def test_column_have_existend_faker_type(self):
-        self.assertIsNotNone(self.get_Factory(RandomIntColumn.type, {})()[0])
-        
+
     def test_invalidates_incorrect_min_max(self):
-        col = RandomIntColumn(schema=self.schema, name='Test col 2', min=765, max=432)
-        self.assertRaises(ValidationError, col.full_clean)
-        
-        
-class TestSentencesField(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
-            username="testuser", password="12345"
+        col = SentencesColumn(
+            schema=self.schema, name="Test col 2", nb_min=765, nb_max=432
         )
-        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
-        
-    @staticmethod
-    def get_Factory(type_, params) -> ListFactory:
-        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
-    
-    def test_column_instantiation(self):
-        col = SentencesColumn.objects.create(schema=self.schema, name='Test col')
-        self.assertEqual(col, SentencesColumn.objects.get(pk=col.id, name='Test col'))
-        
-        col = SentencesColumn.objects.create(schema=self.schema, name='Test col 2', nb_min=123, nb_max=567)
-        self.assertEqual(col, SentencesColumn.objects.get(pk=col.id, name='Test col 2', nb_min=123, nb_max=567))
-        
-    def test_column_have_existend_faker_type(self):
-        self.assertIsNotNone(self.get_Factory(SentencesColumn.type, {})()[0])
-        
-    def test_invalidates_incorrect_min_max(self):
-        col = SentencesColumn(schema=self.schema, name='Test col 2', nb_min=765, nb_max=432)
         self.assertRaises(ValidationError, col.full_clean)
