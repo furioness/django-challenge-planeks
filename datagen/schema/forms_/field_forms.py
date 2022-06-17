@@ -1,7 +1,7 @@
 from copy import copy
 from django import forms
 
-from ..services.generator import Field
+from ..services.generator import ColumnDTO
 
 
 class BaseFieldForm(forms.Form):
@@ -43,7 +43,7 @@ class BaseFieldForm(forms.Form):
         super().__init__(data, *args, **kwargs)
 
     def to_schema_field(self):
-        return Field(
+        return ColumnDTO(
             name=self.cleaned_data["name"],
             f_type=self.type,
             f_params=self._get_params(),
@@ -147,7 +147,7 @@ FIELD_FORMS = {
 [form() for form in FIELD_FORMS.values()]
 
 
-def get_form_for_field(field: Field):
+def get_form_for_field(field: ColumnDTO):
     return FIELD_FORMS[field.f_type](
         data={"name": field.name, "order": field.order, **field.f_params}
     )

@@ -3,11 +3,12 @@ from itertools import chain
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.forms.models import model_to_dict
 
-from .services.generator import Schema as GenSchema
+from .services.generator import Generator, ColumnDTO
 
 
 class Schema(models.Model):
@@ -37,19 +38,17 @@ class Schema(models.Model):
         }
 
     @property
-    def gen_schema_instance(self) -> GenSchema:
-        return GenSchema.from_dict_list(
-            [  # TODO: this exclusion is kind a hack, something better?
-                (
-                    column.name,
-                    column.type,
-                    column.order,
-                    model_to_dict(
-                        column, exclude=("id", "name", "order", "schema")
-                    ),
-                )
-                for column in self.columns
-            ]
+    def get_generator(self) -> Generator:
+        return Generator(
+            ColumnDTO(
+                column.name,
+                column.type,
+                column.order,
+                model_to_dict(
+                    column, exclude=("id", "name", "order", "schema")
+                ),
+            )
+            for column in self.columns
         )
 
     def run_generate_task(self, num_rows: int):
@@ -79,13 +78,13 @@ class CheckAttrsMeta(type(models.Model)):
     """
 
     def __new__(metacls, name, bases, namespace, **kwargs):  # type: ignore
-        if getattr(namespace.get("Meta", {}), "abstract", False):
+        if getattr(namespace.get("Meta"), "abstract", False):
             return super().__new__(metacls, name, bases, namespace, **kwargs)
 
         if not namespace.get("type", None):
             raise AttributeError(f"{name} has no type specified.")
         if not namespace.get("label", None):  # construct label from type
-            namespace["label"] = namespace["type"].title().replace("_", " ")
+            namespace["label"] = namespace["type"].replace("_", " ").title()
 
         return super().__new__(metacls, name, bases, namespace, **kwargs)
 
@@ -93,7 +92,7 @@ class CheckAttrsMeta(type(models.Model)):
 class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
     label: str
     type: str
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, validators=[MinLengthValidator(1)])
     order = models.IntegerField(default=1)
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
 

@@ -10,7 +10,7 @@ from django.test import SimpleTestCase
 from factory import Faker, ListFactory
 
 from ..services.data_saving import generate_to_csv
-from ..services.generator import Field, Schema
+from ..services.generator import ColumnDTO, Generator
 from ..tests import AssertBetweenMixin
 
 
@@ -25,12 +25,12 @@ class TestSchemaField(SimpleTestCase):
     }
 
     def test_to_dict(self):
-        field = Field(**self.KWARGS)
+        field = ColumnDTO(**self.KWARGS)
         self.assertDictEqual(field.to_dict(), self.KWARGS)
 
     def test_to_str(self):
         """Test that it at least isn't crashes and return non-empty string"""
-        self.assertTrue(str(Field(**self.KWARGS)))
+        self.assertTrue(str(ColumnDTO(**self.KWARGS)))
 
 
 class TestSchema(SimpleTestCase, AssertBetweenMixin):
@@ -39,9 +39,9 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
     def setUp(self) -> None:
         self.rand_int_params = {"min": 18, "max": 65}
         self.fields = [
-            Field("Full name", "name", {}, 0),
-            Field("Company", "company", {}, 2),
-            Field("Age", "random_int", self.rand_int_params, 1),
+            ColumnDTO("Full name", "name", {}, 0),
+            ColumnDTO("Company", "company", {}, 2),
+            ColumnDTO("Age", "random_int", self.rand_int_params, 1),
         ]
         self.sorted_header = ["Full name", "Age", "Company"]
 
@@ -52,7 +52,7 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
 
     def test_correct_init(self):
         """ "Test that schema correctly sorts fields and parses the header"""
-        schema = Schema(self.fields)
+        schema = Generator(self.fields)
 
         self.assertEqual(
             [field.name for field in schema.fields], self.sorted_header
@@ -64,19 +64,19 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
         list_of_field_dicts = [field.to_dict() for field in self.fields]
         # check equality by fields
         self.assertSchemaFieldsEqual(
-            Schema.from_dict_list(list_of_field_dicts), Schema(self.fields)
+            Generator.from_dict_list(list_of_field_dicts), Generator(self.fields)
         )
 
     def test_to_JSON(self):
-        schema = Schema(self.fields)
+        schema = Generator(self.fields)
         schema_json = schema.to_JSON()
         self.assertSchemaFieldsEqual(
-            schema, Schema.from_dict_list(json.loads(schema_json))
+            schema, Generator.from_dict_list(json.loads(schema_json))
         )
 
     def test_get_generator(self):
         """Return a Factory class with correct fields and their params"""
-        schema = Schema(self.fields)
+        schema = Generator(self.fields)
         factory = schema._get_Factory()
         field_params_dict = {
             field.provider: field._defaults
@@ -92,7 +92,7 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
 
     def test_data_generator(self):
         """Test that data_generator returns a generator with correct number of records and fields, and fields of correct type"""
-        schema = Schema(self.fields)
+        schema = Generator(self.fields)
         generator = schema.data_generator(num_records=10)
         self.assertIsInstance(generator, Generator)
         records = list(generator)
@@ -111,10 +111,10 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
         int_min = 5
         int_max = 105
 
-        field = Field(
+        field = ColumnDTO(
             "Number", "random_int", {"min": int_min, "max": int_max}, 0
         )
-        schema = Schema([field])
+        schema = Generator([field])
 
         generator = schema.data_generator(num_records=100)
         ints = [record[0] for record in generator]

@@ -1,22 +1,20 @@
-from typing import OrderedDict, List, Generator
+from dataclasses import dataclass
+from typing import OrderedDict, List, Generator as GeneratorType, Iterable
 
 from factory import Faker, ListFactory
 
 
-class Field:
-    def __init__(self, name: str, type: str, order: int, params: dict):
-        self.name = name
-        self.type = type
-        self.order = order
-        self.params = params
-
-    def __str__(self):
-        return f"Field(name={self.name}, f_type={self.type}, f_params={self.params}, order={self.order})"
+@dataclass
+class ColumnDTO:
+    name: str
+    type: str
+    order: int
+    params: dict
 
 
-class Schema:
-    def __init__(self, fields: List[Field]):
-        self.fields = sorted(fields, key=lambda x: x.order)
+class Generator:
+    def __init__(self, columns: Iterable[ColumnDTO]):
+        self.fields = sorted(columns, key=lambda x: x.order)
         self.header: list[str] = [field.name for field in self.fields]
 
     def _get_Factory(self) -> ListFactory:  # NOSONAR
@@ -26,16 +24,9 @@ class Schema:
         ]
         return type("_Factory", (ListFactory,), OrderedDict(key_values))  # type: ignore
 
-    def data_generator(self, num_records: int) -> Generator[List, None, None]:
+    def data_generator(
+        self, num_records: int
+    ) -> GeneratorType[List, None, None]:
         factory = self._get_Factory()
         for _ in range(num_records):
             yield factory()  # type: ignore
-
-    @staticmethod
-    def from_dict_list(fields: list[tuple[str, str, int, dict]]) -> "Schema":
-        return Schema(
-            [
-                Field(name, type, order, params)
-                for name, type, order, params in fields
-            ]
-        )

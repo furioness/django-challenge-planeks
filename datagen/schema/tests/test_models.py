@@ -2,17 +2,14 @@ from datetime import timedelta
 from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
+from factory import Faker, ListFactory
 
-from ..models import (
-    CheckAttrsMeta,
-    Dataset,
-    RandomIntColumn,
-    Schema,
-    NameColumn,
-)
-from ..services.generator import Schema as GenSchema
+from ..models import (BaseColumn, CheckAttrsMeta, Dataset, NameColumn,
+                      RandomIntColumn, Schema, SentencesFieldForm)
+from ..services.generator import Generator
 
 
 class TestSchema(TestCase):
@@ -37,10 +34,10 @@ class TestSchema(TestCase):
             name="Test schema", user=self.user
         )
         NameColumn.objects.create(name="Name col", schema=schema)
-        gen_schema = schema.gen_schema_instance
-        self.assertIsInstance(gen_schema, GenSchema)
+        gen_schema = schema.get_generator
+        self.assertIsInstance(gen_schema, Generator)
         self.assertTrue(len(gen_schema.fields), 1)
-        self.assertEqual(gen_schema.fields[0].params["name"], "Name col")
+        self.assertEqual(gen_schema.fields[0].name, "Name col")
 
     def test_to_str(self):
         """Test that schema string representation isn't crashing"""
@@ -117,9 +114,124 @@ class TestGeneratedData(TestCase):
             Dataset.objects.get(pk=gen_data_id)
 
 
-class TestColumns(TestCase):
-    def test_metaclass_ensures_type_and_label_attrs(self):
+class TestAttrsMetaClass(TestCase):
+    def test_ensures_type_and_label(self):
         with self.assertRaisesMessage(
             AttributeError, "Test has no type specified."
         ):
             CheckAttrsMeta("Test", (), {})
+
+    def test_generate_label_from_type(self):
+        meta = CheckAttrsMeta("Test", (), {"type": "test_type"})
+        self.assertEqual(meta.label, "Test Type")
+
+
+class TestSimpleColumns(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(  # type: ignore
+            username="testuser", password="12345"
+        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+
+    @staticmethod
+    def simple_models():
+        base_field_names = ["id"] + [
+            field.name for field in BaseColumn._meta.fields
+        ]
+        return [
+            model
+            for model in BaseColumn.__subclasses__()
+            if all(field.name in base_field_names for field in model._meta.fields)
+        ]
+
+    @staticmethod
+    def get_Factory(type_, params) -> ListFactory:
+        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    
+    def test_simple_columns_instantiation(self):
+        for column in self.simple_models():
+            col = column.objects.create(schema=self.schema, name='Test col')
+            self.assertEqual(col, column.objects.get(pk=col.id, name='Test col'))
+
+    def test_simple_columns_have_existend_faker_type(self):
+        for column in self.simple_models():
+            self.assertIsNotNone(self.get_Factory(column.type, {})()[0])
+            
+    
+class TestRandomIntColumn(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(  # type: ignore
+            username="testuser", password="12345"
+        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        
+    @staticmethod
+    def get_Factory(type_, params) -> ListFactory:
+        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    
+    def test_column_instantiation(self):
+        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col')
+        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col'))
+        
+        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col 2', min=123, max=567)
+        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col 2', min=123, max=567))
+        
+    def test_invalidates_incorrect_min_max(self):
+        col = RandomIntColumn(schema=self.schema, name='Test col 2', min=765, max=432)
+        self.assertRaises(ValidationError, col.full_clean)
+        
+        
+class TestRandomIntColumn(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(  # type: ignore
+            username="testuser", password="12345"
+        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        
+    @staticmethod
+    def get_Factory(type_, params) -> ListFactory:
+        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    
+    def test_column_instantiation(self):
+        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col')
+        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col'))
+        
+        col = RandomIntColumn.objects.create(schema=self.schema, name='Test col 2', min=123, max=567)
+        self.assertEqual(col, RandomIntColumn.objects.get(pk=col.id, name='Test col 2', min=123, max=567))
+        
+    def test_column_have_existend_faker_type(self):
+        self.assertIsNotNone(self.get_Factory(RandomIntColumn.type, {})()[0])
+        
+    def test_invalidates_incorrect_min_max(self):
+        col = RandomIntColumn(schema=self.schema, name='Test col 2', min=765, max=432)
+        self.assertRaises(ValidationError, col.full_clean)
+        
+        
+class TestSentencesField(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(  # type: ignore
+            username="testuser", password="12345"
+        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        
+    @staticmethod
+    def get_Factory(type_, params) -> ListFactory:
+        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    
+    def test_column_instantiation(self):
+        col = SentencesFieldForm.objects.create(schema=self.schema, name='Test col')
+        self.assertEqual(col, SentencesFieldForm.objects.get(pk=col.id, name='Test col'))
+        
+        col = SentencesFieldForm.objects.create(schema=self.schema, name='Test col 2', nb_min=123, nb_max=567)
+        self.assertEqual(col, SentencesFieldForm.objects.get(pk=col.id, name='Test col 2', nb_min=123, nb_max=567))
+        
+    def test_column_have_existend_faker_type(self):
+        self.assertIsNotNone(self.get_Factory(SentencesFieldForm.type, {})()[0])
+        
+    def test_invalidates_incorrect_min_max(self):
+        col = SentencesFieldForm(schema=self.schema, name='Test col 2', nb_min=765, nb_max=432)
+        self.assertRaises(ValidationError, col.full_clean)

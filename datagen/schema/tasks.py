@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 from .models import Dataset, Schema
 from .services.data_saving import generate_to_csv
-from .services.generator import Schema as GenSchema
+from .services.generator import Generator as Generator
 
 
 @shared_task
@@ -15,7 +15,7 @@ def generate_data(dataset_pk: int):
         pk=dataset_pk
     )
     schema: Schema = dataset.schema
-    gen_schema: GenSchema = schema.gen_schema_instance
+    gen_schema: Generator = schema.get_generator
 
     file_slug = f"{schema.user.id}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
 

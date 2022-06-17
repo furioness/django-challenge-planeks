@@ -13,7 +13,7 @@ from ...forms.field_forms import (
     FIELD_FORMS,
 )
 from ...forms import field_forms
-from ...services.generator import Field
+from ...services.generator import ColumnDTO
 
 
 class TestFieldFormsBase(SimpleTestCase):
@@ -41,7 +41,7 @@ class TestFieldFormsBase(SimpleTestCase):
             UnsetType()
 
     def test_to_schema_field_method(self):
-        field = Field(
+        field = ColumnDTO(
             name="Age",
             f_type="random_int",
             f_params={"min": 18, "max": 65},
