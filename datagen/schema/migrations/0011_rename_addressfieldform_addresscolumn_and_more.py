@@ -6,40 +6,40 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schema', '0010_alter_addressfieldform_name_and_more'),
+        ("schema", "0010_alter_addressfieldform_name_and_more"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='AddressFieldForm',
-            new_name='AddressColumn',
+            old_name="AddressFieldForm",
+            new_name="AddressColumn",
         ),
         migrations.RenameModel(
-            old_name='CompanyFieldForm',
-            new_name='CompanyColumn',
+            old_name="CompanyFieldForm",
+            new_name="CompanyColumn",
         ),
         migrations.RenameModel(
-            old_name='DateFieldForm',
-            new_name='DateColumn',
+            old_name="DateFieldForm",
+            new_name="DateColumn",
         ),
         migrations.RenameModel(
-            old_name='DomainFieldForm',
-            new_name='DomainColumn',
+            old_name="DomainFieldForm",
+            new_name="DomainColumn",
         ),
         migrations.RenameModel(
-            old_name='EmailFieldForm',
-            new_name='EmailColumn',
+            old_name="EmailFieldForm",
+            new_name="EmailColumn",
         ),
         migrations.RenameModel(
-            old_name='JobFieldForm',
-            new_name='JobColumn',
+            old_name="JobFieldForm",
+            new_name="JobColumn",
         ),
         migrations.RenameModel(
-            old_name='PhoneNumberFieldForm',
-            new_name='PhoneNumberColumn',
+            old_name="PhoneNumberFieldForm",
+            new_name="PhoneNumberColumn",
         ),
         migrations.RenameModel(
-            old_name='SentencesFieldForm',
-            new_name='SentencesColumn',
+            old_name="SentencesFieldForm",
+            new_name="SentencesColumn",
         ),
     ]

@@ -64,7 +64,8 @@ class TestSchema(SimpleTestCase, AssertBetweenMixin):
         list_of_field_dicts = [field.to_dict() for field in self.fields]
         # check equality by fields
         self.assertSchemaFieldsEqual(
-            Generator.from_dict_list(list_of_field_dicts), Generator(self.fields)
+            Generator.from_dict_list(list_of_field_dicts),
+            Generator(self.fields),
         )
 
     def test_to_JSON(self):
