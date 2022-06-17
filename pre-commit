@@ -25,7 +25,7 @@ set -e
 poetry run black --check $CHANGED_PYTHON_FILES
 
 # run tests
-poetry run bash -c "docker compose up -d; make test_fast"
+# poetry run bash -c "docker compose up -d; make test_fast"
 
 # run ggshield sequrity scan
 poetry run bash -c "python -c 'from dotenv import load_dotenv;load_dotenv()'; ggshield secret scan pre-commit"
