@@ -8,7 +8,7 @@ from django.utils import timezone
 from factory import Faker, ListFactory
 
 from ..models import (BaseColumn, CheckAttrsMeta, Dataset, NameColumn,
-                      RandomIntColumn, Schema, SentencesFieldForm)
+                      RandomIntColumn, Schema, SentencesColumn)
 from ..services.generator import Generator
 
 
@@ -223,15 +223,15 @@ class TestSentencesField(TestCase):
         return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
     
     def test_column_instantiation(self):
-        col = SentencesFieldForm.objects.create(schema=self.schema, name='Test col')
-        self.assertEqual(col, SentencesFieldForm.objects.get(pk=col.id, name='Test col'))
+        col = SentencesColumn.objects.create(schema=self.schema, name='Test col')
+        self.assertEqual(col, SentencesColumn.objects.get(pk=col.id, name='Test col'))
         
-        col = SentencesFieldForm.objects.create(schema=self.schema, name='Test col 2', nb_min=123, nb_max=567)
-        self.assertEqual(col, SentencesFieldForm.objects.get(pk=col.id, name='Test col 2', nb_min=123, nb_max=567))
+        col = SentencesColumn.objects.create(schema=self.schema, name='Test col 2', nb_min=123, nb_max=567)
+        self.assertEqual(col, SentencesColumn.objects.get(pk=col.id, name='Test col 2', nb_min=123, nb_max=567))
         
     def test_column_have_existend_faker_type(self):
-        self.assertIsNotNone(self.get_Factory(SentencesFieldForm.type, {})()[0])
+        self.assertIsNotNone(self.get_Factory(SentencesColumn.type, {})()[0])
         
     def test_invalidates_incorrect_min_max(self):
-        col = SentencesFieldForm(schema=self.schema, name='Test col 2', nb_min=765, nb_max=432)
+        col = SentencesColumn(schema=self.schema, name='Test col 2', nb_min=765, nb_max=432)
         self.assertRaises(ValidationError, col.full_clean)

@@ -123,35 +123,35 @@ class RandomIntColumn(BaseColumn):
             )
 
 
-class JobFieldForm(BaseColumn):
+class JobColumn(BaseColumn):
     type = "job"
 
 
-class EmailFieldForm(BaseColumn):
+class EmailColumn(BaseColumn):
     type = "safe_email"
 
 
-class PhoneNumberFieldForm(BaseColumn):
+class PhoneNumberColumn(BaseColumn):
     type = "phone_number"
 
 
-class DomainFieldForm(BaseColumn):
+class DomainColumn(BaseColumn):
     type = "safe_domain_name"
 
 
-class CompanyFieldForm(BaseColumn):
+class CompanyColumn(BaseColumn):
     type = "company"
 
 
-class AddressFieldForm(BaseColumn):
+class AddressColumn(BaseColumn):
     type = "address"
 
 
-class DateFieldForm(BaseColumn):
+class DateColumn(BaseColumn):
     type = "date"
 
 
-class SentencesFieldForm(BaseColumn):
+class SentencesColumn(BaseColumn):
     type = "sentences_variable_str"
     label = "Sentences"
 
