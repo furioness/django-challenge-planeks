@@ -20,7 +20,7 @@ def generate_data(dataset_pk: int):
     file_slug = f"{schema.user.id}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
 
     csv_file_path = generate_to_csv(
-        gen_schema.data_generator(dataset.num_rows),
+        gen_schema.generate(dataset.num_rows),
         gen_schema.header,
         schema.column_separator,
         schema.quotechar,

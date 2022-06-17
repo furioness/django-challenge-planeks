@@ -24,9 +24,7 @@ class Generator:
         ]
         return type("_Factory", (ListFactory,), OrderedDict(key_values))  # type: ignore
 
-    def data_generator(
-        self, num_records: int
-    ) -> GeneratorType[List, None, None]:
+    def generate(self, num_records: int) -> GeneratorType[List, None, None]:
         factory = self._get_Factory()
         for _ in range(num_records):
             yield factory()  # type: ignore
