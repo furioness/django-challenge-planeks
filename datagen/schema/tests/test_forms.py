@@ -1,11 +1,10 @@
-from typing import List
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.forms.models import model_to_dict
 from django.test import TestCase
 
-from ...forms import GenerateForm, SchemaForm
-from ...models import BaseColumn, Schema, NameColumn, RandomIntColumn
+from ..forms import GenerateForm, SchemaForm
+from ..models import BaseColumn, Schema, NameColumn, RandomIntColumn
 
 
 class TestSchemaFormCase(TestCase):
