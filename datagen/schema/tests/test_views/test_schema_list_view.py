@@ -6,7 +6,7 @@ from ... import views
 from ...models import NameColumn, RandomIntColumn, Schema
 
 
-class TestEditSchemaView(TestCase):
+class TestSchemaListView(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(  # type: ignore
