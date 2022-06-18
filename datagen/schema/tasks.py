@@ -17,6 +17,7 @@ def generate_data(dataset_pk: int):
     schema: Schema = dataset.schema
     gen_schema: Generator = schema.get_generator
 
+    # Beware of malformed user input. Slugify will do it here.
     file_slug = f"{schema.user.id}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
 
     csv_file_path = generate_to_csv(
