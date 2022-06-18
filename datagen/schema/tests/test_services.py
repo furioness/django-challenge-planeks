@@ -107,7 +107,7 @@ class TestCustomSentencesProvider(SimpleTestCase, AssertBetweenMixin):
         class TestFactory(ListFactory):
             lorem = Faker("sentences_variable_str")
 
-        row: list = TestFactory() # type: ignore
+        row: list = TestFactory()  # type: ignore
         self.assertIsInstance(row, list)
         self.assertTrue(len(row), 1)
         self.assertIsInstance(row[0], str)
