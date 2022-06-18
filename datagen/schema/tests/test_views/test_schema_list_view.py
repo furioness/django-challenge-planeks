@@ -3,7 +3,7 @@ from django.urls import resolve, reverse
 from django.contrib.auth import get_user_model
 
 from ... import views
-from ...models import Schema
+from ...models import NameColumn, RandomIntColumn, Schema
 
 
 class TestEditSchemaView(TestCase):
@@ -12,56 +12,20 @@ class TestEditSchemaView(TestCase):
         cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
-        Schema.objects.create(
-            user=cls.user,
-            **{
-                "name": "Test schema 1",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Name",
-                        "order": 1,
-                        "f_type": "name",
-                        "f_params": {},
-                    }
-                ],
-            },
+        schema = Schema.objects.create(name="Test schema", user=cls.user)
+        NameColumn.objects.create(name="Full name", order=1, schema=schema)
+
+        schema_2 = Schema.objects.create(name="Test schema 2", user=cls.user)
+        RandomIntColumn.objects.create(
+            name="Age", min=15, max=80, order=2, schema=schema_2
         )
-        Schema.objects.create(
-            user=cls.user,
-            **{
-                "name": "Test schema 2",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Age",
-                        "order": 2,
-                        "f_type": "random_int",
-                        "f_params": {"min": 5, "max": 67},
-                    }
-                ],
-            },
-        )
+
         cls.user_2 = get_user_model().objects.create_user(  # type: ignore
             username="testuser_2", password="12345"
         )
-        Schema.objects.create(
-            user=cls.user_2,
-            **{
-                "name": "Test schema 1",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Age",
-                        "order": 2,
-                        "f_type": "random_int",
-                        "f_params": {"min": 5, "max": 67},
-                    }
-                ],
-            },
+        schema_3 = Schema.objects.create(name="Test schema 2", user=cls.user_2)
+        RandomIntColumn.objects.create(
+            name="Height", min=140, max=225, order=2, schema=schema_3
         )
 
     VIEW_URL = reverse("schema:list")
