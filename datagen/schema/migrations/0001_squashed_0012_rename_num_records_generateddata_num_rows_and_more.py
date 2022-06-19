@@ -7,22 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
-    replaces = [
-        ("schema", "0001_initial"),
-        ("schema", "0002_schema_column_separator_schema_quotechar"),
-        ("schema", "0003_rename_fields_schema_fields_json"),
-        ("schema", "0004_rename_fields_json_schema_fields"),
-        ("schema", "0005_alter_generateddata_schema"),
-        ("schema", "0006_generateddata_generation_complete"),
-        ("schema", "0007_alter_generateddata_schema"),
-        ("schema", "0008_remove_generateddata_slug_generateddata_file"),
-        ("schema", "0009_remove_generateddata_generation_complete"),
-        ("schema", "0010_generateddata_created"),
-        ("schema", "0011_alter_generateddata_created"),
-        ("schema", "0012_rename_num_records_generateddata_num_rows_and_more"),
-    ]
-
     initial = True
 
     dependencies = [migrations.swappable_dependency(settings.AUTH_USER_MODEL)]
