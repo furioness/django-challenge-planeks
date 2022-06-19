@@ -170,7 +170,10 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
 
     def test_simple_columns_instantiation(self):
         for column in self.COLUMNS:
-            col = column.objects.create(schema=self.schema, name="Test col")
+            col = column(schema=self.schema, name="Test col")
+            col.full_clean()  # check default validation
+            # full_clean() is called by modelformset
+            col.save()
             self.assertEqual(
                 col, column.objects.get(pk=col.id, name="Test col")
             )
