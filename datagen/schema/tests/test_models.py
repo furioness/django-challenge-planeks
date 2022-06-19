@@ -128,6 +128,13 @@ class TestGeneratedData(TestCase):
         with self.assertRaises(Dataset.DoesNotExist):
             Dataset.objects.get(pk=gen_data_id)
 
+    def test_str(self):
+        """Test that generated data to string representation call
+        isn't crashing and return something."""
+        self.assertIsNotNone(
+            str(Dataset.objects.create(schema=self.schema, num_rows=10))
+        )
+
 
 class TestAttrsMetaClass(TestCase):
     def test_ensures_type_and_label(self):
@@ -245,6 +252,13 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
             set(self.COLUMNS),
             msg=f"{self.tested_classes  - set(self.COLUMNS)} were tested.",
         )
+
+    def test_str(self):
+        """Test that column to string representation call
+        isn't crashing and return something.
+        Since `__str__` method inhereted from BaseColumn by all other columns,
+        enough to test any one of the children."""
+        self.assertIsNotNone(str(NameColumn(name="Col", schema=self.schema)))
 
 
 class TestRandomIntColumnSpecials(TestCase):
