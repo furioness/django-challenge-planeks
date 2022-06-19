@@ -22,22 +22,15 @@ New schema
     </h2>
     {% bootstrap_button id="schemaSubmitBtn" button_type="submit" content="Submit" extra_classes="float-end" %}
     {% bootstrap_form form wrapper_class="w-50" %}
-    {% comment %} {% bootstrap_form_errors form type="fields" %} {% endcomment %}
-
 
     {% csrf_token %}
     <div id="schemaFields" class="mt-3">
         <h2>Schema columns</h2>
-        <ul class="list-unstyled text-danger">
-            {% for error in form.columns.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
         {% for column_formset in form.column_formsets %}
-            {{ column_formset.management_form }}
-            {% for column_form in column_formset %}
-                {% include "schema/fieldForm.html" with fieldForm=column_form %}
-            {% endfor %}
+        {{ column_formset.management_form }}
+        {% for column_form in column_formset %}
+        {% include "schema/fieldForm.html" with fieldForm=column_form %}
+        {% endfor %}
         {% endfor %}
     </div>
 </form>
@@ -58,87 +51,103 @@ New schema
 
 <script>
     'use strict'
-    
+    // # TODO: refactor all this mess
+    // used in `./fieldForm.html` template
     function deleteField(event) {
+        // set delete value as true and make div invisible
         event.preventDefault() // othervise page scrolls up for some reason
         let column = event.target.parentElement
-        //debugger;
-        let delete_checkbox = column.querySelector('input[name$="DELETE"]')
-        delete_checkbox.value = true
-        column.hidden = true
+        let deleteInput = column.querySelector('input[name$="DELETE"]')
         
+        // if there is no deleteInput, it's not an initial (in DB) column,
+        // we have to decrement FORMSET_TOTALS
+        // and then we can just remove the column
+        if (!deleteInput) {
+            let typeName = column.querySelector('input').name.split('-')[0]
+            FORMSET_TOTALS[typeName]--
+            column.remove()
+            return
+        }
+        deleteInput.value = true
+        column.hidden = true
     }
 
-    //debugger; 
-    const total_form_inputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
-    let FORMS_TOTAL = Object.create(null)
-    for (let type of total_form_inputs) {
-        let name = type.name.replace('-TOTAL_FORMS', '')
-        FORMS_TOTAL[name] = Number(type.value)
+    const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
+
+    // initiate a table of form count per formset
+    // later will be used in the management forms
+    let FORMSET_TOTALS = Object.create(null)
+    for (let formsetTotalInput of formsetTotalInputs) {
+        let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
+        FORMSET_TOTALS[typeName] = Number(formsetTotalInput.value)
     }
 
-    let schemaFieldsDiv = document.getElementById('schemaFields')
+    document
+        .getElementById('schemaForm')
+        .addEventListener('submit', function (target) {
+            // update management forms' totals before submitting
+            for (let formsetTotalInput of formsetTotalInputs) {
+                let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
+                formsetTotalInput.value = FORMSET_TOTALS[typeName]
+            }
+        })
 
-    document.getElementById('addFieldBtn').addEventListener('click', function (target) {
-        let fieldSelectorForm = document.getElementById('fieldSelectorForm')
-        target.preventDefault()
+    document.getElementById('addFieldBtn').addEventListener('click',
+        function (addBtn) {
+            addBtn.preventDefault()
 
-        if (!fieldSelectorForm.checkValidity()) {
-            fieldSelectorForm.reportValidity()
-            return;
-        }
+            let fieldSelectorForm = document.getElementById('fieldSelectorForm')
 
-        // return;
-        //fieldSelectorForm.preventDefault()
-        //debugger; 
+            // validate form
+            if (!fieldSelectorForm.checkValidity()) {
+                fieldSelectorForm.reportValidity()
+                return;
+            }
 
-        // get new field config
-        let fieldSelectorData = new FormData(fieldSelectorForm)
-        let selectedType = fieldSelectorData.get('type');
-        let fieldName = fieldSelectorData.get('name');
-        let fieldOrder = fieldSelectorData.get('order');
+            // get new field config
+            let fieldSelectorData = new FormData(fieldSelectorForm)
+            let selectedType = fieldSelectorData.get('type');
+            let fieldName = fieldSelectorData.get('name');
+            let fieldOrder = fieldSelectorData.get('order');
 
-        // get new field
-        let fieldTemplates = document.getElementById('fieldTemplates')
-        let fieldForm = fieldTemplates.querySelector('#' + selectedType).cloneNode(true)
-        fieldForm.removeAttribute('id')
-        fieldForm.style.display = ""
+            // get new field
+            let fieldTemplates = document.getElementById('fieldTemplates')
+            let fieldForm = fieldTemplates.querySelector('#' + selectedType).cloneNode(true)
+            fieldForm.removeAttribute('id')
+            fieldForm.style.display = ""
 
-        // set correct input ids assuming there are only inputs or selects 
-        let inputs = fieldForm.querySelectorAll('input')
-        //debugger;
-        let index = FORMS_TOTAL[selectedType]++
-        for (let input of inputs) {
-            let label = fieldForm.querySelector('label[for="' + input.id + '"]')
-            input.id = input.id.replace('!', index)
-            input.name = input.name.replace('!', index)
-            label.setAttribute('for', input.id)
-        }
+            // set correct input ids assuming there are only inputs or selects 
+            let inputs = fieldForm.querySelectorAll('input')
 
-        let selects = fieldForm.querySelectorAll('select')
-        for (let select of selects) {
-            let label = fieldForm.querySelector('label[for="' + select.id + '"]')
-            select.id = select.id.replace('!', index)
-            select.name = select.name.replace('!', index)
-            label.setAttribute('for', select.id)
-        }
+            // inputs
+            let index = FORMSET_TOTALS[selectedType]++
+            for (let input of inputs) {
+                let label = fieldForm.querySelector('label[for="' + input.id + '"]')
+                input.id = input.id.replace('!', index)
+                input.name = input.name.replace('!', index)
+                label.setAttribute('for', input.id)
+            }
 
-        // set field's name and order
-        fieldForm.querySelector('input[name$="name"]').value = fieldName
-        fieldForm.querySelector('input[name$="order"]').value = fieldOrder
+            // selects
+            let selects = fieldForm.querySelectorAll('select')
+            for (let select of selects) {
+                let label = fieldForm.querySelector('label[for="' + select.id + '"]')
+                select.id = select.id.replace('!', index)
+                select.name = select.name.replace('!', index)
+                label.setAttribute('for', select.id)
+            }
 
-        // add field to the form
-        schemaFieldsDiv.appendChild(fieldForm)
-    })
+            // set field's name and order
+            fieldForm.querySelector('input[name$="name"]').value = fieldName
+            fieldForm.querySelector('input[name$="order"]').value = fieldOrder
 
-    let schemaForm = document.getElementById('schemaForm')
-    schemaForm.addEventListener('submit', function (target) {
-        // target.preventDefault()
-        for (let type of total_form_inputs) {
-            type.value = FORMS_TOTAL[type.name.replace('-TOTAL_FORMS', '')]
-        }
-        console.log(FORMS_TOTAL);
-    })
+            // add field to the form
+            document.getElementById('schemaFields').appendChild(fieldForm)
+
+            // reset form
+            // TODO: autoincrement order to the maximum + 1
+            fieldSelectorForm.reset()
+        })
 </script>
 
 {% endblock %}
