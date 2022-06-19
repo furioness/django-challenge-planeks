@@ -164,10 +164,14 @@ class SentencesColumn(BaseColumn):
     label = "Sentences"
 
     nb_min = models.IntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(100000)]
+        verbose_name="min",
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(100000)],
     )
     nb_max = models.IntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(100000)]
+        verbose_name="max",
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(100000)],
     )
 
     def clean(self):
@@ -176,7 +180,7 @@ class SentencesColumn(BaseColumn):
             raise ValidationError(
                 {
                     "__all__": "Min must be less than max.",
-                    "min": "Min must be less than max.",
-                    "max": "Max must be greater than min.",
+                    "nb_min": "Min must be less than max.",
+                    "nb_max": "Max must be greater than min.",
                 }
             )
