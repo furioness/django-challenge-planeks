@@ -28,4 +28,4 @@ urlpatterns = [
 if settings.PRIVATE_MEDIA_STORAGE is DefaultStorage:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-    )
+    )  # type: ignore

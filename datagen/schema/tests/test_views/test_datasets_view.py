@@ -6,7 +6,7 @@ from django.urls import resolve, reverse
 from django.contrib.auth import get_user_model
 
 from ... import views
-from ...models import Schema
+from ...models import NameColumn, RandomIntColumn, Schema
 
 
 class TestSchemaDataSetsView(TestCase):
@@ -15,38 +15,14 @@ class TestSchemaDataSetsView(TestCase):
         cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
-        cls.schema = Schema.objects.create(
-            user=cls.user,
-            **{
-                "name": "Test schema 1",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Name",
-                        "order": 1,
-                        "f_type": "name",
-                        "f_params": {},
-                    }
-                ],
-            },
-        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        NameColumn.objects.create(name="Full name", order=1, schema=cls.schema)
 
         cls.schema_2 = Schema.objects.create(
-            user=cls.user,
-            **{
-                "name": "Another schema",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Email",
-                        "order": 1,
-                        "f_type": "email",
-                        "f_params": {},
-                    }
-                ],
-            },
+            name="Test schema 2", user=cls.user
+        )
+        RandomIntColumn.objects.create(
+            name="Age", min=15, max=80, order=2, schema=cls.schema_2
         )
 
     @property
@@ -88,7 +64,7 @@ class TestSchemaDataSetsView(TestCase):
 
         response = self.client.get(self.VIEW_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["schema"].datasets.count(), 3)
+        self.assertEqual(response.context["schema"].datasets.count(), 3)  # type: ignore
         self.assertContains(response, "Processing", count=2)
         self.assertContains(response, "Ready", count=1)
         self.assertContains(response, generated.file.url)
@@ -109,5 +85,5 @@ class TestSchemaDataSetsView(TestCase):
     def test_request_generation(self):
         self.client.force_login(self.user)
         with mock.patch.object(Schema, "run_generate_task") as mock_generate:
-            response = self.client.post(self.VIEW_URL, {"num_rows": 10})
+            self.client.post(self.VIEW_URL, {"num_rows": 10})
             mock_generate.assert_called_once_with(10)

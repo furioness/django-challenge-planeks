@@ -1,109 +1,152 @@
 {% extends "base.html" %}
 
 {% load django_bootstrap5 %}
-{}
 
 {% block title %}
-    {% if form.initial %}
-        Edit {{ form.name.value }}
-    {% else %}
-        New schema
-    {% endif %}
+{% if form.initial %}
+Edit {{ form.name.value }}
+{% else %}
+New schema
+{% endif %}
 {% endblock %}
 
 {% block content %}
 <form action="" method="POST" id="schemaForm">
     <h2 class="d-inline-block">
         {% if form.initial %}
-            Edit {{ form.name.value }}
+        Edit {{ form.name.value }}
         {% else %}
-            New schema
+        New schema
         {% endif %}
     </h2>
     {% bootstrap_button id="schemaSubmitBtn" button_type="submit" content="Submit" extra_classes="float-end" %}
     {% bootstrap_form form wrapper_class="w-50" %}
-    {% bootstrap_form_errors form type="fields" %}
 
-    
     {% csrf_token %}
     <div id="schemaFields" class="mt-3">
         <h2>Schema columns</h2>
-        <ul class="list-unstyled text-danger">
-            {% for error in form.fields.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
-        {% for fieldForm in form.field_forms %}
-        {% include "schema/fieldForm.html" %}
+        {% for column_formset in form.column_formsets %}
+        {{ column_formset.management_form }}
+        {% for column_form in column_formset %}
+        {% include "schema/fieldForm.html" with fieldForm=column_form %}
+        {% endfor %}
         {% endfor %}
     </div>
 </form>
 
 <form id="fieldSelectorForm" class="border rounded p-2">
-    {% bootstrap_form fieldSelectForm layout="horizontal" %}
+    {% bootstrap_form field_select_form layout="horizontal" %}
     {% bootstrap_button id='addFieldBtn' button_type="submit" content="Add Field" %}
 </form>
 
-{% for fieldName, fieldForm in form.fieldFormsTemplates.items %}
-{% with 'style="display: none;" id='|add:fieldName|add:"_fieldType"|safe as wrapper_tags %}
-{% include "schema/fieldForm.html" %}
-{% endwith %}
-{% endfor %}
+<div id="fieldTemplates">
+    {% for fieldLabel, fieldForm in field_select_form.column_form_templates %}
+    {% with 'style="display: none;" id="'|add:fieldLabel|add:'"'|safe as wrapper_tags %}
+    {% include "schema/fieldForm.html" %}
+    {% endwith %}
+    {% endfor %}
+</div>
 
 
 <script>
     'use strict'
-
-    let schemaFieldsDiv = document.getElementById('schemaFields')
-
-    document.getElementById('addFieldBtn').addEventListener('click', function(target) {
-        target.preventDefault()
-
-        // get new field config
-        let fieldSelectorData = new FormData(document.getElementById('fieldSelectorForm'))
-        let selectedType = fieldSelectorData.get('type');
-        let fieldName = fieldSelectorData.get('name');
-        let fieldOrder = fieldSelectorData.get('order');
-
-        // get new field
-        let fieldForm = document.getElementById(selectedType + '_fieldType').cloneNode(true)
-        fieldForm.removeAttribute('id')
-        fieldForm.style.display = ""
-
-        // set field's name and order
-        fieldForm.querySelector('input[name="name"]').value = fieldName
-        fieldForm.querySelector('input[name="order"]').value = fieldOrder
-
-        // add field to the form
-        schemaFieldsDiv.appendChild(fieldForm)
-    })
-
-    let schemaForm = document.getElementById('schemaForm')
-    schemaForm.addEventListener('submit', function(target) {
-        // target.preventDefault()
-        let fieldsData = new Array()
-        for (let field of schemaFieldsDiv.children) {
-            let fieldData = Object.create(null)
-
-            let inputs = field.querySelectorAll('input')
-            for (let input of inputs) {
-                fieldData[input.name] = input.value
-            }
-
-            let selects = field.querySelectorAll('select')
-            for (let select of selects) {
-                fieldData[select.name] = select.value
-            }
-
-            if (Object.keys(fieldData).length) {
-                fieldsData.push(fieldData)
-            }
+    // # TODO: refactor all this mess
+    // used in `./fieldForm.html` template
+    function deleteField(event) {
+        // set delete value as true and make div invisible
+        event.preventDefault() // othervise page scrolls up for some reason
+        let column = event.target.parentElement
+        let deleteInput = column.querySelector('input[name$="DELETE"]')
+        
+        // if there is no deleteInput, it's not an initial (in DB) column,
+        // we have to decrement FORMSET_TOTALS
+        // and then we can just remove the column
+        if (!deleteInput) {
+            let typeName = column.querySelector('input').name.split('-')[0]
+            FORMSET_TOTALS[typeName]--
+            column.remove()
+            return
         }
-        console.log(fieldsData)
-        schemaForm.querySelector('#id_fields').value = JSON.stringify(fieldsData)
-        schemaForm.insertAdjacentElement('afterend', schemaFieldsDiv)
-        // schemaFieldsDiv.remove()
-    })
+        deleteInput.value = true
+        column.hidden = true
+    }
+
+    const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
+
+    // initiate a table of form count per formset
+    // later will be used in the management forms
+    let FORMSET_TOTALS = Object.create(null)
+    for (let formsetTotalInput of formsetTotalInputs) {
+        let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
+        FORMSET_TOTALS[typeName] = Number(formsetTotalInput.value)
+    }
+
+    document
+        .getElementById('schemaForm')
+        .addEventListener('submit', function (target) {
+            // update management forms' totals before submitting
+            for (let formsetTotalInput of formsetTotalInputs) {
+                let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
+                formsetTotalInput.value = FORMSET_TOTALS[typeName]
+            }
+        })
+
+    document.getElementById('addFieldBtn').addEventListener('click',
+        function (addBtn) {
+            addBtn.preventDefault()
+
+            let fieldSelectorForm = document.getElementById('fieldSelectorForm')
+
+            // validate form
+            if (!fieldSelectorForm.checkValidity()) {
+                fieldSelectorForm.reportValidity()
+                return;
+            }
+
+            // get new field config
+            let fieldSelectorData = new FormData(fieldSelectorForm)
+            let selectedType = fieldSelectorData.get('type');
+            let fieldName = fieldSelectorData.get('name');
+            let fieldOrder = fieldSelectorData.get('order');
+
+            // get new field
+            let fieldTemplates = document.getElementById('fieldTemplates')
+            let fieldForm = fieldTemplates.querySelector('#' + selectedType).cloneNode(true)
+            fieldForm.removeAttribute('id')
+            fieldForm.style.display = ""
+
+            // set correct input ids assuming there are only inputs or selects 
+            let inputs = fieldForm.querySelectorAll('input')
+
+            // inputs
+            let index = FORMSET_TOTALS[selectedType]++
+            for (let input of inputs) {
+                let label = fieldForm.querySelector('label[for="' + input.id + '"]')
+                input.id = input.id.replace('!', index)
+                input.name = input.name.replace('!', index)
+                label.setAttribute('for', input.id)
+            }
+
+            // selects
+            let selects = fieldForm.querySelectorAll('select')
+            for (let select of selects) {
+                let label = fieldForm.querySelector('label[for="' + select.id + '"]')
+                select.id = select.id.replace('!', index)
+                select.name = select.name.replace('!', index)
+                label.setAttribute('for', select.id)
+            }
+
+            // set field's name and order
+            fieldForm.querySelector('input[name$="name"]').value = fieldName
+            fieldForm.querySelector('input[name$="order"]').value = fieldOrder
+
+            // add field to the form
+            document.getElementById('schemaFields').appendChild(fieldForm)
+
+            // reset form
+            // TODO: autoincrement order to the maximum + 1
+            fieldSelectorForm.reset()
+        })
 </script>
 
 {% endblock %}

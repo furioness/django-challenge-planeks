@@ -14,7 +14,9 @@ CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = ["datagen-challenge.herokuapp.com"]
 
-DATABASES["default"] = dj_database_url.config(default=environ["DATABASE_URL"])
+DATABASES["default"] = dj_database_url.config(  # type: ignore
+    default=environ["DATABASE_URL"]
+)
 
 # https://testdriven.io/blog/storing-django-static-and-media-files-on-amazon-s3/
 INSTALLED_APPS += ["storages"]

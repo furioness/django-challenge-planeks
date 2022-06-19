@@ -1,43 +1,30 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import Dataset, Schema
+from ..models import Dataset, NameColumn, RandomIntColumn, Schema
 from ..tasks import generate_data
 
 
-class TestGenerateData(TestCase):
+class TestRunGenerateDataTask(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(
-            username="Vasya",
-            email="vasya@invalid.doom",
-            password="whocares",
+        cls.user = get_user_model().objects.create_user(  # type: ignore
+            username="testuser",
+            password="testpass",
         )
-        cls.schema = Schema.objects.create(
-            name="Test schema",
-            user=cls.user,
-            fields=[
-                {
-                    "name": "Full name",
-                    "order": 1,
-                    "f_type": "name",
-                    "f_params": {},
-                },
-                {
-                    "name": "Age",
-                    "order": 2,
-                    "f_type": "random_int",
-                    "f_params": {"min": 15, "max": 80},
-                },
-            ],
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        NameColumn.objects.create(name="Full name", order=1, schema=cls.schema)
+        RandomIntColumn.objects.create(
+            name="Age", min=15, max=80, order=2, schema=cls.schema
         )
 
     def create_dataset(self):
         return Dataset.objects.create(num_rows=10, schema=self.schema)
 
-    def test_it_runs_locally_and_updates_file_field(self):
+    def test_run_locally_and_get_dataset_file_set(self):
         dataset = self.create_dataset()
         self.assertFalse(dataset.file)
+
         generate_data.run(dataset.id)
         dataset.refresh_from_db()
         self.assertTrue(dataset.file)

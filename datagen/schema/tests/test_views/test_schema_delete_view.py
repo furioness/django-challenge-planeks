@@ -1,9 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import resolve, reverse
-from django.contrib.auth import get_user_model
 
 from ... import views
-from ...models import Schema
+from ...models import NameColumn, Schema
 
 
 class TestDeleteSchemaView(TestCase):
@@ -12,28 +12,8 @@ class TestDeleteSchemaView(TestCase):
         cls.user = get_user_model().objects.create_user(  # type: ignore
             username="testuser", password="12345"
         )
-        cls.schema = Schema.objects.create(
-            **{
-                "name": "Test schema",
-                "column_separator": ",",
-                "quotechar": '"',
-                "fields": [
-                    {
-                        "name": "Name",
-                        "order": 1,
-                        "f_type": "name",
-                        "f_params": {},
-                    },
-                    {
-                        "name": "Age",
-                        "order": 2,
-                        "f_type": "random_int",
-                        "f_params": {"min": 5, "max": 67},
-                    },
-                ],
-            },
-            user=cls.user
-        )
+        cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
+        NameColumn.objects.create(name="Full name", order=1, schema=cls.schema)
 
     @property
     def VIEW_URL(self):

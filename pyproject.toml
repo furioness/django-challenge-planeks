@@ -5,7 +5,7 @@ description = "An online service for generating CSV files with fake(dummy) data"
 authors = ["Ivan Omelchenko"]
 
 [tool.poetry.dependencies]
-python = "3.10.4"
+python = "3.10.5"
 Django = "~4.0.4"
 factory-boy = "~3.2.1"
 celery = "~5.2.6"
@@ -44,7 +44,7 @@ exclude = '''
 '''
 
 [tool.coverage.run]
-command_line = "manage.py test datagen --settings=config.settings.test --shuffle --noinput --keepdb --parallel"
+command_line = "manage.py test datagen --settings=config.settings.test --shuffle --noinput --parallel"
 branch = true
 parallel = true
 concurrency = ["multiprocessing"]

@@ -1,9 +1,14 @@
+from itertools import chain
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.forms.models import model_to_dict
 
-from .forms.field_forms import get_form_for_field
-from .services.generator import Schema as GenSchema
+from .services.generator import Generator, ColumnDTO
 
 
 class Schema(models.Model):
@@ -14,20 +19,35 @@ class Schema(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name="schemas"
     )
     modified = models.DateTimeField(auto_now=True)
-    fields = models.JSONField()
 
     def __str__(self):
         return self.name
 
     @property
-    def gen_schema_instance(self) -> GenSchema:
-        return GenSchema.from_dict_list(self.fields)
+    def columns(self):
+        return chain.from_iterable(
+            column_model.objects.filter(schema=self)
+            for column_model in BaseColumn.__subclasses__()
+        )
 
-    def get_field_forms(self):
-        return [
-            get_form_for_field(field)
-            for field in self.gen_schema_instance.fields
-        ]
+    @property
+    def columns_grouped_by_type(self) -> dict:
+        return {
+            column_model: column_model.objects.filter(schema=self)
+            for column_model in BaseColumn.__subclasses__()
+        }
+
+    @property
+    def get_generator(self) -> Generator:
+        return Generator(
+            ColumnDTO(
+                column.name,
+                column.type,
+                column.order,
+                column.params,
+            )
+            for column in self.columns
+        )
 
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
@@ -48,3 +68,115 @@ class Dataset(models.Model):
         storage=settings.PRIVATE_MEDIA_STORAGE(), null=True
     )
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.schema.name} - {self.num_rows} rows on {self.created.strftime('%Y-%m-%d')}"
+
+
+class CheckAttrsMeta(type(models.Model)):
+    """Ensure that non-abstract children models
+    have `label` and `type` attributes set.
+    """
+
+    def __new__(metacls, name, bases, namespace, **kwargs):  # type: ignore
+        if getattr(namespace.get("Meta"), "abstract", False):
+            return super().__new__(metacls, name, bases, namespace, **kwargs)
+
+        if not namespace.get("type", None):
+            raise AttributeError(f"{name} has no type specified.")
+        if not namespace.get("label", None):  # construct label from type
+            namespace["label"] = namespace["type"].replace("_", " ").title()
+
+        return super().__new__(metacls, name, bases, namespace, **kwargs)
+
+
+class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
+    label: str
+    type: str
+    name = models.CharField(max_length=255, validators=[MinLengthValidator(1)])
+    order = models.IntegerField(default=1)
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def params(self):
+        return model_to_dict(self, exclude=("id", "name", "order", "schema"))
+
+    def __str__(self):
+        return f"{self.label} - {self.name}"
+
+
+class NameColumn(BaseColumn):
+    type = "name"
+
+
+class RandomIntColumn(BaseColumn):
+    type = "random_int"
+    label = "Random integer"
+
+    min = models.IntegerField(default=1)
+    max = models.IntegerField(default=100)
+
+    def clean(self):
+        super().clean()
+        if self.min > self.max:
+            raise ValidationError(
+                {
+                    "__all__": "Min must be less than max.",
+                    "min": "Min must be less than max.",
+                    "max": "Max must be greater than min.",
+                }
+            )
+
+
+class JobColumn(BaseColumn):
+    type = "job"
+
+
+class EmailColumn(BaseColumn):
+    type = "safe_email"
+
+
+class PhoneNumberColumn(BaseColumn):
+    type = "phone_number"
+
+
+class DomainColumn(BaseColumn):
+    type = "safe_domain_name"
+
+
+class CompanyColumn(BaseColumn):
+    type = "company"
+
+
+class AddressColumn(BaseColumn):
+    type = "address"
+
+
+class DateColumn(BaseColumn):
+    type = "date"
+
+
+class SentencesColumn(BaseColumn):
+    type = "sentences_variable_str"
+    label = "Sentences"
+
+    nb_min = models.IntegerField(
+        default=1, validators=[MinValueValidator(1), MaxValueValidator(100000)]
+    )
+    nb_max = models.IntegerField(
+        default=1, validators=[MinValueValidator(1), MaxValueValidator(100000)]
+    )
+
+    def clean(self):
+        super().clean()
+        if self.nb_min > self.nb_max:
+            raise ValidationError(
+                {
+                    "__all__": "Min must be less than max.",
+                    "min": "Min must be less than max.",
+                    "max": "Max must be greater than min.",
+                }
+            )

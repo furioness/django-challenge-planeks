@@ -1,5 +1,7 @@
 from typing import Any, Dict
 
+from django import forms
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -11,7 +13,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms.main import FieldSelectForm, GenerateForm, SchemaForm
+from .forms import GenerateForm, FieldSelectForm, SchemaForm
 
 
 class BaseSchemaView(LoginRequiredMixin):
@@ -22,19 +24,27 @@ class BaseSchemaView(LoginRequiredMixin):
 class CreateSchemaView(BaseSchemaView, CreateView):
     template_name = "schema/edit.html"
     form_class = SchemaForm
-    extra_context = {"fieldSelectForm": FieldSelectForm()}
+    prefix = "Schema"
+    extra_context = {"field_select_form": FieldSelectForm()}
     success_url = reverse_lazy("schema:list")
 
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
 
-class UpdateSchemaView(BaseSchemaView, UpdateView):
+class EditSchemaView(BaseSchemaView, UpdateView):
     template_name = "schema/edit.html"
     form_class = SchemaForm
-    extra_context = {"fieldSelectForm": FieldSelectForm()}
+    prefix = "Schema"
+    extra_context = {"field_select_form": FieldSelectForm()}
     success_url = reverse_lazy("schema:list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
 
 class DeleteSchemaView(BaseSchemaView, DeleteView):
