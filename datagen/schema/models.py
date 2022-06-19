@@ -69,6 +69,9 @@ class Dataset(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.schema.name} - {self.num_rows} rows on {self.created.strftime('%Y-%m-%d')}"
+
 
 class CheckAttrsMeta(type(models.Model)):
     """Ensure that non-abstract children models
@@ -100,6 +103,9 @@ class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
     @property
     def params(self):
         return model_to_dict(self, exclude=("id", "name", "order", "schema"))
+
+    def __str__(self):
+        return f"{self.label} - {self.name}"
 
 
 class NameColumn(BaseColumn):
