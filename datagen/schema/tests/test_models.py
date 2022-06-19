@@ -276,7 +276,14 @@ class TestRandomIntColumnSpecials(TestCase):
         col = RandomIntColumn(
             schema=self.schema, name="Test col 2", min=765, max=432
         )
-        self.assertRaises(ValidationError, col.full_clean)
+        with self.assertRaises(ValidationError) as error:
+            col.full_clean()
+
+        # check that raised error keys are indeed model keys
+        field_names = {field.name for field in col._meta.fields}
+        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys.remove("__all__")
+        self.assertTrue(field_names.issuperset(error_keys))
 
 
 class TestSentencesColumnSpecials(TestCase):
@@ -291,4 +298,11 @@ class TestSentencesColumnSpecials(TestCase):
         col = SentencesColumn(
             schema=self.schema, name="Test col 2", nb_min=765, nb_max=432
         )
-        self.assertRaises(ValidationError, col.full_clean)
+        with self.assertRaises(ValidationError) as error:
+            col.full_clean()
+
+        # check that raised error keys are indeed model keys
+        field_names = {field.name for field in col._meta.fields}
+        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys.remove("__all__")
+        self.assertTrue(field_names.issuperset(error_keys))
