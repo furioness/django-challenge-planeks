@@ -183,7 +183,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
             # full_clean() is called by modelformset
             col.save()
             self.assertEqual(
-                col, column.objects.get(pk=col.id, name="Test col")
+                col, column.objects.get(pk=col.pk, name="Test col")
             )
 
     def test_simple_columns_have_existend_faker_type(self):
