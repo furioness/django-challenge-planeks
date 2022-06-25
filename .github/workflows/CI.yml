@@ -39,11 +39,19 @@ jobs:
           source "$(poetry env info -p)/bin/activate"
           make coverage
 
-      # TODO: add coverage label
       - name: Print out coverage report
         run: |
           source "$(poetry env info -p)/bin/activate"
           coverage report
+
+      - name: Commit coverage.xml to be usable by the badge
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git add .coverage/coverage.xml
+          git commit -m "Update coverage"
+          git push
+
 
   Security-check-CodeQl:
     name: Analyze
