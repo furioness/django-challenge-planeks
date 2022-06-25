@@ -45,7 +45,7 @@ jobs:
           coverage report
 
       - name: Commit coverage.xml
-      - uses: EndBug/add-and-commit@v9.0.0
+        uses: EndBug/add-and-commit@v9.0.0
         with:
           add: .coverage/coverage.xml
           commit: --signoff
