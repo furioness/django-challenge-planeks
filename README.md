@@ -1,7 +1,9 @@
 [![CI](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/CI.yml)
 [![CodeQL](https://github.com/furioness/django-challenge-planeks/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/codeql.yml)
 [![Heroku Deployment](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml/badge.svg?branch=master)](https://github.com/furioness/django-challenge-planeks/actions/workflows/deploy_to_heroku.yml)
-![wakatime](https://wakatime.com/badge/user/43ad3009-1842-4a4f-a7fa-e8332aeecd33/project/8209bb54-1f75-4b08-8ea1-eeaa06678f8f.svg "Time in an IDE. Multiply by ~1.5-2.5 for the real time.")
+![wakatime](https://wakatime.com/badge/user/43ad3009-1842-4a4f-a7fa-e8332aeecd33/project/8209bb54-1f75-4b08-8ea1-eeaa06678f8f.svg "Time in an IDE.")
+![Coverage](https://img.shields.io/badge/dynamic/xml?label=Coverage%20%28Master%29&prefix=branch-rate%3A%20&query=coverage%2F%40branch-rate&url=https%3A%2F%2Fraw.githubusercontent.com%2Ffurioness%2Fdjango-challenge-planeks%2Fmaster%2F.coverage%2Fcoverage.xml "Coverage for Master branch")
+
 
 # Junior Django Developer application challenge
 A Django application for generating dummy data by user-defined schemas with arbitrary fields.
