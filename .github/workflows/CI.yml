@@ -48,6 +48,7 @@ jobs:
         run: |
           git config --local user.email "$(git log --format='%ae' HEAD^!)"
           git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git checkout ${ GITHUB_REF_NAME }
           git add .coverage/coverage.xml
           git commit -m "Update coverage"
           git push
