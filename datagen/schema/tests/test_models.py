@@ -3,14 +3,13 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
 from factory import Faker, ListFactory
 
 from ..models import (
     AddressColumn,
     BaseColumn,
-    CheckAttrsMeta,
     CompanyColumn,
     Dataset,
     DateColumn,
@@ -136,16 +135,25 @@ class TestGeneratedData(TestCase):
         )
 
 
-class TestAttrsMetaClass(TestCase):
-    def test_ensures_type_and_label(self):
+class TestBaseClass(TransactionTestCase):
+    """Test base class for all columns.
+    Currently only `type` and `label` fields constraints.
+    Requires usage of TransactionTestCase so creating of new models
+    get discarded after test."""
+
+    def test_ensure_type_and_label(self):
         with self.assertRaisesMessage(
-            AttributeError, "Test has no type specified."
+            AttributeError, "TestModel has no type specified."
         ):
-            CheckAttrsMeta("Test", (), {})
+
+            class TestModel(BaseColumn):  # NOSONAR
+                pass
 
     def test_generate_label_from_type(self):
-        meta = CheckAttrsMeta("Test", (), {"type": "test_type"})
-        self.assertEqual(meta.label, "Test Type")
+        class TestModel(BaseColumn):
+            type = "test_type"
+
+        self.assertEqual(TestModel.label, "Test Type")
 
 
 class TestColumnsBasic(AssertBetweenMixin, TestCase):

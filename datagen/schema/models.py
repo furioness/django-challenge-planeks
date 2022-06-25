@@ -73,24 +73,7 @@ class Dataset(models.Model):
         return f"{self.schema.name} - {self.num_rows} rows on {self.created.strftime('%Y-%m-%d')}"
 
 
-class CheckAttrsMeta(type(models.Model)):
-    """Ensure that non-abstract children models
-    have `label` and `type` attributes set.
-    """
-
-    def __new__(metacls, name, bases, namespace, **kwargs):  # type: ignore
-        if getattr(namespace.get("Meta"), "abstract", False):
-            return super().__new__(metacls, name, bases, namespace, **kwargs)
-
-        if not namespace.get("type", None):
-            raise AttributeError(f"{name} has no type specified.")
-        if not namespace.get("label", None):  # construct label from type
-            namespace["label"] = namespace["type"].replace("_", " ").title()
-
-        return super().__new__(metacls, name, bases, namespace, **kwargs)
-
-
-class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
+class BaseColumn(models.Model):
     label: str
     type: str
     name = models.CharField(max_length=255, validators=[MinLengthValidator(1)])
@@ -103,6 +86,15 @@ class BaseColumn(models.Model, metaclass=CheckAttrsMeta):
     @property
     def params(self):
         return model_to_dict(self, exclude=("id", "name", "order", "schema"))
+
+    def __init_subclass__(cls) -> None:
+        """Ensure `type` and `label` attributes on subclasses are set"""
+        if not (type_ := getattr(cls, "type", None)):
+            raise AttributeError(f"{cls.__name__} has no type specified.")
+        if not getattr(cls, "label", None):  # construct label from type
+            setattr(cls, "label", type_.replace("_", " ").title())
+
+        super().__init_subclass__()
 
     def __str__(self):
         return f"{self.label} - {self.name}"
