@@ -44,14 +44,14 @@ jobs:
           source "$(poetry env info -p)/bin/activate"
           coverage report
 
-      - name: Commit coverage.xml to be usable by the badge
-        run: |
-          git config --local user.email "$(git log --format='%ae' HEAD^!)"
-          git config --local user.name "$(git log --format='%an' HEAD^!)"
-          git checkout ${ GITHUB_REF_NAME }
-          git add .coverage/coverage.xml
-          git commit -m "Update coverage"
-          git push
+      - name: Commit coverage.xml
+      - uses: EndBug/add-and-commit@v9.0.0
+        with:
+          add: .coverage/coverage.xml
+          commit: --signoff
+          message: Update coverage
+          pathspec_error_handling: exitImmediately
+          push: true
 
 
   Security-check-CodeQl:
