@@ -16,7 +16,6 @@ boto3 = "^1.22.9"
 django-storages = "^1.12.3"
 django-cleanup = "^6.0.0"
 django-bootstrap5 = "^21.3"
-coverage = {extras = ["toml"], version = "^6.4"}
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.3.0"
@@ -24,6 +23,11 @@ python-dotenv = "^0.20.0"
 black = "^22.3.0"
 tblib = "^1.7.0"
 django-coverage-plugin = "^2.0.3"
+coverage = {extras = ["toml"], version = "^6.4"}
+mypy = "^0.961"
+django-types = "^0.15.0"
+celery-types = "^0.13.1"
+types-dj-database-url = "^0.5.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
