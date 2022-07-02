@@ -20,7 +20,9 @@ media/
 .pythonconfig
 
 # coverage
-.coverage
+.coverage/*
+!.coverage/coverage.xml
+
 
 # gitguard cache
 .cache_ggshield
