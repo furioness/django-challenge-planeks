@@ -75,3 +75,8 @@ output = ".coverage/coverage.xml"
 
 [tool.coverage.html]
 directory = ".coverage/html"
+
+[[tool.mypy.overrides]]
+module = ['factory', 'storages.backends.s3boto3']
+ignore_missing_imports = true 
+

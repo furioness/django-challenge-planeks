@@ -79,4 +79,4 @@ class SchemaDataSetsView(BaseSchemaView, FormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("schema:datasets", args=(self.get_object().pk,))  # type: ignore
+        return reverse("schema:datasets", args=(self.get_object().pk,))

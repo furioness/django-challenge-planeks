@@ -19,6 +19,7 @@ class Schema(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name="schemas"
     )
     modified = models.DateTimeField(auto_now=True)
+    datasets: models.QuerySet["Dataset"]
 
     def __str__(self):
         return self.name
@@ -52,9 +53,9 @@ class Schema(models.Model):
     def run_generate_task(self, num_rows: int):
         from .tasks import generate_data  # prevent circular import
 
-        dataset = self.datasets.create(num_rows=num_rows)  # type: ignore
+        dataset = self.datasets.create(num_rows=num_rows)
         if settings.INPROCESS_CELERY_WORKER:
-            generate_data.run(dataset.id)
+            generate_data.run(dataset.pk)
         else:
             generate_data.delay(dataset.pk)
 

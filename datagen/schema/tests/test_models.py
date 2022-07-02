@@ -78,11 +78,11 @@ class TestSchema(TestCase):
         )
         NameColumn.objects.create(name="Name col", schema=schema)
 
-        self.assertEqual(schema.datasets.count(), 0)  # type: ignore
+        self.assertEqual(schema.datasets.count(), 0)
         with mock.patch.object(tasks, "generate_data", mock.Mock()) as task:
             schema.run_generate_task(num_rows=10)
-            gen_data = schema.datasets.first()  # type: ignore
-            task.delay.assert_called_once_with(gen_data.id)
+            gen_data: Dataset = schema.datasets.first()  # type: ignore
+            task.delay.assert_called_once_with(gen_data.pk)
             self.assertEqual(gen_data.num_rows, 10)
 
     def test_cascade_deletion_on_user(self):
@@ -118,11 +118,11 @@ class TestGeneratedData(TestCase):
         )
 
     def test_cascade_deletion(self):
-        self.assertEqual(0, self.schema.datasets.count())  # type: ignore
+        self.assertEqual(0, self.schema.datasets.count())
         gen_data_id = Dataset.objects.create(
             schema=self.schema, num_rows=10
         ).id
-        self.assertEqual(1, self.schema.datasets.count())  # type: ignore
+        self.assertEqual(1, self.schema.datasets.count())
         self.schema.delete()
         with self.assertRaises(Dataset.DoesNotExist):
             Dataset.objects.get(pk=gen_data_id)
@@ -158,7 +158,7 @@ class TestBaseClass(TransactionTestCase):
 
 class TestColumnsBasic(AssertBetweenMixin, TestCase):
     COLUMNS = BaseColumn.__subclasses__()
-    tested_classes = set()
+    tested_classes: set[type[BaseColumn]] = set()
 
     @classmethod
     def setUpTestData(cls):
@@ -168,8 +168,10 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
 
     @staticmethod
-    def get_Factory(type_, params) -> ListFactory:
-        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    def get_Factory(type_, params) -> type[ListFactory]:
+        return type(
+            "_Factory", (ListFactory,), {"field": Faker(type_, **params)}
+        )
 
     @classmethod
     def get_sample_gen_data(cls, column_instance: BaseColumn):
