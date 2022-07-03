@@ -76,7 +76,7 @@ class SchemaDataSetsView(OwnSchemaMixin, FormView):
         return kwargs
 
     def form_valid(self, form: GenerateForm) -> HttpResponse:
-        self.get_object().run_generate_task(form.cleaned_data["num_rows"])  # type: ignore
+        self.get_object().run_generate_task(form.cleaned_data["num_rows"])
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

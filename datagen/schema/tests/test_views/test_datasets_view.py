@@ -12,7 +12,7 @@ from ...models import NameColumn, RandomIntColumn, Schema
 class TestSchemaDataSetsView(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -36,10 +36,14 @@ class TestSchemaDataSetsView(TestCase):
 
     def test_call_view_deny_anonymous(self):
         response = self.client.get(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
         response = self.client.post(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
     def test_call_view_allows_registered(self):
         self.client.force_login(self.user)
@@ -49,7 +53,7 @@ class TestSchemaDataSetsView(TestCase):
     def test_view_uses_correct_template(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertTemplateUsed(response, "data/list.html")  # type: ignore
+        self.assertTemplateUsed(response, "data/list.html")
 
     def test_render_datasets_list(self):
         self.client.force_login(self.user)
@@ -64,7 +68,7 @@ class TestSchemaDataSetsView(TestCase):
 
         response = self.client.get(self.VIEW_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["schema"].datasets.count(), 3)  # type: ignore
+        self.assertEqual(response.context["schema"].datasets.count(), 3)
         self.assertContains(response, "Processing", count=2)
         self.assertContains(response, "Ready", count=1)
         self.assertContains(response, generated.file.url)
@@ -72,7 +76,7 @@ class TestSchemaDataSetsView(TestCase):
     def test_lists_only_own_datasets(self):
         self.schema.datasets.create(num_rows=10)
 
-        user_2 = get_user_model().objects.create_user(  # type: ignore
+        user_2 = get_user_model().objects.create_user(
             username="testuser_2", password="12345"
         )
         self.client.force_login(user_2)

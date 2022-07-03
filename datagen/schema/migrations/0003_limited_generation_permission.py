@@ -11,7 +11,7 @@ from django.db.models import Model
 
 
 def add_permission(apps: Apps, schema_editor: SchemaEditor) -> None:
-    GeneratedData: Model = apps.get_model("schema", "GeneratedData")  # type: ignore
+    GeneratedData: type[Model] = apps.get_model("schema", "GeneratedData")
     content_type = ContentType.objects.get_for_model(GeneratedData)
     Permission.objects.create(
         codename="unlimited_generation",
@@ -21,7 +21,7 @@ def add_permission(apps: Apps, schema_editor: SchemaEditor) -> None:
 
 
 def drop_permission(apps: Apps, schema_editor: SchemaEditor) -> None:
-    GeneratedData: Model = apps.get_model("schema", "GeneratedData")  # type: ignore
+    GeneratedData: type[Model] = apps.get_model("schema", "GeneratedData")
     content_type = ContentType.objects.get_for_model(GeneratedData)
     Permission.objects.get(
         codename="unlimited_generation",

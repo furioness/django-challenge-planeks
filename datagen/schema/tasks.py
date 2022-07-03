@@ -28,7 +28,7 @@ def generate_data(dataset_pk: int) -> None:
     )
 
     with open(csv_file_path, "rb") as csv_file:
-        dataset.file.save(file_slug, csv_file)  # type: ignore
+        dataset.file.save(file_slug, csv_file)  # type: ignore[arg-type]
 
     dataset.save()
     os.remove(csv_file_path)

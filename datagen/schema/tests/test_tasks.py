@@ -8,7 +8,7 @@ from ..tasks import generate_data
 class TestRunGenerateDataTask(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser",
             password="testpass",
         )

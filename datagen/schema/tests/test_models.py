@@ -29,7 +29,7 @@ from . import AssertBetweenMixin
 class TestSchema(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
 
@@ -81,7 +81,7 @@ class TestSchema(TestCase):
         self.assertEqual(schema.datasets.count(), 0)
         with mock.patch.object(tasks, "generate_data", mock.Mock()) as task:
             schema.run_generate_task(num_rows=10)
-            gen_data: Dataset = schema.datasets.first()  # type: ignore
+            gen_data = schema.datasets.first()
             task.delay.assert_called_once_with(gen_data.pk)
             self.assertEqual(gen_data.num_rows, 10)
 
@@ -97,7 +97,7 @@ class TestSchema(TestCase):
 class TestGeneratedData(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(
@@ -162,7 +162,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -176,7 +176,9 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
     @classmethod
     def get_sample_gen_data(cls, column_instance: BaseColumn):
         cls.tested_classes.add(type(column_instance))
-        return cls.get_Factory(column_instance.type, column_instance.params)()[0]  # type: ignore
+        return cls.get_Factory(column_instance.type, column_instance.params)()[
+            0
+        ]
 
     def test_simple_columns_instantiation(self):
         for column in self.COLUMNS:
@@ -192,7 +194,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
         for model in self.COLUMNS:
             column = model(schema=self.schema, name="Test col")
             self.assertIsNotNone(
-                self.get_Factory(column.type, column.params)()[0]  # type: ignore
+                self.get_Factory(column.type, column.params)()[0]
             )
 
     def test_simple_columns_faker_type_is_heuristically_correct(self):
@@ -277,7 +279,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
 class TestRandomIntColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -291,7 +293,7 @@ class TestRandomIntColumnSpecials(TestCase):
 
         # check that raised error keys are indeed model keys
         field_names = {field.name for field in col._meta.fields}
-        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys = set(error.exception.message_dict.keys())
         error_keys.remove("__all__")
         self.assertTrue(field_names.issuperset(error_keys))
 
@@ -299,7 +301,7 @@ class TestRandomIntColumnSpecials(TestCase):
 class TestSentencesColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -313,6 +315,6 @@ class TestSentencesColumnSpecials(TestCase):
 
         # check that raised error keys are indeed model keys
         field_names = {field.name for field in col._meta.fields}
-        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys = set(error.exception.message_dict.keys())
         error_keys.remove("__all__")
         self.assertTrue(field_names.issuperset(error_keys))

@@ -6,6 +6,6 @@ from pathlib import Path
 CELERY_BROKER = "pyamqp://@localhost/testing"
 
 # For templates coverage plugin
-TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore
+TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore[index]
 
 MEDIA_ROOT = Path("/tmp/testmedia/")

@@ -27,4 +27,4 @@ class Generator:
     def generate(self, num_records: int) -> GeneratorType[List, None, None]:
         factory = self._get_Factory()
         for _ in range(num_records):
-            yield factory()  # type: ignore
+            yield factory()

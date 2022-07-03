@@ -17,7 +17,7 @@ class GenerateForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_num_rows(self) -> int:
-        num_rows = self.cleaned_data["num_rows"]
+        num_rows: int = self.cleaned_data["num_rows"]
         if not self.user.has_perm("schema.unlimited_generation"):
             rows_used = (
                 Dataset.objects.filter(schema__user=self.user).aggregate(
@@ -57,7 +57,7 @@ class FieldSelectForm(forms.Form):
 
 
 class BaseColumnFormSet(forms.BaseModelFormSet):
-    def __init__(self, *args, **kwargs):  # type: ignore
+    def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         # if user leave some fields empty,
         # but fields with default values will have their defaults,
@@ -71,8 +71,8 @@ class BaseColumnFormSet(forms.BaseModelFormSet):
 
 
 class ColumnWithOrderFieldLast(forms.ModelForm):
-    def __new__(cls, *args, **kwargs):  # type: ignore
-        cls: type[ColumnWithOrderFieldLast] = super().__new__(cls)  # type: ignore
+    def __new__(cls, *args, **kwargs):  # type: ignore[no-untyped-def]
+        cls: type[ColumnWithOrderFieldLast] = super().__new__(cls)  # type: ignore[no-redef]
         fields = list(cls.base_fields.keys())
         fields.remove("order")
         cls.field_order = fields + ["order"]
@@ -99,7 +99,7 @@ class SchemaForm(forms.ModelForm):
             for col_model, cols_qs in self.instance.columns_grouped_by_type.items()
         ]
 
-    def clean(self) -> Optional[dict[str, Any]]:  # type: ignore
+    def clean(self) -> Optional[dict[str, Any]]:  # type: ignore[override]
         schema_cleaned_data = super().clean()
 
         column_count = sum(
@@ -144,7 +144,8 @@ class SchemaForm(forms.ModelForm):
 
     def save(self, commit: bool = True) -> Schema:
         # if user is not set it will raise, so checking user_id
-        if not self.instance.user_id:
+        self.instance: Schema
+        if not self.instance.user_id:  # type: ignore
             self.instance.user = self.user
         schema = super().save(commit)
 

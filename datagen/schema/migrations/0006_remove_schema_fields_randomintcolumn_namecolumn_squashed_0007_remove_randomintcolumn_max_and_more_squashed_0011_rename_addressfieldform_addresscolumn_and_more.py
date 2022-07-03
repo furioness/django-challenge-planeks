@@ -18,8 +18,8 @@ def move_schema_fields_to_model_columns(
         column.type: column for column in BaseColumn.__subclasses__()
     }
 
-    for schema_instance in schema.objects.all():  # type: ignore
-        for column in schema_instance.fields:  # type: ignore
+    for schema_instance in schema.objects.all():
+        for column in schema_instance.fields:  # type: ignore[attr-defined]
             f_type = column.pop("f_type")
             column.update(column.pop("f_params"))
             typed_columns[f_type].objects.create(
