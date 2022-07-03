@@ -76,6 +76,16 @@ output = ".coverage/coverage.xml"
 [tool.coverage.html]
 directory = ".coverage/html"
 
+[tool.mypy]
+disallow_untyped_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ['*.tests.*',]
+disallow_untyped_defs = false
+check_untyped_defs = false
+
 [[tool.mypy.overrides]]
 module = ['factory', 'storages.backends.s3boto3']
 ignore_missing_imports = true 

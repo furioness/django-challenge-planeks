@@ -4,7 +4,7 @@ import os
 import sys
 
 
-def main():
+def main() -> None:
     """Run administrative tasks."""
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "datagen"))
 

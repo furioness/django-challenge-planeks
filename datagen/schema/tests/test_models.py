@@ -88,7 +88,7 @@ class TestSchema(TestCase):
     def test_cascade_deletion_on_user(self):
         schema_id: Schema = Schema.objects.create(
             name="Test schema", user=self.user
-        ).id
+        ).pk
         self.user.delete()
         with self.assertRaises(Schema.DoesNotExist):
             Schema.objects.get(pk=schema_id)

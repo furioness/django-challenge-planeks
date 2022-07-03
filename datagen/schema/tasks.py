@@ -10,7 +10,7 @@ from .services.generator import Generator as Generator
 
 
 @shared_task
-def generate_data(dataset_pk: int):
+def generate_data(dataset_pk: int) -> None:
     dataset: Dataset = Dataset.objects.select_related("schema").get(
         pk=dataset_pk
     )

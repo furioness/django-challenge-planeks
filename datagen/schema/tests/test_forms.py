@@ -396,7 +396,7 @@ class TestSchemaFormCase(TestCase):
             ),
             **self.copy_form_prepared(
                 {
-                    "id": name_col_2.id,
+                    "id": name_col_2.pk,
                     "name": "Col 2 changed name",
                     "order": 1337,
                 },
