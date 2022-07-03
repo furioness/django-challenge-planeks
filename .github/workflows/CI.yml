@@ -28,10 +28,15 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Run formatter
+      - name: Run formatter check
         run: |
           source "$(poetry env info -p)/bin/activate"
           make format
+
+      - name: Run mypy typing checker
+        run: |
+          source "$(poetry env info -p)/bin/activate"
+          make mypy
 
       - name: Start PostgreSQL and RabbitMQ (docker compose)
         run: docker compose up -d

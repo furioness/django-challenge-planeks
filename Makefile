@@ -25,3 +25,6 @@ add_git_hooks:
 
 format:
 	black .
+
+mypy:
+	mypy .
