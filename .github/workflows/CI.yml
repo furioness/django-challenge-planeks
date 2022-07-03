@@ -46,16 +46,17 @@ jobs:
           source "$(poetry env info -p)/bin/activate"
           make coverage
 
-      - name: Print out coverage report
+      - name: Print out coverage report and move covinfo
         run: |
           source "$(poetry env info -p)/bin/activate"
           coverage report
+          mv .coverage/coverage.xml ./coverage/coverage_public.xml
 
-      - name: Commit coverage.xml
+      - name: Commit coverage_public.xml
         if: ${{ github.event_name == 'pull_request' }}
         uses: EndBug/add-and-commit@v9.0.0
         with:
-          add: .coverage/coverage.xml
+          add: .coverage/coverage_public.xml
           commit: --signoff
           message: Update coverage
           pathspec_error_handling: exitImmediately

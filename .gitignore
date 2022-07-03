@@ -21,7 +21,7 @@ media/
 
 # coverage
 .coverage/*
-!.coverage/coverage.xml
+!.coverage/coverage_public.xml
 
 
 # gitguard cache
