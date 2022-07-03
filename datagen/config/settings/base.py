@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from os import environ
 from pathlib import Path
 
-from django.core.files.storage import DefaultStorage
+from django.core.files.storage import DefaultStorage, Storage
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -130,7 +130,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles/"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media/"
 
-PRIVATE_MEDIA_STORAGE = DefaultStorage
+PRIVATE_MEDIA_STORAGE: type[Storage | DefaultStorage] = DefaultStorage
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

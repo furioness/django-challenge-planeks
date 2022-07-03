@@ -12,7 +12,7 @@ class TestCreateSchemaView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
 
@@ -49,10 +49,14 @@ class TestCreateSchemaView(TestCase):
 
     def test_call_view_deny_anonymous(self):
         response = self.client.get(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
         response = self.client.post(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
     def test_call_view_allows_registered(self):
         self.client.force_login(self.user)
@@ -62,7 +66,7 @@ class TestCreateSchemaView(TestCase):
     def test_view_uses_correct_template(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertTemplateUsed(response, "schema/edit.html")  # type: ignore
+        self.assertTemplateUsed(response, "schema/edit.html")
 
     def test_create_a_simple_schema(self):
         self.client.force_login(self.user)
@@ -92,13 +96,13 @@ class TestCreateSchemaView(TestCase):
         # note that fields is a JSON string
         response = self.client.post(self.VIEW_URL, data=form_data)
 
-        self.assertRedirects(response, reverse("schema:list"))  # type: ignore
+        self.assertRedirects(response, reverse("schema:list"))
         self.assertEqual(1, Schema.objects.count())
 
         self.assertDictEqual(
             schema_data,
             model_to_dict(
-                Schema.objects.first(),  # type: ignore
+                Schema.objects.first(),
                 fields=("name", "column_separator", "quotechar"),
             ),
         )
@@ -133,11 +137,14 @@ class TestCreateSchemaView(TestCase):
         response = self.client.post(self.VIEW_URL, data=form_data)
         self.assertTrue(response.status_code, 200)
 
-        self.assertListEqual(response.context["form"].non_field_errors(), ["One or more columns have errors."])  # type: ignore
+        self.assertListEqual(
+            response.context["form"].non_field_errors(),
+            ["One or more columns have errors."],
+        )
 
         self.assertContains(response, "One or more columns have errors.")
 
-        rand_int_form = response.context["form"].column_formsets[1][0]  # type: ignore
+        rand_int_form = response.context["form"].column_formsets[1][0]
         self.assertTrue(len(rand_int_form.errors), 4)
         for expected_error in [
             "Min must be less than max.",
@@ -164,4 +171,7 @@ class TestCreateSchemaView(TestCase):
         response = self.client.post(self.VIEW_URL, data=form_data)
         self.assertTrue(response.status_code, 200)
 
-        self.assertListEqual(response.context["form"].non_field_errors(), ["Add at least one column."])  # type: ignore
+        self.assertListEqual(
+            response.context["form"].non_field_errors(),
+            ["Add at least one column."],
+        )

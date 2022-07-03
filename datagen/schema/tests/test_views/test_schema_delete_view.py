@@ -9,7 +9,7 @@ from ...models import NameColumn, Schema
 class TestDeleteSchemaView(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -26,10 +26,14 @@ class TestDeleteSchemaView(TestCase):
 
     def test_call_view_deny_anonymous(self):
         response = self.client.get(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
         response = self.client.post(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
     def test_call_view_allows_registered(self):
         self.client.force_login(self.user)
@@ -39,17 +43,17 @@ class TestDeleteSchemaView(TestCase):
     def test_view_uses_correct_template(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertTemplateUsed(response, "schema/delete.html")  # type: ignore
+        self.assertTemplateUsed(response, "schema/delete.html")
 
     def test_schema_deleted(self):
         self.client.force_login(self.user)
         response = self.client.post(self.VIEW_URL)
-        self.assertRedirects(response, reverse("schema:list"))  # type: ignore
+        self.assertRedirects(response, reverse("schema:list"))
         with self.assertRaises(self.schema.DoesNotExist):
             self.schema.refresh_from_db()
 
     def test_only_owner_can_delete(self):
-        user_2 = get_user_model().objects.create_user(  # type: ignore
+        user_2 = get_user_model().objects.create_user(
             username="testuser_2", password="12345"
         )
         self.client.force_login(user_2)

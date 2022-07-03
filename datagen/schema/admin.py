@@ -8,9 +8,13 @@ admin.site.register(
 )
 
 
-def column_inline_factory(model):
+def column_inline_factory(
+    model: type[BaseColumn],
+) -> type[admin.TabularInline]:
     return type(
-        "whatever", (admin.TabularInline,), {"model": model, "extra": 0}
+        "InlineColumnForm",
+        (admin.TabularInline,),
+        {"model": model, "extra": 0},
     )
 
 

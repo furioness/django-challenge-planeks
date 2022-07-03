@@ -10,7 +10,7 @@ from .services.generator import Generator as Generator
 
 
 @shared_task
-def generate_data(dataset_pk: int):
+def generate_data(dataset_pk: int) -> None:
     dataset: Dataset = Dataset.objects.select_related("schema").get(
         pk=dataset_pk
     )
@@ -18,7 +18,7 @@ def generate_data(dataset_pk: int):
     gen_schema: Generator = schema.get_generator
 
     # Beware of malformed user input. Slugify will do it here.
-    file_slug = f"{schema.user.id}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
+    file_slug = f"{schema.user.pk}/{slugify(schema.name)}_{dataset.num_rows}_{datetime.isoformat(dataset.created)}.csv"
 
     csv_file_path = generate_to_csv(
         gen_schema.generate(dataset.num_rows),
@@ -28,7 +28,7 @@ def generate_data(dataset_pk: int):
     )
 
     with open(csv_file_path, "rb") as csv_file:
-        dataset.file.save(file_slug, csv_file)
+        dataset.file.save(file_slug, csv_file)  # type: ignore[arg-type]
 
     dataset.save()
     os.remove(csv_file_path)

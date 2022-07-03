@@ -14,7 +14,7 @@ CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = ["datagen-challenge.herokuapp.com"]
 
-DATABASES["default"] = dj_database_url.config(  # type: ignore
+DATABASES["default"] = dj_database_url.config(  # type: ignore[assignment]
     default=environ["DATABASE_URL"]
 )
 

@@ -11,7 +11,7 @@ class TestSchemaFormCase(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()  # required by django
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
 
@@ -396,7 +396,7 @@ class TestSchemaFormCase(TestCase):
             ),
             **self.copy_form_prepared(
                 {
-                    "id": name_col_2.id,
+                    "id": name_col_2.pk,
                     "name": "Col 2 changed name",
                     "order": 1337,
                 },
@@ -429,7 +429,7 @@ class TestSchemaFormCase(TestCase):
 class TestGenerateForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         # TODO: solve the mystery: if creating cls.request here (and not overwrite in setUp), user.has_perm will fail.

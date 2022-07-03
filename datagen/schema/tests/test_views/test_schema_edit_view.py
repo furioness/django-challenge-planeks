@@ -13,7 +13,7 @@ class TestEditSchemaView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(
@@ -38,10 +38,14 @@ class TestEditSchemaView(TestCase):
 
     def test_call_view_deny_anonymous(self):
         response = self.client.get(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
         response = self.client.post(self.VIEW_URL, follow=True)
-        self.assertRedirects(response, reverse("users:login") + "?next=" + self.VIEW_URL)  # type: ignore
+        self.assertRedirects(
+            response, reverse("users:login") + "?next=" + self.VIEW_URL
+        )
 
     def test_call_view_allows_registered(self):
         self.client.force_login(self.user)
@@ -51,15 +55,15 @@ class TestEditSchemaView(TestCase):
     def test_view_uses_correct_template(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertTemplateUsed(response, "schema/edit.html")  # type: ignore
+        self.assertTemplateUsed(response, "schema/edit.html")
 
     def test_shows_correct_schema(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertEqual(response.context["schema"], self.schema)  # type: ignore
+        self.assertEqual(response.context["schema"], self.schema)
 
     def test_shows_only_to_owner(self):
-        user_2 = get_user_model().objects.create_user(  # type: ignore
+        user_2 = get_user_model().objects.create_user(
             username="testuser_2", password="12345"
         )
         self.client.force_login(user_2)
@@ -75,5 +79,11 @@ class TestEditSchemaView(TestCase):
     def test_template_indicates_editing(self):
         self.client.force_login(self.user)
         response = self.client.get(self.VIEW_URL)
-        self.assertContains(response, f"<title>Edit {self.schema.name}</title>", html=True)  # type: ignore
-        self.assertContains(response, f'<h2 class="d-inline-block">Edit {self.schema.name}</h2>', html=True)  # type: ignore
+        self.assertContains(
+            response, f"<title>Edit {self.schema.name}</title>", html=True
+        )
+        self.assertContains(
+            response,
+            f'<h2 class="d-inline-block">Edit {self.schema.name}</h2>',
+            html=True,
+        )

@@ -1,19 +1,23 @@
+from typing import Any, Optional
+
 from django import forms
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Sum
+from django.forms import ModelForm
 
-from .models import Dataset, BaseColumn, Schema
+from .models import BaseColumn, Dataset, Schema
 
 
 class GenerateForm(forms.Form):
     num_rows = forms.IntegerField(label="Rows", min_value=1, initial=1234)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # type: ignore
         self.user = kwargs.pop("request").user
         super().__init__(*args, **kwargs)
 
-    def clean_num_rows(self):
-        num_rows = self.cleaned_data["num_rows"]
+    def clean_num_rows(self) -> int:
+        num_rows: int = self.cleaned_data["num_rows"]
         if not self.user.has_perm("schema.unlimited_generation"):
             rows_used = (
                 Dataset.objects.filter(schema__user=self.user).aggregate(
@@ -53,7 +57,7 @@ class FieldSelectForm(forms.Form):
 
 
 class BaseColumnFormSet(forms.BaseModelFormSet):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         # if user leave some fields empty,
         # but fields with default values will have their defaults,
@@ -62,13 +66,13 @@ class BaseColumnFormSet(forms.BaseModelFormSet):
         for form in self.forms:
             form.empty_permitted = False
 
-    def get_deletion_widget(self):
+    def get_deletion_widget(self) -> forms.Widget:
         return forms.HiddenInput(attrs={"class": "deletion"})
 
 
 class ColumnWithOrderFieldLast(forms.ModelForm):
-    def __new__(cls, *args, **kwargs):
-        cls = super().__new__(cls)
+    def __new__(cls, *args, **kwargs):  # type: ignore[no-untyped-def]
+        cls: type[ColumnWithOrderFieldLast] = super().__new__(cls)  # type: ignore[no-redef]
         fields = list(cls.base_fields.keys())
         fields.remove("order")
         cls.field_order = fields + ["order"]
@@ -80,7 +84,7 @@ class SchemaForm(forms.ModelForm):
         model = Schema
         fields = ("name", "column_separator", "quotechar")
 
-    def __init__(self, data=None, *args, user, **kwargs):
+    def __init__(self, data: Optional[dict] = None, *args, user: AbstractBaseUser, **kwargs):  # type: ignore
         self.user = user
         super().__init__(data, *args, **kwargs)
         self.column_formsets = [
@@ -95,7 +99,7 @@ class SchemaForm(forms.ModelForm):
             for col_model, cols_qs in self.instance.columns_grouped_by_type.items()
         ]
 
-    def clean(self):
+    def clean(self) -> Optional[dict[str, Any]]:  # type: ignore[override]
         schema_cleaned_data = super().clean()
 
         column_count = sum(
@@ -104,7 +108,7 @@ class SchemaForm(forms.ModelForm):
         )
         if column_count == 0:
             self.add_error(None, "Add at least one column.")
-            return
+            return None
 
         formsets_valid = [
             formset.is_valid() for formset in self.column_formsets
@@ -119,10 +123,10 @@ class SchemaForm(forms.ModelForm):
         # if the form isn't valid, it doesn't matter if we return here something or not as it isn't supposed to be used anyway
         return schema_cleaned_data
 
-    def _validate_duplicate_fields(self):
+    def _validate_duplicate_fields(self) -> bool:
         """Check columns for duplicates in name field and add error message to the forms.
         Return True/False if valid/invalid."""
-        name_forms = {}
+        name_forms: dict[str, list[ModelForm]] = {}
         for column_formset in self.column_formsets:
             for column_form in column_formset:
                 if not (name := column_form.cleaned_data.get("name", None)):
@@ -138,9 +142,10 @@ class SchemaForm(forms.ModelForm):
                     valid = False
         return valid
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True) -> Schema:
         # if user is not set it will raise, so checking user_id
-        if not self.instance.user_id:
+        self.instance: Schema
+        if not self.instance.user_id:  # type: ignore
             self.instance.user = self.user
         schema = super().save(commit)
 

@@ -1,14 +1,18 @@
 from itertools import chain
+from typing import Any, Iterable
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+)
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.forms.models import model_to_dict
 
-from .services.generator import Generator, ColumnDTO
+from .services.generator import ColumnDTO, Generator
 
 
 class Schema(models.Model):
@@ -19,12 +23,13 @@ class Schema(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name="schemas"
     )
     modified = models.DateTimeField(auto_now=True)
+    datasets: models.QuerySet["Dataset"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def columns(self):
+    def columns(self) -> Iterable["BaseColumn"]:
         return chain.from_iterable(
             column_model.objects.filter(schema=self)
             for column_model in BaseColumn.__subclasses__()
@@ -49,12 +54,12 @@ class Schema(models.Model):
             for column in self.columns
         )
 
-    def run_generate_task(self, num_rows: int):
+    def run_generate_task(self, num_rows: int) -> None:
         from .tasks import generate_data  # prevent circular import
 
-        dataset = self.datasets.create(num_rows=num_rows)  # type: ignore
+        dataset = self.datasets.create(num_rows=num_rows)
         if settings.INPROCESS_CELERY_WORKER:
-            generate_data.run(dataset.id)
+            generate_data.run(dataset.pk)
         else:
             generate_data.delay(dataset.pk)
 
@@ -69,7 +74,7 @@ class Dataset(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.schema.name} - {self.num_rows} rows on {self.created.strftime('%Y-%m-%d')}"
 
 
@@ -84,7 +89,7 @@ class BaseColumn(models.Model):
         abstract = True
 
     @property
-    def params(self):
+    def params(self) -> dict[str, Any]:
         return model_to_dict(self, exclude=("id", "name", "order", "schema"))
 
     def __init_subclass__(cls) -> None:
@@ -96,7 +101,7 @@ class BaseColumn(models.Model):
 
         super().__init_subclass__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.label} - {self.name}"
 
 
@@ -111,7 +116,7 @@ class RandomIntColumn(BaseColumn):
     min = models.IntegerField(default=1)
     max = models.IntegerField(default=100)
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.min > self.max:
             raise ValidationError(
@@ -166,7 +171,7 @@ class SentencesColumn(BaseColumn):
         validators=[MinValueValidator(1), MaxValueValidator(100000)],
     )
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         if self.nb_min > self.nb_max:
             raise ValidationError(

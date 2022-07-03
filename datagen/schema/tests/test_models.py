@@ -29,7 +29,7 @@ from . import AssertBetweenMixin
 class TestSchema(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
 
@@ -78,17 +78,17 @@ class TestSchema(TestCase):
         )
         NameColumn.objects.create(name="Name col", schema=schema)
 
-        self.assertEqual(schema.datasets.count(), 0)  # type: ignore
+        self.assertEqual(schema.datasets.count(), 0)
         with mock.patch.object(tasks, "generate_data", mock.Mock()) as task:
             schema.run_generate_task(num_rows=10)
-            gen_data = schema.datasets.first()  # type: ignore
-            task.delay.assert_called_once_with(gen_data.id)
+            gen_data = schema.datasets.first()
+            task.delay.assert_called_once_with(gen_data.pk)
             self.assertEqual(gen_data.num_rows, 10)
 
     def test_cascade_deletion_on_user(self):
         schema_id: Schema = Schema.objects.create(
             name="Test schema", user=self.user
-        ).id
+        ).pk
         self.user.delete()
         with self.assertRaises(Schema.DoesNotExist):
             Schema.objects.get(pk=schema_id)
@@ -97,7 +97,7 @@ class TestSchema(TestCase):
 class TestGeneratedData(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(
@@ -118,11 +118,11 @@ class TestGeneratedData(TestCase):
         )
 
     def test_cascade_deletion(self):
-        self.assertEqual(0, self.schema.datasets.count())  # type: ignore
+        self.assertEqual(0, self.schema.datasets.count())
         gen_data_id = Dataset.objects.create(
             schema=self.schema, num_rows=10
         ).id
-        self.assertEqual(1, self.schema.datasets.count())  # type: ignore
+        self.assertEqual(1, self.schema.datasets.count())
         self.schema.delete()
         with self.assertRaises(Dataset.DoesNotExist):
             Dataset.objects.get(pk=gen_data_id)
@@ -158,23 +158,27 @@ class TestBaseClass(TransactionTestCase):
 
 class TestColumnsBasic(AssertBetweenMixin, TestCase):
     COLUMNS = BaseColumn.__subclasses__()
-    tested_classes = set()
+    tested_classes: set[type[BaseColumn]] = set()
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
 
     @staticmethod
-    def get_Factory(type_, params) -> ListFactory:
-        return type("_Factory", (ListFactory,), {"field": Faker(type_, **params)})  # type: ignore
+    def get_Factory(type_, params) -> type[ListFactory]:
+        return type(
+            "_Factory", (ListFactory,), {"field": Faker(type_, **params)}
+        )
 
     @classmethod
     def get_sample_gen_data(cls, column_instance: BaseColumn):
         cls.tested_classes.add(type(column_instance))
-        return cls.get_Factory(column_instance.type, column_instance.params)()[0]  # type: ignore
+        return cls.get_Factory(column_instance.type, column_instance.params)()[
+            0
+        ]
 
     def test_simple_columns_instantiation(self):
         for column in self.COLUMNS:
@@ -190,7 +194,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
         for model in self.COLUMNS:
             column = model(schema=self.schema, name="Test col")
             self.assertIsNotNone(
-                self.get_Factory(column.type, column.params)()[0]  # type: ignore
+                self.get_Factory(column.type, column.params)()[0]
             )
 
     def test_simple_columns_faker_type_is_heuristically_correct(self):
@@ -275,7 +279,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
 class TestRandomIntColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -289,7 +293,7 @@ class TestRandomIntColumnSpecials(TestCase):
 
         # check that raised error keys are indeed model keys
         field_names = {field.name for field in col._meta.fields}
-        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys = set(error.exception.message_dict.keys())
         error_keys.remove("__all__")
         self.assertTrue(field_names.issuperset(error_keys))
 
@@ -297,7 +301,7 @@ class TestRandomIntColumnSpecials(TestCase):
 class TestSentencesColumnSpecials(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(  # type: ignore
+        cls.user = get_user_model().objects.create_user(
             username="testuser", password="12345"
         )
         cls.schema = Schema.objects.create(name="Test schema", user=cls.user)
@@ -311,6 +315,6 @@ class TestSentencesColumnSpecials(TestCase):
 
         # check that raised error keys are indeed model keys
         field_names = {field.name for field in col._meta.fields}
-        error_keys = set(error.exception.message_dict.keys())  # type: ignore
+        error_keys = set(error.exception.message_dict.keys())
         error_keys.remove("__all__")
         self.assertTrue(field_names.issuperset(error_keys))
