@@ -2,13 +2,15 @@
 
 {% load django_bootstrap5 %}
 
-{% block title %}
-{% if form.initial %}
-Edit {{ form.name.value }}
-{% else %}
-New schema
-{% endif %}
+{% load static %}
+
+{% block head %}
+<script defer src="{% static 'schema/js/form_helpers.js' %}"></script>
 {% endblock %}
+
+{% block title %}
+{% if form.initial %}Edit {{ form.name.value }}{% else %}New schema{% endif %}
+{% endblock title %}
 
 {% block content %}
 <form action="" method="POST" id="schemaForm">
@@ -46,164 +48,5 @@ New schema
     {% endwith %}
     {% endfor %}
 </div>
-
-
-<script>
-    'use strict'
-    // # TODO: refactor all this mess
-    // used in `./fieldForm.html` template
-    function deleteField(event) {
-        // set delete value as true and make div invisible
-        event.preventDefault() // othervise page scrolls up for some reason
-        let column = event.target.parentElement
-        let deleteInput = column.querySelector('input[name$="DELETE"]')
-
-        // if there is no deleteInput, it's not an initial (in DB) column,
-        // we have to decrement FORMSET_TOTALS
-        // and then we can just remove the column
-        if (!deleteInput) {
-            let typeName = column.querySelector('input').name.split('-')[0]
-            FORMSET_TOTALS[typeName]--
-            column.remove()
-            return
-        }
-        deleteInput.value = true
-        column.hidden = true
-    }
-
-    function getFormsetCounters() {
-        // initiate and return a table of form count per formset
-        // later will be used in the management forms
-        const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
-        let FORMSET_TOTALS = Object.create(null)
-        for (let formsetTotalInput of formsetTotalInputs) {
-            let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
-            FORMSET_TOTALS[typeName] = Number(formsetTotalInput.value)
-        }
-
-        return FORMSET_TOTALS
-    }
-
-    let FORMSET_TOTALS = getFormsetCounters()
-
-    function sortFields() {
-        let schema = document.getElementById('schemaFields')
-        let fields = Array(...schema.querySelectorAll('.field'));
-        fields
-            .sort((a, b) => {
-                let orderA = Number(a.querySelector('input[name$=order]').value)
-                let orderB = Number(b.querySelector('input[name$=order]').value)
-                return orderA - orderB
-            })
-            .forEach(field => {
-                schema.appendChild(field)
-            })
-    }
-
-    sortFields()
-
-    function normalizeFieldOrder() {
-        // set order to be consecutive starting from 1
-        let schema = document.getElementById('schemaFields')
-        let fields = Array(...schema.querySelectorAll('.field'))
-        let order = 1
-        for (let field of fields) {
-            if (field.querySelector('input[name$="DELETE"]')?.value) {
-                continue
-            }
-            field.querySelector('input[name$=order]').value = order
-            order++
-        }
-    }
-
-    document
-        .getElementById('schemaForm')
-        .addEventListener('submit', function (target) {
-            // normalize order to be consecutive starting from 1
-            sortFields()
-            normalizeFieldOrder()
-
-            // update management forms' totals before submitting
-            const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
-            for (let formsetTotalInput of formsetTotalInputs) {
-                let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
-                formsetTotalInput.value = FORMSET_TOTALS[typeName]
-            }
-        })
-
-    function getMaxOrder() {
-        let schema = document.getElementById('schemaFields')
-        let orders = Array(...schema.querySelectorAll('input[name$=order]')).map(input => Number(input.value))
-        if (!orders.length) {
-            return 0
-        }
-        return Math.max(...orders)
-    }
-
-    function incrementFieldSelectorFormMaxOrder() {
-        let orderInput = document.querySelector('#fieldSelectorForm input[name$=order]')
-        orderInput.value = getMaxOrder() + 1
-    }
-
-    incrementFieldSelectorFormMaxOrder()
-
-    document.getElementById('addFieldBtn').addEventListener('click',
-        function (addBtn) {
-            addBtn.preventDefault()
-
-            let fieldSelectorForm = document.getElementById('fieldSelectorForm')
-
-            // validate form
-            if (!fieldSelectorForm.checkValidity()) {
-                fieldSelectorForm.reportValidity()
-                return;
-            }
-
-            // get new field config
-            let fieldSelectorData = new FormData(fieldSelectorForm)
-            let selectedType = fieldSelectorData.get('type');
-            let fieldName = fieldSelectorData.get('name');
-            let fieldOrder = fieldSelectorData.get('order');
-
-            // get new field
-            let fieldTemplates = document.getElementById('fieldTemplates')
-            let fieldForm = fieldTemplates.querySelector('#' + selectedType).cloneNode(true)
-            fieldForm.removeAttribute('id')
-            fieldForm.style.display = ""
-
-            // set correct input ids assuming there are only inputs or selects 
-            let inputs = fieldForm.querySelectorAll('input')
-
-            // inputs
-            let index = FORMSET_TOTALS[selectedType]++
-            for (let input of inputs) {
-                let label = fieldForm.querySelector('label[for="' + input.id + '"]')
-                input.id = input.id.replace('!', index)
-                input.name = input.name.replace('!', index)
-                label.setAttribute('for', input.id)
-            }
-
-            // selects
-            let selects = fieldForm.querySelectorAll('select')
-            for (let select of selects) {
-                let label = fieldForm.querySelector('label[for="' + select.id + '"]')
-                select.id = select.id.replace('!', index)
-                select.name = select.name.replace('!', index)
-                label.setAttribute('for', select.id)
-            }
-
-            // set field's name and order
-            fieldForm.querySelector('input[name$="name"]').value = fieldName
-            fieldForm.querySelector('input[name$="order"]').value = fieldOrder
-
-            // add field to the form
-            document.getElementById('schemaFields').appendChild(fieldForm)
-
-            // reset form
-            fieldSelectorForm.reset()
-            // and incremented order
-            incrementFieldSelectorFormMaxOrder()
-        })
-</script>
 
 {% endblock %}
