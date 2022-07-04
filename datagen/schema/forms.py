@@ -147,47 +147,13 @@ class SchemaForm(forms.ModelForm):
     def save(self, commit: bool = True) -> Schema:
         # if user is not set it will raise, so checking user_id
         self.instance: Schema
-        if not self.instance.user_id:  # type: ignore[attr-defined]
+        if not self.instance.user_id:  # type: ignore
             self.instance.user = self.user
         schema = super().save(commit)
 
-        # normalizing column order
-        renormalized_column_instances = self._normalize_column_order()
-
-        saved_column_instances = []
         for column_formset in self.column_formsets:
             for column_form in column_formset:
                 column_form.instance.schema = schema
-            saved_column_instances.extend(column_formset.save(commit))
-
-        # only form-data changed forms has been saved so far,
-        # now manually saving reordered instances
-        for renormalized in renormalized_column_instances:
-            if renormalized in saved_column_instances:
-                continue
-            renormalized.save()
+            column_formset.save(commit)
 
         return self.instance
-
-    def _normalize_column_order(self) -> list[BaseColumn]:
-        """Sort columns (except marked for deletion) by the order field,
-        and set order to start from 1.
-        Return model instances of the columns that got changed order.
-        """
-        columns = list(
-            column
-            for formset in self.column_formsets
-            for column in formset
-            if not column.cleaned_data["DELETE"]
-        )
-        columns.sort(
-            key=lambda c: c.cleaned_data["order"]  # type: ignore[no-any-return]
-        )
-
-        renormalized_columns = []
-        for order, column in enumerate(columns, 1):
-            if column.cleaned_data["order"] != order:
-                column.instance.order = order
-                renormalized_columns.append(column.instance)
-
-        return renormalized_columns
