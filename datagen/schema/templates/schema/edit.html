@@ -131,6 +131,22 @@ New schema
             }
         })
 
+    function getMaxOrder() {
+        let schema = document.getElementById('schemaFields')
+        let orders = Array(...schema.querySelectorAll('input[name$=order]')).map(input => Number(input.value))
+        if (!orders.length) {
+            return 0
+        }
+        return Math.max(...orders)
+    }
+
+    function incrementFieldSelectorFormMaxOrder() {
+        let orderInput = document.querySelector('#fieldSelectorForm input[name$=order]')
+        orderInput.value = getMaxOrder() + 1
+    }
+
+    incrementFieldSelectorFormMaxOrder()
+
     document.getElementById('addFieldBtn').addEventListener('click',
         function (addBtn) {
             addBtn.preventDefault()
@@ -184,8 +200,9 @@ New schema
             document.getElementById('schemaFields').appendChild(fieldForm)
 
             // reset form
-            // TODO: autoincrement order to the maximum + 1
             fieldSelectorForm.reset()
+            // and incremented order
+            incrementFieldSelectorFormMaxOrder()
         })
 </script>
 
