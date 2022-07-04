@@ -21,7 +21,7 @@ from .models import Schema
 
 class OwnSchemaMixin(LoginRequiredMixin):
     def get_queryset(self) -> QuerySet[Schema]:
-        return self.request.user.schemas.all()  # type: ignore[no-any-return, attr-defined]
+        return self.request.user.schemas.order_by("-modified").all()  # type: ignore[no-any-return, attr-defined]
 
 
 class AtomicFormSavingMixin:
