@@ -368,7 +368,7 @@ class TestSchemaFormCase(TestCase):
 
     def test_invalidate_forged_column_ids(self):
         """Test ids from another schemas or just nonexistent.
-        Seems like normally it will just drop any object with id being not listed in initial data. There is also save_new and save_existing additional methods."""
+        Seems like normally it will just drop any object with id being not listed in initial data. There are also save_new and save_existing additional methods."""
         schema_data = {
             "name": "Test schema",
             "column_separator": ",",
