@@ -57,7 +57,7 @@ New schema
         event.preventDefault() // othervise page scrolls up for some reason
         let column = event.target.parentElement
         let deleteInput = column.querySelector('input[name$="DELETE"]')
-        
+
         // if there is no deleteInput, it's not an initial (in DB) column,
         // we have to decrement FORMSET_TOTALS
         // and then we can just remove the column
@@ -71,20 +71,42 @@ New schema
         column.hidden = true
     }
 
-    const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
+    function getFormsetCounters() {
+        // initiate and return a table of form count per formset
+        // later will be used in the management forms
+        const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
+        let FORMSET_TOTALS = Object.create(null)
+        for (let formsetTotalInput of formsetTotalInputs) {
+            let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
+            FORMSET_TOTALS[typeName] = Number(formsetTotalInput.value)
+        }
 
-    // initiate a table of form count per formset
-    // later will be used in the management forms
-    let FORMSET_TOTALS = Object.create(null)
-    for (let formsetTotalInput of formsetTotalInputs) {
-        let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
-        FORMSET_TOTALS[typeName] = Number(formsetTotalInput.value)
+        return FORMSET_TOTALS
     }
+
+    let FORMSET_TOTALS = getFormsetCounters()
+
+    function sortFields() {
+        let schema = document.getElementById('schemaFields')
+        let fields = Array(...schema.querySelectorAll('.field'));
+        fields
+            .sort((a, b) => {
+                let orderA = Number(a.querySelector('input[name$=order]').value)
+                let orderB = Number(b.querySelector('input[name$=order]').value)
+                return orderA - orderB
+            })
+            .forEach(field => {
+                schema.appendChild(field)
+            })
+    }
+
+    sortFields()
 
     document
         .getElementById('schemaForm')
         .addEventListener('submit', function (target) {
             // update management forms' totals before submitting
+            const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
             for (let formsetTotalInput of formsetTotalInputs) {
                 let typeName = formsetTotalInput.name.replace('-TOTAL_FORMS', '')
                 formsetTotalInput.value = FORMSET_TOTALS[typeName]
