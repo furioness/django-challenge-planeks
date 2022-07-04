@@ -35,6 +35,15 @@ class GenerateForm(forms.Form):
         return num_rows
 
 
+class ColumnWithOrderFieldLast(forms.ModelForm):
+    def __new__(cls, *args, **kwargs):  # type: ignore[no-untyped-def]
+        cls: type[ColumnWithOrderFieldLast] = super().__new__(cls)  # type: ignore[no-redef]
+        fields = list(cls.base_fields.keys())
+        fields.remove("order")
+        cls.field_order = fields + ["order"]
+        return cls
+
+
 class FieldSelectForm(forms.Form):
     name = forms.CharField(max_length=255)
     type = forms.ChoiceField(
@@ -48,9 +57,11 @@ class FieldSelectForm(forms.Form):
     column_form_templates = [
         (
             Column.__name__,
-            forms.modelform_factory(Column, exclude=("id", "schema"))(
-                prefix=Column.__name__ + "-!",
-            ),
+            forms.modelform_factory(
+                Column,
+                form=ColumnWithOrderFieldLast,
+                exclude=("id", "schema"),
+            )(prefix=Column.__name__ + "-!"),
         )
         for Column in BaseColumn.__subclasses__()
     ]
@@ -68,15 +79,6 @@ class BaseColumnFormSet(forms.BaseModelFormSet):
 
     def get_deletion_widget(self) -> forms.Widget:
         return forms.HiddenInput(attrs={"class": "deletion"})
-
-
-class ColumnWithOrderFieldLast(forms.ModelForm):
-    def __new__(cls, *args, **kwargs):  # type: ignore[no-untyped-def]
-        cls: type[ColumnWithOrderFieldLast] = super().__new__(cls)  # type: ignore[no-redef]
-        fields = list(cls.base_fields.keys())
-        fields.remove("order")
-        cls.field_order = fields + ["order"]
-        return cls
 
 
 class SchemaForm(forms.ModelForm):
