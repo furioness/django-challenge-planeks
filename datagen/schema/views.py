@@ -1,7 +1,9 @@
 from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import QuerySet
+from django.forms import Form
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -19,10 +21,16 @@ from .models import Schema
 
 class OwnSchemaMixin(LoginRequiredMixin):
     def get_queryset(self) -> QuerySet[Schema]:
-        return self.request.user.schemas.all()  # type: ignore
+        return self.request.user.schemas.all()  # type: ignore[no-any-return, attr-defined]
 
 
-class CreateSchemaView(OwnSchemaMixin, CreateView):
+class AtomicFormSavingMixin:
+    @transaction.atomic
+    def form_valid(self, form: Form) -> HttpResponse:
+        return super().form_valid(form)  # type: ignore[no-any-return, misc]
+
+
+class CreateSchemaView(OwnSchemaMixin, AtomicFormSavingMixin, CreateView):  # type: ignore[misc]
     template_name = "schema/edit.html"
     form_class = SchemaForm
     prefix = "Schema"
@@ -35,7 +43,7 @@ class CreateSchemaView(OwnSchemaMixin, CreateView):
         return kwargs
 
 
-class EditSchemaView(OwnSchemaMixin, UpdateView):
+class EditSchemaView(OwnSchemaMixin, AtomicFormSavingMixin, UpdateView):  # type: ignore[misc]
     template_name = "schema/edit.html"
     form_class = SchemaForm
     prefix = "Schema"
