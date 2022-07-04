@@ -102,9 +102,27 @@ New schema
 
     sortFields()
 
+    function normalizeFieldOrder() {
+        // set order to be consecutive starting from 1
+        let schema = document.getElementById('schemaFields')
+        let fields = Array(...schema.querySelectorAll('.field'))
+        let order = 1
+        for (let field of fields) {
+            if (field.querySelector('input[name$="DELETE"]')?.value) {
+                continue
+            }
+            field.querySelector('input[name$=order]').value = order
+            order++
+        }
+    }
+
     document
         .getElementById('schemaForm')
         .addEventListener('submit', function (target) {
+            // normalize order to be consecutive starting from 1
+            sortFields()
+            normalizeFieldOrder()
+
             // update management forms' totals before submitting
             const formsetTotalInputs = document.querySelectorAll('input[name$=TOTAL_FORMS]')
             for (let formsetTotalInput of formsetTotalInputs) {
