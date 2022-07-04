@@ -1,9 +1,9 @@
 {% load django_bootstrap5 %}
 
 {% if fieldForm.errors %}
-    <div class="border rounded border-warning p-2 my-1" {{ wrapper_tags }}>
+    <div class="field border rounded border-warning p-2 my-1" {{ wrapper_tags }}>
 {% else %}
-    <div class="border rounded  p-2 my-1" {{ wrapper_tags }}>
+    <div class="field border rounded  p-2 my-1" {{ wrapper_tags }}>
 {% endif %}
     <h5 class="d-inline-block">{{ fieldForm.instance.label }} field</h5>
     <a href="#" class="text-decoration-none fs-5 d-inline-block float-end text-danger"
