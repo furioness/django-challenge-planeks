@@ -35,3 +35,16 @@ Then add services and their credentials to environment variables (check settings
 - Heroku CloudAMQP addon or whatever for RabbitMQ
 - PostgreSQL URI (Heroku provides a free addon)
 - Amazon S3 ([walkthrough](https://testdriven.io/blog/storing-django-static-and-media-files-on-amazon-s3/)) for storing static files and generated datasets (privately)
+
+## Why there are so much code
+1) Requirement that different fields can have different parameters. 
+2) I wanted to use Django form validators, so I could have error handling for free.
+3) Just a few days before I experimented with Faker, so had an idea that there could be a hundred different fields with different parameters (and even different languages). YAGNI...
+
+Having the first two aspects, I needed to have a separate form/model (whatever entity) for handling each field. So my first solution was to use multiple forms for validation and JSON field for storage https://github.com/furioness/django-challenge-planeks/tree/old_JSON_fields - a relatively simple solution. 
+
+Later, I got feedback that is better to store those fields in separate models, and there is too much code for such a task. 
+
+Got it! Now we have an even more complex solution :)
+
+But what they probably meant is just to have a single model for storing all fields with all required parameters (I eventually searched GitHub for other solutions). That indeed is much more simple, but I never thought about it because of the third aspect.
