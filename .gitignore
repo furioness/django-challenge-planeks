@@ -14,6 +14,7 @@ media/
 #local settings
 */.env
 .env
+.python-version
 
 # VS code
 .vscode
@@ -26,3 +27,7 @@ media/
 
 # gitguard cache
 .cache_ggshield
+
+# other stuff
+# a remoute IDE service
+.gitpod.yml  

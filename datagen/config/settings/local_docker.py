@@ -9,3 +9,5 @@ DATABASES["default"] = dj_database_url.config(  # type: ignore[assignment]
 
 
 CELERY_BROKER = "pyamqp://@localhost//"
+
+CSRF_TRUSTED_ORIGINS = ["https://*.gitpod.io"]
