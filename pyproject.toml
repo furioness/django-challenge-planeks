@@ -16,6 +16,7 @@ boto3 = "^1.22.9"
 django-storages = "^1.12.3"
 django-cleanup = "^6.0.0"
 django-bootstrap5 = "^21.3"
+djangorestframework = "^3.13.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^8.3.0"

@@ -1,3 +1,4 @@
+from functools import cache
 from itertools import chain
 from typing import Any, Iterable
 
@@ -103,6 +104,14 @@ class BaseColumn(models.Model):
 
     def __str__(self) -> str:
         return f"{self.label} - {self.name}"
+
+    @classmethod
+    @cache  # Beware, cache is unlimited! Though, exception shouldn't be cached, so it's ok.
+    def get_column_by_type(cls, type_):
+        for column in cls.__subclasses__():
+            if column.type == type_:
+                return column
+        raise ValueError(f"No column of type {type_}")
 
 
 class NameColumn(BaseColumn):
