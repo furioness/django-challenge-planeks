@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from ..models import BaseColumn
+from ..models import Schema, BaseColumn
 
 
 class ColumnSerializer(serializers.Serializer):
@@ -51,3 +51,15 @@ class SchemaSerializer(serializers.Serializer):
     column_separator = serializers.CharField(max_length=1, default=",")
     quotechar = serializers.CharField(max_length=1, default='"')
     columns = serializers.ListField(child=ColumnSerializer())
+
+    def create(self, validated_data) -> Schema:
+        columns = validated_data.pop("columns")
+        schema = Schema.objects.create(
+            **validated_data, user=self.context["request"].user
+        )
+
+        for column in columns:
+            column.schema = schema
+            column.save()
+
+        return schema

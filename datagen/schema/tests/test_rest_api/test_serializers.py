@@ -97,3 +97,29 @@ class TestSchemaSerializer(TestCase):
         serializer = SchemaSerializer(data=schema_data)
         self.assertFalse(serializer.is_valid())
         # TODO: add an assertion for specific error messages
+
+    def test_serializer_create_from_validated(self):
+        schema_data = {
+            "name": "People",
+            "column_separator": ";",
+            "quotechar": "!",
+            "columns": [
+                {
+                    "type": "name",
+                    "params": {"name": "Full name"},
+                },
+                {
+                    "type": "random_int",
+                    "params": {"name": "Age", "order": 1, "min": 1, "max": 5},
+                },
+            ],
+        }
+        serializer = SchemaSerializer(
+            data=schema_data,
+            context={"request": SimpleNamespace(user=self.user)},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        validated_data = serializer.validated_data
+        schema = serializer.create(validated_data)
+        print(schema, *schema.columns)
