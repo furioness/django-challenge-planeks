@@ -2,8 +2,10 @@ from types import SimpleNamespace
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.forms.models import model_to_dict
 
 from ...rest_api.serializers import SchemaSerializer
+from ...models import NameColumn, RandomIntColumn
 
 
 class TestSchemaSerializer(TestCase):
@@ -26,15 +28,25 @@ class TestSchemaSerializer(TestCase):
                 {
                     "type": "random_int",
                     "params": {"name": "Age", "order": 1, "min": 1, "max": 5},
-                }
+                },
             ],
         }
-        # request = SimpleNamespace(user=self.user)
         serializer = SchemaSerializer(data=schema_data)
-        print('schema: ', serializer)
-        self.assertTrue(serializer.is_valid())
-        validated = serializer.validated_data
-        print('validated:', validated)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        validated_data = serializer.validated_data
+
+        name_col = NameColumn(**{"name": "Full name"})
+        rand_int_col = RandomIntColumn(
+            **{"name": "Age", "order": 1, "min": 1, "max": 5}
+        )
+        self.assertDictEqual(
+            model_to_dict(name_col),
+            model_to_dict(validated_data["columns"][0]),
+        )
+        self.assertDictEqual(
+            model_to_dict(rand_int_col),
+            model_to_dict(validated_data["columns"][1]),
+        )
 
     def test_serialize_invalid_col_type(self):
         schema_data = {
@@ -48,13 +60,10 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        # request = SimpleNamespace(user=self.user)
+
         serializer = SchemaSerializer(data=schema_data)
-        print('schema: ', serializer)
         self.assertFalse(serializer.is_valid())
-        print(serializer.errors)
-        validated = serializer.validated_data
-        print('validated:', validated)
+        # TODO: add an assertion for specific error messages
 
     def test_serialize_nonexistent_col_param(self):
         schema_data = {
@@ -68,13 +77,10 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        # request = SimpleNamespace(user=self.user)
+
         serializer = SchemaSerializer(data=schema_data)
-        print('schema: ', serializer)
         self.assertFalse(serializer.is_valid())
-        print(serializer.errors)
-        validated = serializer.validated_data
-        print('validated:', validated)
+        # TODO: add an assertion for specific error messages
 
     def test_serialize_invalid_col_param(self):
         schema_data = {
@@ -88,11 +94,6 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        # request = SimpleNamespace(user=self.user)
         serializer = SchemaSerializer(data=schema_data)
-        print('schema: ', serializer)
         self.assertFalse(serializer.is_valid())
-        print(serializer.errors)
-        validated = serializer.validated_data
-        print('validated:', validated)
-        
+        # TODO: add an assertion for specific error messages
