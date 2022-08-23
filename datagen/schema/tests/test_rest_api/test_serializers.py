@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
 
-from ...rest_api.serializers import SchemaSerializer
+from ...rest_api.serializers import SchemaCreateSerializer
 from ...models import NameColumn, RandomIntColumn
 
 
@@ -31,7 +31,7 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        serializer = SchemaSerializer(data=schema_data)
+        serializer = SchemaCreateSerializer(data=schema_data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
         validated_data = serializer.validated_data
 
@@ -61,7 +61,7 @@ class TestSchemaSerializer(TestCase):
             ],
         }
 
-        serializer = SchemaSerializer(data=schema_data)
+        serializer = SchemaCreateSerializer(data=schema_data)
         self.assertFalse(serializer.is_valid())
         # TODO: add an assertion for specific error messages
 
@@ -78,7 +78,7 @@ class TestSchemaSerializer(TestCase):
             ],
         }
 
-        serializer = SchemaSerializer(data=schema_data)
+        serializer = SchemaCreateSerializer(data=schema_data)
         self.assertFalse(serializer.is_valid())
         # TODO: add an assertion for specific error messages
 
@@ -94,7 +94,7 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        serializer = SchemaSerializer(data=schema_data)
+        serializer = SchemaCreateSerializer(data=schema_data)
         self.assertFalse(serializer.is_valid())
         # TODO: add an assertion for specific error messages
 
@@ -114,7 +114,7 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        serializer = SchemaSerializer(
+        serializer = SchemaCreateSerializer(
             data=schema_data,
             context={"request": SimpleNamespace(user=self.user)},
         )

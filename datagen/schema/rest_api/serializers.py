@@ -46,7 +46,7 @@ class ColumnSerializer(serializers.Serializer):
         return column_instance
 
 
-class SchemaSerializer(serializers.Serializer):
+class SchemaCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     column_separator = serializers.CharField(max_length=1, default=",")
     quotechar = serializers.CharField(max_length=1, default='"')
@@ -63,3 +63,9 @@ class SchemaSerializer(serializers.Serializer):
             column.save()
 
         return schema
+
+
+class SchemaUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schema
+        exclude = ("user", "columns", "modified")
