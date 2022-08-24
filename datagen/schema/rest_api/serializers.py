@@ -14,12 +14,13 @@ class ColumnSerializer(serializers.Serializer):
         class ConcreteColumnSerializer(serializers.ModelSerializer):
             class Meta:
                 model = column_model
+                exclude = ("schema",)
 
         repr = {
             "type": column_model.type,
             "params": ConcreteColumnSerializer(
                 instance=instance
-            ).to_representation(),
+            ).to_representation(instance),
         }
         return repr
 
@@ -47,6 +48,7 @@ class ColumnSerializer(serializers.Serializer):
 
 
 class SchemaCreateSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     name = serializers.CharField(max_length=255)
     column_separator = serializers.CharField(max_length=1, default=",")
     quotechar = serializers.CharField(max_length=1, default='"')
@@ -68,4 +70,4 @@ class SchemaCreateSerializer(serializers.Serializer):
 class SchemaUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schema
-        exclude = ("user", "columns", "modified")
+        exclude = ("user", "modified")

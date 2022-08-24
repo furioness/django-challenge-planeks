@@ -1,6 +1,6 @@
 from rest_framework import authentication
 from rest_framework import mixins
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from ..models import Schema
 from .serializers import SchemaCreateSerializer, SchemaUpdateSerializer
@@ -16,18 +16,9 @@ class CommonSchemaViewMixin:
         return Schema.objects.filter(user=self.request.user)
 
 
-class SchemaCreateListRetrieveDeleteViewSet(
-    CommonSchemaViewMixin,
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
-    GenericViewSet,
-):
-    serializer_class = (SchemaCreateSerializer,)
+class SchemaViewSet(CommonSchemaViewMixin, ModelViewSet):
+    def get_serializer_class(self):
+        if self.request.method in ("PUT", "PATCH"):
+            return SchemaUpdateSerializer
 
-
-class SchemaUpdateView(
-    CommonSchemaViewMixin, mixins.UpdateModelMixin, GenericViewSet
-):
-    serializer_class = (SchemaUpdateSerializer,)
+        return SchemaCreateSerializer
