@@ -3,7 +3,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from ..models import Schema
-from .serializers import SchemaCreateSerializer, SchemaUpdateSerializer
+from .serializers import SchemaCreateRetrieveSerializer, SchemaUpdateSerializer
 
 
 class CommonSchemaViewMixin:
@@ -21,4 +21,4 @@ class SchemaViewSet(CommonSchemaViewMixin, ModelViewSet):
         if self.request.method in ("PUT", "PATCH"):
             return SchemaUpdateSerializer
 
-        return SchemaCreateSerializer
+        return SchemaCreateRetrieveSerializer

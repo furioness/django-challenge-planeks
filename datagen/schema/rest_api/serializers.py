@@ -47,7 +47,7 @@ class ColumnSerializer(serializers.Serializer):
         return column_instance
 
 
-class SchemaCreateSerializer(serializers.Serializer):
+class SchemaCreateRetrieveSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField(max_length=255)
     column_separator = serializers.CharField(max_length=1, default=",")
