@@ -1,7 +1,8 @@
+from distutils.command.install_scripts import install_scripts
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from ..models import Schema, BaseColumn
+from ..models import Dataset, Schema, BaseColumn
 
 
 class ColumnSerializer(serializers.Serializer):
@@ -14,10 +15,11 @@ class ColumnSerializer(serializers.Serializer):
         class ConcreteColumnSerializer(serializers.ModelSerializer):
             class Meta:
                 model = column_model
-                exclude = ("schema",)
+                exclude = ("schema", "id")
 
         repr = {
             "type": column_model.type,
+            "id": instance.id,
             "params": ConcreteColumnSerializer(
                 instance=instance
             ).to_representation(instance),
@@ -47,6 +49,11 @@ class ColumnSerializer(serializers.Serializer):
         return column_instance
 
 
+class ColumnUpdateSerializer(serializers.Serializer):
+    type = serializers.CharField(max_length=255)
+    params = serializers.DictField()
+
+
 class SchemaCreateRetrieveSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField(max_length=255)
@@ -71,3 +78,9 @@ class SchemaUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schema
         exclude = ("user", "modified")
+
+
+class DatasetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset
+        exclude = ("schema",)

@@ -391,6 +391,17 @@ django = ">=2.2"
 pytz = "*"
 
 [[package]]
+name = "drf-extensions"
+version = "0.7.1"
+description = "Extensions for Django REST Framework"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+djangorestframework = ">=3.9.3"
+
+[[package]]
 name = "executing"
 version = "0.10.0"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -976,7 +987,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.5"
-content-hash = "1f3e111801e7667aa756a0dbef177b173356cc864d20ac2f98effedb3c45e311"
+content-hash = "c8f916193ab9c221709200607800b5a5560ef1155bf3ea7093ce91d1b6c2904d"
 
 [metadata.files]
 amqp = [
@@ -1167,6 +1178,10 @@ django-types = [
 djangorestframework = [
     {file = "djangorestframework-3.13.1-py3-none-any.whl", hash = "sha256:24c4bf58ed7e85d1fe4ba250ab2da926d263cd57d64b03e8dcef0ac683f8b1aa"},
     {file = "djangorestframework-3.13.1.tar.gz", hash = "sha256:0c33407ce23acc68eca2a6e46424b008c9c02eceb8cf18581921d0092bc1f2ee"},
+]
+drf-extensions = [
+    {file = "drf-extensions-0.7.1.tar.gz", hash = "sha256:90abfc11a2221e8daf4cd54457e41ed38cd71134678de9622e806193db027db1"},
+    {file = "drf_extensions-0.7.1-py2.py3-none-any.whl", hash = "sha256:007910437e64aa1d5ad6fc47266a4ac4280e31761e6458eb30fcac7494ac7d4e"},
 ]
 executing = [
     {file = "executing-0.10.0-py2.py3-none-any.whl", hash = "sha256:9c745f80cda11eb22b62cbecf21156491a794eb56ab06f9d286a44e62822b24e"},
