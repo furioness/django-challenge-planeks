@@ -33,6 +33,7 @@ class DatasetViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
     def generate(self, request: Request, parent_lookup_schema: int):
         num_rows = request.data["num_rows"]
         schema = get_object_or_404(Schema, pk=parent_lookup_schema)
-        schema.run_generate_task(num_rows)
+        dataset = schema.run_generate_task(num_rows)
 
-        return Response(status=status.HTTP_202_ACCEPTED)
+        message = {"status": "Enqueued", "dataset": {"id": dataset.id}}
+        return Response(data=message, status=status.HTTP_202_ACCEPTED)
