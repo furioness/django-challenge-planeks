@@ -64,6 +64,8 @@ class Schema(models.Model):
         else:
             generate_data.delay(dataset.pk)
 
+        return dataset
+
 
 class Dataset(models.Model):
     schema = models.ForeignKey(

@@ -1,10 +1,7 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import authentication
-from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.viewsets import (
-    GenericViewSet,
     ModelViewSet,
     ReadOnlyModelViewSet,
 )
@@ -16,21 +13,16 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from ..models import Dataset, Schema
 from .serializers import (
-    SchemaCreateRetrieveSerializer,
-    SchemaUpdateSerializer,
+    SchemaSerializer,
     DatasetSerializer,
 )
 
 
 class SchemaViewSet(ModelViewSet):
+    serializer_class = SchemaSerializer
+
     def get_queryset(self):
         return Schema.objects.filter(user=self.request.user)
-
-    def get_serializer_class(self):
-        if self.request.method in ("PUT", "PATCH"):
-            return SchemaUpdateSerializer
-
-        return SchemaCreateRetrieveSerializer
 
 
 class DatasetViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):

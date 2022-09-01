@@ -1,4 +1,4 @@
-from distutils.command.install_scripts import install_scripts
+from typing import List
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
@@ -17,14 +17,13 @@ class ColumnSerializer(serializers.Serializer):
                 model = column_model
                 exclude = ("schema", "id")
 
-        repr = {
+        representation = {
             "type": column_model.type,
-            "id": instance.id,
             "params": ConcreteColumnSerializer(
                 instance=instance
             ).to_representation(instance),
         }
-        return repr
+        return representation
 
     def to_internal_value(self, data):
         try:
@@ -49,35 +48,42 @@ class ColumnSerializer(serializers.Serializer):
         return column_instance
 
 
-class ColumnUpdateSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=255)
-    params = serializers.DictField()
-
-
-class SchemaCreateRetrieveSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+class SchemaSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=255)
     column_separator = serializers.CharField(max_length=1, default=",")
     quotechar = serializers.CharField(max_length=1, default='"')
     columns = serializers.ListField(child=ColumnSerializer())
 
     def create(self, validated_data) -> Schema:
-        columns = validated_data.pop("columns")
+        columns: List[BaseColumn] = validated_data.pop("columns")
+        # self.context["request"] is provided by GenericAPIView
         schema = Schema.objects.create(
             **validated_data, user=self.context["request"].user
         )
+        self._append_columns(schema, columns)
+
+        return schema
+
+    def update(self, instance, validated_data):
+        columns = validated_data.pop("columns", None)
+        instance.__dict__.update(**validated_data)
+        if columns:
+            self._append_columns(instance, columns, preclean=True)
+
+        return instance
+
+    @staticmethod
+    def _append_columns(schema, columns, preclean=False):
+        if preclean:
+            for column in schema.columns:
+                column.delete()
 
         for column in columns:
             column.schema = schema
             column.save()
 
         return schema
-
-
-class SchemaUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schema
-        exclude = ("user", "modified")
 
 
 class DatasetSerializer(serializers.ModelSerializer):

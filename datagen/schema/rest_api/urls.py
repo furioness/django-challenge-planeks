@@ -1,12 +1,12 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 from . import views
 
 
 router = ExtendedDefaultRouter()
-router.register(r"schemas", views.SchemaViewSet, basename="schemas").register(
+
+schemas = router.register(r"schemas", views.SchemaViewSet, basename="schemas")
+schemas.register(
     r"datasets",
     views.DatasetViewSet,
     basename="datasets",
