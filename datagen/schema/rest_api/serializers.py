@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Type
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from ..models import Dataset, Schema, BaseColumn
+from ..models import Dataset, NoColumnException, Schema, BaseColumn
 
 
 class ColumnSerializer(serializers.Serializer):
@@ -11,11 +11,9 @@ class ColumnSerializer(serializers.Serializer):
 
     def to_representation(self, instance) -> BaseColumn:
         column_model = type(instance)
-
-        class ConcreteColumnSerializer(serializers.ModelSerializer):
-            class Meta:
-                model = column_model
-                exclude = ("schema", "id")
+        ConcreteColumnSerializer = self._get_concrete_column_serializer(
+            col_model=column_model
+        )
 
         representation = {
             "type": column_model.type,
@@ -26,19 +24,21 @@ class ColumnSerializer(serializers.Serializer):
         return representation
 
     def to_internal_value(self, data):
+        col_type = data["type"]
         try:
-            column_model = BaseColumn.get_column_by_type(data["type"])
-        except ValueError:
-            raise serializers.ValidationError(
-                {"type": f"Column type '{data['type']}' doesn't exist"}
-            )
+            col_model = BaseColumn.get_column_by_type(col_type)
+        except NoColumnException as exc:
+            raise serializers.ValidationError(exc)
 
-        try:
-            column_instance = column_model(**data["params"])
-        except Exception as exc:
-            raise serializers.ValidationError(
-                {"params": f"Incorrect column params"}
-            ) from exc
+        ConcreteColumnSerializer = self._get_concrete_column_serializer(
+            col_model=col_model
+        )
+
+        column_serializer = ConcreteColumnSerializer(data=data["params"])
+        if not column_serializer.is_valid():
+            raise serializers.ValidationError(column_serializer.errors)
+
+        column_instance = col_model(**column_serializer.validated_data)
 
         try:
             column_instance.full_clean(exclude=["schema"])
@@ -46,6 +46,27 @@ class ColumnSerializer(serializers.Serializer):
             raise serializers.ValidationError(exc.message_dict)
 
         return column_instance
+
+    def _get_concrete_column_serializer(
+        self, col_type=None, col_model=None
+    ) -> Type[serializers.ModelSerializer]:
+        if col_type:
+            try:
+                col_model = BaseColumn.get_column_by_type(col_type)
+            except ValueError:
+                raise serializers.ValidationError(
+                    {"type": f"Column of type '{col_type}' doesn't exists"}
+                )
+        elif not col_model:
+            raise ValueError("Provide a column type or model class")
+
+        class ConcreteColumnSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = col_model
+                exclude = ("schema", "id")
+                extra_kwargs = {"order": {"required": True}}
+
+        return ConcreteColumnSerializer
 
 
 class SchemaSerializer(serializers.Serializer):

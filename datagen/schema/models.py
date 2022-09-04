@@ -81,11 +81,15 @@ class Dataset(models.Model):
         return f"{self.schema.name} - {self.num_rows} rows on {self.created.strftime('%Y-%m-%d')}"
 
 
+class NoColumnException(ValueError):
+    pass
+
+
 class BaseColumn(models.Model):
     label: str
     type: str
     name = models.CharField(max_length=255, validators=[MinLengthValidator(1)])
-    order = models.IntegerField(default=1)
+    order = models.IntegerField()
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
 
     class Meta:
@@ -113,7 +117,7 @@ class BaseColumn(models.Model):
         for column in cls.__subclasses__():
             if column.type == type_:
                 return column
-        raise ValueError(f"No column of type {type_}")
+        raise NoColumnException(f"No column of type {type_}")
 
 
 class NameColumn(BaseColumn):
