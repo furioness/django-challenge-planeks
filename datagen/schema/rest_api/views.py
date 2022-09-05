@@ -24,6 +24,9 @@ class SchemaViewSet(ModelViewSet):
     def get_queryset(self):
         return Schema.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 class DatasetViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
     serializer_class = DatasetSerializer

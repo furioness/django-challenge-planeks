@@ -13,5 +13,4 @@ schemas.register(
     parents_query_lookups=["schema"],
 )
 
-# The API URLs are now determined automatically by the router.
 urlpatterns = router.urls

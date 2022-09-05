@@ -33,13 +33,11 @@ class ColumnSerializer(serializers.Serializer):
         ConcreteColumnSerializer = self._get_concrete_column_serializer(
             col_model=col_model
         )
-
         column_serializer = ConcreteColumnSerializer(data=data["params"])
         if not column_serializer.is_valid():
             raise serializers.ValidationError(column_serializer.errors)
 
         column_instance = col_model(**column_serializer.validated_data)
-
         try:
             column_instance.full_clean(exclude=["schema"])
         except ValidationError as exc:
@@ -53,7 +51,7 @@ class ColumnSerializer(serializers.Serializer):
         if col_type:
             try:
                 col_model = BaseColumn.get_column_by_type(col_type)
-            except ValueError:
+            except NoColumnException:
                 raise serializers.ValidationError(
                     {"type": f"Column of type '{col_type}' doesn't exists"}
                 )
@@ -79,24 +77,23 @@ class SchemaSerializer(serializers.Serializer):
     def create(self, validated_data) -> Schema:
         columns: List[BaseColumn] = validated_data.pop("columns")
         # self.context["request"] is provided by GenericAPIView
-        schema = Schema.objects.create(
-            **validated_data, user=self.context["request"].user
-        )
+        schema = Schema.objects.create(**validated_data)
         self._append_columns(schema, columns)
 
         return schema
 
     def update(self, instance, validated_data):
         columns = validated_data.pop("columns", None)
-        instance.__dict__.update(**validated_data)
         if columns:
-            self._append_columns(instance, columns, preclean=True)
+            self._append_columns(instance, columns, remove_previous=True)
 
+        instance.__dict__.update(**validated_data)
+        instance.save()
         return instance
 
     @staticmethod
-    def _append_columns(schema, columns, preclean=False):
-        if preclean:
+    def _append_columns(schema, columns, remove_previous=False):
+        if remove_previous:
             for column in schema.columns:
                 column.delete()
 
