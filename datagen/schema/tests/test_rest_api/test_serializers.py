@@ -23,7 +23,7 @@ class TestSchemaSerializer(TestCase):
             "columns": [
                 {
                     "type": "name",
-                    "params": {"name": "Full name"},
+                    "params": {"name": "Full name", "order": 2},
                 },
                 {
                     "type": "random_int",
@@ -35,7 +35,7 @@ class TestSchemaSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         validated_data = serializer.validated_data
 
-        name_col = NameColumn(**{"name": "Full name"})
+        name_col = NameColumn(**{"name": "Full name", "order": 2})
         rand_int_col = RandomIntColumn(
             **{"name": "Age", "order": 1, "min": 1, "max": 5}
         )
@@ -106,7 +106,7 @@ class TestSchemaSerializer(TestCase):
             "columns": [
                 {
                     "type": "name",
-                    "params": {"name": "Full name"},
+                    "params": {"name": "Full name", "order": 2},
                 },
                 {
                     "type": "random_int",

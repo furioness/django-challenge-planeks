@@ -35,7 +35,7 @@ class TestSchema(TestCase):
 
     def test_model_instantiation(self):
         schema = Schema.objects.create(name="Test schema", user=self.user)
-        NameColumn.objects.create(name="Name col", schema=schema)
+        NameColumn.objects.create(name="Name col", schema=schema, order=1)
         self.assertEqual(Schema.objects.get(user=self.user), schema)
         self.assertEqual(schema.name, "Test schema")
         self.assertEqual(schema.user, self.user)
@@ -47,7 +47,7 @@ class TestSchema(TestCase):
         schema: Schema = Schema.objects.create(
             name="Test schema", user=self.user
         )
-        NameColumn.objects.create(name="Name col", schema=schema)
+        NameColumn.objects.create(name="Name col", schema=schema, order=1)
         gen_schema = schema.get_generator
         self.assertIsInstance(gen_schema, Generator)
         self.assertTrue(len(gen_schema.fields), 1)
@@ -60,10 +60,12 @@ class TestSchema(TestCase):
     def test_returns_columns(self):
         schema = Schema.objects.create(name="Test schema", user=self.user)
         columns = [
-            NameColumn.objects.create(name="Name col", schema=schema),
-            NameColumn.objects.create(name="Name col 2", schema=schema),
+            NameColumn.objects.create(name="Name col", schema=schema, order=1),
+            NameColumn.objects.create(
+                name="Name col 2", schema=schema, order=2
+            ),
             RandomIntColumn.objects.create(
-                name="Random int col", schema=schema
+                name="Random int col", schema=schema, order=3
             ),
         ]
         # This assertion will fail if unequal order,
@@ -76,7 +78,7 @@ class TestSchema(TestCase):
         schema: Schema = Schema.objects.create(
             name="Test schema", user=self.user
         )
-        NameColumn.objects.create(name="Name col", schema=schema)
+        NameColumn.objects.create(name="Name col", schema=schema, order=1)
 
         self.assertEqual(schema.datasets.count(), 0)
         with mock.patch.object(tasks, "generate_data", mock.Mock()) as task:
@@ -104,7 +106,7 @@ class TestGeneratedData(TestCase):
             name="Test schema",
             user=cls.user,
         )
-        NameColumn.objects.create(name="Name col", schema=cls.schema),
+        NameColumn.objects.create(name="Name col", schema=cls.schema, order=1),
 
     def test_model_instantiation(self):
         gen_data = Dataset.objects.create(schema=self.schema, num_rows=10)
@@ -182,7 +184,7 @@ class TestColumnsBasic(AssertBetweenMixin, TestCase):
 
     def test_simple_columns_instantiation(self):
         for column in self.COLUMNS:
-            col = column(schema=self.schema, name="Test col")
+            col = column(schema=self.schema, name="Test col", order=1)
             col.full_clean()  # check default validation
             # full_clean() is called by modelformset
             col.save()
