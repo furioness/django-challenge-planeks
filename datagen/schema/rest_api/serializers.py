@@ -12,7 +12,7 @@ class ColumnSerializer(serializers.Serializer):
     def to_representation(self, instance) -> BaseColumn:
         column_model = type(instance)
         ConcreteColumnSerializer = self._get_concrete_column_serializer(
-            col_model=column_model
+            column_model
         )
 
         representation = {
@@ -31,7 +31,7 @@ class ColumnSerializer(serializers.Serializer):
             raise serializers.ValidationError(exc)
 
         ConcreteColumnSerializer = self._get_concrete_column_serializer(
-            col_model=col_model
+            col_model
         )
         column_serializer = ConcreteColumnSerializer(data=data["params"])
         if not column_serializer.is_valid():
@@ -46,18 +46,8 @@ class ColumnSerializer(serializers.Serializer):
         return column_instance
 
     def _get_concrete_column_serializer(
-        self, col_type=None, col_model=None
+        self, col_model
     ) -> Type[serializers.ModelSerializer]:
-        if col_type:
-            try:
-                col_model = BaseColumn.get_column_by_type(col_type)
-            except NoColumnException:
-                raise serializers.ValidationError(
-                    {"type": f"Column of type '{col_type}' doesn't exists"}
-                )
-        elif not col_model:
-            raise ValueError("Provide a column type or model class")
-
         class ConcreteColumnSerializer(serializers.ModelSerializer):
             class Meta:
                 model = col_model
