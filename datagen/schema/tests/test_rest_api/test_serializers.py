@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
@@ -114,12 +112,8 @@ class TestSchemaSerializer(TestCase):
                 },
             ],
         }
-        serializer = SchemaSerializer(
-            data=schema_data,
-            context={"request": SimpleNamespace(user=self.user)},
-        )
+        serializer = SchemaSerializer(data=schema_data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-        validated_data = serializer.validated_data
-        schema = serializer.create(validated_data)
+        schema = serializer.save(user=self.user)
         print(schema, *schema.columns)
