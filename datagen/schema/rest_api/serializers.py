@@ -28,7 +28,7 @@ class ColumnSerializer(serializers.Serializer):
         try:
             col_model = BaseColumn.get_column_by_type(col_type)
         except NoColumnException as exc:
-            raise serializers.ValidationError(exc)
+            raise serializers.ValidationError({"type": exc})
 
         ConcreteColumnSerializer = self._get_concrete_column_serializer(
             col_model
