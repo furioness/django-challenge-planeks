@@ -24,6 +24,11 @@ class ColumnSerializer(serializers.Serializer):
         return representation
 
     def to_internal_value(self, data):
+        """As this stage happens before serializer validation
+        and it's a nested element, the real validation happens here.
+        A better way?
+        """
+        # super().is_valid(raise_exception=True)
         col_type = data["type"]
         try:
             col_model = BaseColumn.get_column_by_type(col_type)
@@ -35,13 +40,15 @@ class ColumnSerializer(serializers.Serializer):
         )
         column_serializer = ConcreteColumnSerializer(data=data["params"])
         if not column_serializer.is_valid():
-            raise serializers.ValidationError(column_serializer.errors)
+            raise serializers.ValidationError(
+                {"params": column_serializer.errors}
+            )
 
         column_instance = col_model(**column_serializer.validated_data)
         try:
             column_instance.full_clean(exclude=["schema"])
         except ValidationError as exc:
-            raise serializers.ValidationError(exc.message_dict)
+            raise serializers.ValidationError({"params": exc.message_dict})
 
         return column_instance
 
