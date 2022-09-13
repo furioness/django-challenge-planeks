@@ -17,9 +17,7 @@ class ColumnSerializer(serializers.Serializer):
 
         representation = {
             "type": column_model.type,
-            "params": ConcreteColumnSerializer(
-                instance=instance
-            ).to_representation(instance),
+            "params": ConcreteColumnSerializer(instance=instance).data,
         }
         return representation
 
