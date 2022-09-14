@@ -66,9 +66,9 @@ class TestColumnSerializer(TestCase):
             [("name", "Vasya"), ("order", 1)],
         )
 
-    def test_validates_for_missing_keys(self):
-        col_data_type = {"type": "random_int"}
-        col_data_params = {
+    def test_validates_for_missing_top_level_keys(self):
+        col_data_params_missed = {"type": "random_int"}
+        col_data_type_missed = {
             "params": {
                 "name": "Age",
                 "order": 1,
@@ -77,19 +77,37 @@ class TestColumnSerializer(TestCase):
             }
         }
 
-        serializer = ColumnSerializer(data=col_data_type)
+        serializer = ColumnSerializer(data=col_data_params_missed)
         self.assertFalse(serializer.is_valid())
+        self.assertTrue("params" in serializer.errors)
 
-        serializer = ColumnSerializer(data=col_data_params)
+        serializer = ColumnSerializer(data=col_data_type_missed)
         self.assertFalse(serializer.is_valid())
+        self.assertTrue("type" in serializer.errors)
 
-    def test_validates_for_invalid_values(self):
+    def test_validates_for_missing_params(self):
+        col_data = {
+            "type": "random_int",
+            "params": {
+                "name": "Age",
+                # "order": 1, - missed
+                "min": 123,
+                "max": 456,
+            },
+        }
+
+        serializer = ColumnSerializer(data=col_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertTrue("params" in serializer.errors)
+        self.assertTrue("order" in serializer.errors["params"])
+
+    def test_validates_for_invalid_param_values(self):
         bad_rand_int_col_data = {
             "type": "random_int",
             "params": {
                 "name": "Full name",
                 "order": 1,
-                "min": 1337,
+                "min": 1337,  # min > max
                 "max": 322,
             },
         }
