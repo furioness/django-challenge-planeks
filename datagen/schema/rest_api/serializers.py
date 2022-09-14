@@ -6,7 +6,7 @@ from ..models import Dataset, NoColumnException, Schema, BaseColumn
 
 
 class ColumnSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=255)
+    type = serializers.CharField(max_length=80)
     params = serializers.DictField()
 
     def to_representation(self, instance) -> BaseColumn:
@@ -22,21 +22,26 @@ class ColumnSerializer(serializers.Serializer):
         return representation
 
     def to_internal_value(self, data):
-        """As this stage happens before serializer validation
-        and it's a nested element, the real validation happens here.
-        A better way?
-        """
+        # validate type and params fields are set
         data = super().to_internal_value(data)
-        col_type = data["type"]
+
+        col_model = self._get_column_model(data["type"])
+        return self._deserialize_and_validate_column(data["params"], col_model)
+
+    @staticmethod
+    def _get_column_model(col_type):
         try:
             col_model = BaseColumn.get_column_by_type(col_type)
         except NoColumnException as exc:
             raise serializers.ValidationError({"type": exc})
+        return col_model
 
-        ConcreteColumnSerializer = self._get_concrete_column_serializer(
+    @classmethod
+    def _deserialize_and_validate_column(cls, col_params, col_model):
+        ConcreteColumnSerializer = cls._get_concrete_column_serializer(
             col_model
         )
-        column_serializer = ConcreteColumnSerializer(data=data["params"])
+        column_serializer = ConcreteColumnSerializer(data=col_params)
         if not column_serializer.is_valid():
             raise serializers.ValidationError(
                 {"params": column_serializer.errors}
@@ -50,8 +55,9 @@ class ColumnSerializer(serializers.Serializer):
 
         return column_instance
 
+    @staticmethod
     def _get_concrete_column_serializer(
-        self, col_model
+        col_model,
     ) -> Type[serializers.ModelSerializer]:
         class ConcreteColumnSerializer(serializers.ModelSerializer):
             class Meta:
@@ -71,7 +77,6 @@ class SchemaSerializer(serializers.Serializer):
 
     def create(self, validated_data) -> Schema:
         columns: List[BaseColumn] = validated_data.pop("columns")
-        # self.context["request"] is provided by GenericAPIView
         schema = Schema.objects.create(**validated_data)
         self._append_columns(schema, columns)
 
