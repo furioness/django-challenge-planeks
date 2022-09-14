@@ -1,7 +1,6 @@
 """There is some duplication of tests for Column and Schema serializers,
 but it's kind of fine as I want to see correct error output."""
 
-from re import S
 import unittest
 from copy import deepcopy
 
