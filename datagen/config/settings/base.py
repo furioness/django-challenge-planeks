@@ -152,6 +152,13 @@ LOGOUT_REDIRECT_URL = LOGIN_URL
 USER_GENERATION_ROW_LIMIT = 100000
 
 
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ]
+}
+
+
 del Path
 del environ
 del reverse_lazy
