@@ -1,6 +1,7 @@
 """There is some duplication of tests for Column and Schema serializers,
 but it's kind of fine as I want to see correct error output."""
 
+from re import S
 import unittest
 from copy import deepcopy
 
@@ -281,3 +282,38 @@ class TestSchemaSerializer(TestCase):
             if column.type == "job" and column.name == "Occupation"
         ]
         self.assertTrue(job_col)
+
+    def test_partial_update_without_columns(self):
+        schema = Schema.objects.create(
+            **{
+                "name": "People",
+                "column_separator": ";",
+                "quotechar": "!",
+            },
+            user=self.user
+        )
+        name_column = NameColumn.objects.create(
+            name="Vasya", order=1, schema=schema
+        )
+
+        update_data = {
+            "column_separator": "{",
+            "quotechar": "-",
+        }
+        serializer = SchemaSerializer(
+            data=update_data, instance=schema, partial=True
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        serializer.save()
+
+        self.assertEqual(Schema.objects.count(), 1)
+        schema_from_db = Schema.objects.first()
+        self.assertDictEqual(
+            model_to_dict(schema_from_db) | update_data,
+            model_to_dict(schema_from_db),
+        )
+
+        columns = tuple(schema_from_db.columns)
+        self.assertEqual(len(columns), 1)
+        self.assertEqual(columns[0], name_column)
