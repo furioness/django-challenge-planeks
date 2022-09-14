@@ -26,7 +26,7 @@ class ColumnSerializer(serializers.Serializer):
         and it's a nested element, the real validation happens here.
         A better way?
         """
-        # super().is_valid(raise_exception=True)
+        data = super().to_internal_value(data)
         col_type = data["type"]
         try:
             col_model = BaseColumn.get_column_by_type(col_type)
