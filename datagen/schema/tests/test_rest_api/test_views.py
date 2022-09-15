@@ -3,9 +3,9 @@ from django.urls import resolve, reverse
 
 from rest_framework.test import APITestCase
 
-from ...models import NameColumn, Schema
+from ...models import NameColumn, Schema, Dataset
 from ...rest_api import views
-from ...rest_api.serializers import SchemaSerializer
+from ...rest_api.serializers import SchemaSerializer, DatasetSerializer
 
 
 class TestSchemaViewSet(APITestCase):
@@ -301,5 +301,135 @@ class TestSchemaViewSet(APITestCase):
         # can't delete owned by another user
         response = self.client.delete(
             reverse("schema:schemas-detail", kwargs={"pk": 2})
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class TestDatasetViewSet(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username="testuser", password="12345"
+        )
+        cls.schema = Schema.objects.create(
+            **{
+                "name": "People",
+                "column_separator": ";",
+                "quotechar": "!",
+            },
+            user=cls.user
+        )
+        cls.dataset = Dataset.objects.create(
+            num_rows=10, schema=cls.schema, file="/tmp/testfile.csv"
+        )
+
+        # second set of user/schema to check filtering
+        user2 = get_user_model().objects.create_user(
+            username="testuser2", password="67890"
+        )
+        schema2 = Schema.objects.create(
+            **{
+                "name": "Creatures",
+                "column_separator": ";",
+                "quotechar": "!",
+            },
+            user=user2
+        )
+        Dataset.objects.create(
+            num_rows=10, schema=schema2, file="/tmp/testfile2.csv"
+        )
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def test_urls_resolves(self):
+        self.assertIs(
+            resolve(
+                reverse(
+                    "schema:datasets-list", kwargs={"parent_lookup_schema": 1}
+                )
+            ).func.cls,
+            views.DatasetViewSet,
+        )
+        self.assertIs(
+            resolve(
+                reverse(
+                    "schema:datasets-detail",
+                    kwargs={"parent_lookup_schema": 1, "pk": 1},
+                )
+            ).func.cls,
+            views.DatasetViewSet,
+        )
+        self.assertIs(
+            resolve(
+                reverse(
+                    "schema:datasets-generate",
+                    kwargs={"parent_lookup_schema": 1},
+                )
+            ).func.cls,
+            views.DatasetViewSet,
+        )
+
+    def test_is_auth_restricted(self):
+        self.client.logout()
+
+        response = self.client.get(
+            reverse("schema:datasets-list", kwargs={"parent_lookup_schema": 1})
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            reverse(
+                "schema:datasets-detail",
+                kwargs={"parent_lookup_schema": 1, "pk": 1},
+            )
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(
+            reverse(
+                "schema:datasets-generate", kwargs={"parent_lookup_schema": 1}
+            )
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_list(self):
+        response = self.client.get(
+            reverse("schema:datasets-list", kwargs={"parent_lookup_schema": 1})
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+        self.assertEqual(len(response_json), 1)
+        response_json[0]["file"] = response_json[0]["file"].split(
+            "http://testserver"
+        )[1]
+        self.assertDictEqual(
+            response_json[0], DatasetSerializer(self.dataset).data
+        )
+
+    def test_retrieve(self):
+        response = self.client.get(
+            reverse(
+                "schema:datasets-detail",
+                kwargs={"parent_lookup_schema": 1, "pk": 1},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+        self.assertIn("file", response_json)
+        response_json["file"] = response_json["file"].split(
+            "http://testserver"
+        )[1]
+        self.assertDictEqual(
+            response_json, DatasetSerializer(self.dataset).data
+        )
+
+        # owned by another user isn't accessible
+        response = self.client.get(
+            reverse(
+                "schema:datasets-detail",
+                kwargs={"parent_lookup_schema": 2, "pk": 2},
+            )
         )
         self.assertEqual(response.status_code, 404)
