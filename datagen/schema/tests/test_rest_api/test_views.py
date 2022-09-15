@@ -145,6 +145,61 @@ class TestSchemaViewSet(APITestCase):
         response_json.pop("id")
         self.assertDictEqual(response_json, schema_data)
 
+    def test_create_with_invalid_data(self):
+        schema_data = {
+            "name": "Citizens",
+            "column_separator": "-",
+            "quotechar": "!@#",  # more than one char
+            "columns": [
+                # missed order
+                {
+                    "type": "name",
+                    "params": {"name": "Full name"},
+                },
+                # min > max
+                {
+                    "type": "random_int",
+                    "params": {"name": "Age", "order": 2, "min": 20, "max": 5},
+                },
+                # just fine
+                {"type": "job", "params": {"name": "Job", "order": 3}},
+                # incorrect type
+                {"type": "nonexistent", "params": {"name": "Job", "order": 3}},
+                # missed params
+                {"type": "name"},
+            ],
+        }
+
+        response = self.client.post(
+            reverse("schema:schemas-list"), data=schema_data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+
+        self.assertDictEqual(
+            response.json(),
+            {
+                "quotechar": [
+                    "Ensure this field has no more than 1 characters."
+                ],
+                "columns": {
+                    "0": {"params": {"order": ["This field is required."]}},
+                    "1": {
+                        "params": {
+                            "__all__": ["Min must be less than max."],
+                            "min": ["Min must be less than max."],
+                            "max": ["Max must be greater than min."],
+                        }
+                    },
+                    "3": {
+                        "type": [
+                            'Given column type "nonexistent" isn\'t exists.'
+                        ]
+                    },
+                    "4": {"params": ["This field is required."]},
+                },
+            },
+        )
+
     def test_update(self):
         schema_data_update = {
             "name": "Humans",
@@ -171,9 +226,17 @@ class TestSchemaViewSet(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), schema_data_update | {"id": 1})
 
-        # can't update non-existend or owned by another user
+        # can't update owned by another user
         response = self.client.put(
             reverse("schema:schemas-detail", kwargs={"pk": 2}),
+            data=schema_data_update,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # can't update non-existend
+        response = self.client.put(
+            reverse("schema:schemas-detail", kwargs={"pk": 3}),
             data=schema_data_update,
             format="json",
         )
@@ -197,9 +260,17 @@ class TestSchemaViewSet(APITestCase):
         response_json = response.json()
         self.assertDictEqual(response_json, response_json | schema_data_update)
 
-        # can't update non-existend or owned by another user
+        # can't update owned by another user
         response = self.client.patch(
             reverse("schema:schemas-detail", kwargs={"pk": 2}),
+            data=schema_data_update,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # can't update non-existent
+        response = self.client.patch(
+            reverse("schema:schemas-detail", kwargs={"pk": 3}),
             data=schema_data_update,
             format="json",
         )
