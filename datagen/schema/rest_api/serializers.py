@@ -33,7 +33,7 @@ class ColumnSerializer(serializers.Serializer):
         try:
             col_model = BaseColumn.get_column_by_type(col_type)
         except NoColumnException as exc:
-            raise serializers.ValidationError({"type": exc})
+            raise serializers.ValidationError({"type": [exc]})
         return col_model
 
     @classmethod

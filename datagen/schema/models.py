@@ -117,7 +117,7 @@ class BaseColumn(models.Model):
         for column in cls.__subclasses__():
             if column.type == type_:
                 return column
-        raise NoColumnException(f"No column of type {type_}")
+        raise NoColumnException(f'Given column type "{type_}" isn\'t exists.')
 
 
 class NameColumn(BaseColumn):
