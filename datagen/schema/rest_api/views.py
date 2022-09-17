@@ -32,10 +32,15 @@ class DatasetViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
     serializer_class = DatasetSerializer
     queryset = Dataset.objects.all()
 
+    def get_queryset(self):
+        return super().get_queryset().filter(schema__user=self.request.user)
+
     @action(methods=["post"], detail=False)
     def generate(self, request: Request, parent_lookup_schema: int):
         num_rows = request.data["num_rows"]
-        schema = get_object_or_404(Schema, pk=parent_lookup_schema)
+        schema = get_object_or_404(
+            Schema, pk=parent_lookup_schema, user=self.request.user
+        )
         dataset = schema.run_generate_task(num_rows)
 
         message = {"status": "Enqueued", "dataset": {"id": dataset.id}}
