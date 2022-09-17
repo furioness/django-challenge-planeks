@@ -3,6 +3,11 @@
 docker:
 	docker compose up -d
 
+prepare_rabbitmq_guest_permissions:
+	docker exec datagen__rabbitmq rabbitmqctl add_vhost testing
+	docker exec datagen__rabbitmq rabbitmqctl set_permissions --vhost testing guest ".*" ".*" ".*"
+
+
 test_fast: docker
 	python -Wa manage.py test datagen --settings=config.settings.test --failfast --parallel --noinput --verbosity=0
 
