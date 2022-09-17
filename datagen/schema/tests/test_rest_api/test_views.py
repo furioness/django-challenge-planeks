@@ -433,3 +433,33 @@ class TestDatasetViewSet(APITestCase):
             )
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_call_generate(self):
+        response = self.client.post(
+            reverse(
+                "schema:datasets-generate", kwargs={"parent_lookup_schema": 1}
+            ),
+            data={"num_rows": 3},
+        )
+        self.assertEqual(response.status_code, 202)
+        self.assertDictEqual(
+            response.json(), {"status": "Enqueued", "dataset": {"id": 3}}
+        )
+
+        # can't generate for not own schema
+        response = self.client.post(
+            reverse(
+                "schema:datasets-generate", kwargs={"parent_lookup_schema": 2}
+            ),
+            data={"num_rows": 3},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # can't generate for a nonexistent schema
+        response = self.client.post(
+            reverse(
+                "schema:datasets-generate", kwargs={"parent_lookup_schema": 3}
+            ),
+            data={"num_rows": 3},
+        )
+        self.assertEqual(response.status_code, 404)
