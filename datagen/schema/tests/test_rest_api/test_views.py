@@ -30,7 +30,7 @@ class TestSchemaViewSet(APITestCase):
         user2 = get_user_model().objects.create_user(
             username="testuser2", password="67890"
         )
-        Schema.objects.create(
+        cls.schema2 = Schema.objects.create(
             **{
                 "name": "Creatures",
                 "column_separator": ";",
@@ -106,7 +106,7 @@ class TestSchemaViewSet(APITestCase):
 
     def test_retrieve(self):
         response = self.client.get(
-            reverse("schema:schemas-detail", kwargs={"pk": 1})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk})
         )
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
@@ -115,7 +115,7 @@ class TestSchemaViewSet(APITestCase):
 
         # owned by another user isn't accessible
         response = self.client.get(
-            reverse("schema:schemas-detail", kwargs={"pk": 2})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema2.pk})
         )
         self.assertEqual(response.status_code, 404)
 
@@ -219,16 +219,18 @@ class TestSchemaViewSet(APITestCase):
         }
 
         response = self.client.put(
-            reverse("schema:schemas-detail", kwargs={"pk": 1}),
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk}),
             data=schema_data_update,
             format="json",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.json(), schema_data_update | {"id": 1})
+        self.assertDictEqual(
+            response.json(), schema_data_update | {"id": self.schema.pk}
+        )
 
         # can't update owned by another user
         response = self.client.put(
-            reverse("schema:schemas-detail", kwargs={"pk": 2}),
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema2.pk}),
             data=schema_data_update,
             format="json",
         )
@@ -236,7 +238,10 @@ class TestSchemaViewSet(APITestCase):
 
         # can't update non-existend
         response = self.client.put(
-            reverse("schema:schemas-detail", kwargs={"pk": 3}),
+            reverse(
+                "schema:schemas-detail",
+                kwargs={"pk": Schema.objects.last().id + 1000},
+            ),
             data=schema_data_update,
             format="json",
         )
@@ -251,7 +256,7 @@ class TestSchemaViewSet(APITestCase):
         }
 
         response = self.client.patch(
-            reverse("schema:schemas-detail", kwargs={"pk": 1}),
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk}),
             data=schema_data_update,
             format="json",
         )
@@ -262,7 +267,7 @@ class TestSchemaViewSet(APITestCase):
 
         # can't update owned by another user
         response = self.client.patch(
-            reverse("schema:schemas-detail", kwargs={"pk": 2}),
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema2.pk}),
             data=schema_data_update,
             format="json",
         )
@@ -270,7 +275,10 @@ class TestSchemaViewSet(APITestCase):
 
         # can't update non-existent
         response = self.client.patch(
-            reverse("schema:schemas-detail", kwargs={"pk": 3}),
+            reverse(
+                "schema:schemas-detail",
+                kwargs={"pk": Schema.objects.last().id + 1000},
+            ),
             data=schema_data_update,
             format="json",
         )
@@ -278,29 +286,29 @@ class TestSchemaViewSet(APITestCase):
 
     def test_delete(self):
         response = self.client.delete(
-            reverse("schema:schemas-detail", kwargs={"pk": 1})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk})
         )
 
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Schema.DoesNotExist):
-            Schema.objects.get(id=1)
+            Schema.objects.get(id=self.schema.pk)
 
         # try to retrieve again, just to be sure.
         # maybe there will be some caching in the future
         response = self.client.get(
-            reverse("schema:schemas-detail", kwargs={"pk": 1})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk})
         )
         self.assertEqual(response.status_code, 404)
 
         # can't delete again
         response = self.client.delete(
-            reverse("schema:schemas-detail", kwargs={"pk": 1})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema.pk})
         )
         self.assertEqual(response.status_code, 404)
 
         # can't delete owned by another user
         response = self.client.delete(
-            reverse("schema:schemas-detail", kwargs={"pk": 2})
+            reverse("schema:schemas-detail", kwargs={"pk": self.schema2.pk})
         )
         self.assertEqual(response.status_code, 404)
 
@@ -327,7 +335,7 @@ class TestDatasetViewSet(APITestCase):
         user2 = get_user_model().objects.create_user(
             username="testuser2", password="67890"
         )
-        schema2 = Schema.objects.create(
+        cls.schema2 = Schema.objects.create(
             **{
                 "name": "Creatures",
                 "column_separator": ";",
@@ -335,8 +343,8 @@ class TestDatasetViewSet(APITestCase):
             },
             user=user2
         )
-        Dataset.objects.create(
-            num_rows=10, schema=schema2, file="/tmp/testfile2.csv"
+        cls.dataset2 = Dataset.objects.create(
+            num_rows=10, schema=cls.schema2, file="/tmp/testfile2.csv"
         )
 
     def setUp(self):
@@ -395,7 +403,10 @@ class TestDatasetViewSet(APITestCase):
 
     def test_list(self):
         response = self.client.get(
-            reverse("schema:datasets-list", kwargs={"parent_lookup_schema": 1})
+            reverse(
+                "schema:datasets-list",
+                kwargs={"parent_lookup_schema": self.schema.pk},
+            )
         )
         self.assertEqual(response.status_code, 200)
 
@@ -412,7 +423,10 @@ class TestDatasetViewSet(APITestCase):
         response = self.client.get(
             reverse(
                 "schema:datasets-detail",
-                kwargs={"parent_lookup_schema": 1, "pk": 1},
+                kwargs={
+                    "parent_lookup_schema": self.schema.pk,
+                    "pk": self.dataset.pk,
+                },
             )
         )
         self.assertEqual(response.status_code, 200)
@@ -429,7 +443,10 @@ class TestDatasetViewSet(APITestCase):
         response = self.client.get(
             reverse(
                 "schema:datasets-detail",
-                kwargs={"parent_lookup_schema": 2, "pk": 2},
+                kwargs={
+                    "parent_lookup_schema": self.schema2.pk,
+                    "pk": self.dataset2.pk,
+                },
             )
         )
         self.assertEqual(response.status_code, 404)
@@ -437,19 +454,22 @@ class TestDatasetViewSet(APITestCase):
     def test_call_generate(self):
         response = self.client.post(
             reverse(
-                "schema:datasets-generate", kwargs={"parent_lookup_schema": 1}
+                "schema:datasets-generate",
+                kwargs={"parent_lookup_schema": self.schema.pk},
             ),
             data={"num_rows": 3},
         )
         self.assertEqual(response.status_code, 202)
         self.assertDictEqual(
-            response.json(), {"status": "Enqueued", "dataset": {"id": 3}}
+            response.json() | {"dataset": {"id": -1}},
+            {"status": "Enqueued", "dataset": {"id": -1}},
         )
 
         # can't generate for not own schema
         response = self.client.post(
             reverse(
-                "schema:datasets-generate", kwargs={"parent_lookup_schema": 2}
+                "schema:datasets-generate",
+                kwargs={"parent_lookup_schema": self.schema2.pk},
             ),
             data={"num_rows": 3},
         )
@@ -458,7 +478,10 @@ class TestDatasetViewSet(APITestCase):
         # can't generate for a nonexistent schema
         response = self.client.post(
             reverse(
-                "schema:datasets-generate", kwargs={"parent_lookup_schema": 3}
+                "schema:datasets-generate",
+                kwargs={
+                    "parent_lookup_schema": Schema.objects.last().pk + 1000
+                },
             ),
             data={"num_rows": 3},
         )
